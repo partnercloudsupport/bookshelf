@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_bookshelf"
+            android:icon="@drawable/ic_menu_bookshelf"
+            android:title="Bookshelf"/>
+        <item
+            android:id="@+id/nav_manga"
+            android:icon="@drawable/ic_menu_manga"
+            android:title="Manga"/>
+        <item
+            android:id="@+id/nav_novel"
+            android:icon="@drawable/ic_menu_novel"
+            android:title="Novel"/>
+        <item
+            android:id="@+id/nav_doujinshi"
+            android:icon="@drawable/ic_menu_doujinshi"
+            android:title="Doujinshi"/>
+    </group>
+
+    <group android:id="@+id/drawer_group_color">
+        <item
+            android:id="@+id/nav_themes"
+            android:icon="@drawable/ic_menu_themes"
+            android:title="Themes"/>
+        <item
+            android:id="@+id/nav_nightmode"
+            android:icon="@drawable/ic_menu_nightmode"
+            android:title="Night mode"/>
+    </group>
+    <group android:id="@+id/drawer_group_settings">
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_settings"
+            android:title="Settings"/>
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_menu_about"
+            android:title="About"/>
+    </group>
+
+</menu>
