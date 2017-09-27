@@ -1,46 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:tools="http://schemas.android.com/tools"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
       tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_bookshelf"
             android:icon="@drawable/ic_menu_bookshelf"
-            android:title="Bookshelf"/>
+            android:title="@string/nav_bookshelf"/>
         <item
             android:id="@+id/nav_manga"
             android:icon="@drawable/ic_menu_manga"
-            android:title="Manga"/>
+            android:title="@string/nav_manga"/>
         <item
             android:id="@+id/nav_novel"
             android:icon="@drawable/ic_menu_novel"
-            android:title="Novel"/>
+            android:title="@string/nav_novel"/>
         <item
             android:id="@+id/nav_doujinshi"
             android:icon="@drawable/ic_menu_doujinshi"
-            android:title="Doujinshi"/>
+            android:title="@string/nav_doujinshi"/>
     </group>
 
     <group android:id="@+id/drawer_group_color">
         <item
             android:id="@+id/nav_themes"
             android:icon="@drawable/ic_menu_themes"
-            android:title="Themes"/>
+            android:title="@string/nav_themes"/>
         <item
             android:id="@+id/nav_nightmode"
             android:icon="@drawable/ic_menu_nightmode"
-            android:title="Night mode"/>
+            android:title="@string/nav_nightmode"
+            app:actionLayout="@layout/nav_nightmode_switch"/>
     </group>
     <group android:id="@+id/drawer_group_settings">
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_menu_settings"
-            android:title="Settings"/>
+            android:title="@string/nav_settings"/>
         <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_menu_about"
-            android:title="About"/>
+            android:title="@string/nav_about"/>
     </group>
 
 </menu>

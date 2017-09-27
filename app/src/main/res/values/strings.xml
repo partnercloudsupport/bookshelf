@@ -11,6 +11,11 @@
     <string name="nav_manga">Manga</string>
     <string name="nav_novel">Novel</string>
     <string name="nav_doujinshi">Doujinshi</string>
+    <string name="nav_themes">Themes</string>
+    <string name="nav_nightmode">Night mode</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_about">About</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
