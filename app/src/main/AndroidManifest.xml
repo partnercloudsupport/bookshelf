@@ -25,11 +25,28 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.SearchActivity">
+        <activity
+            android:name=".ui.activity.SearchActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.activity.MainActivity"
+                />
         </activity>
-        <activity android:name=".ui.activity.DetailActivity">
+        <activity android:name=".ui.activity.DetailActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.activity.MainActivity"
+                />
         </activity>
-        <activity android:name=".ui.activity.SettingsActivity">
+        <activity
+            android:name=".ui.activity.SettingsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.activity.MainActivity"
+                />
         </activity>
         <activity
             android:name=".ui.activity.AboutActivity"

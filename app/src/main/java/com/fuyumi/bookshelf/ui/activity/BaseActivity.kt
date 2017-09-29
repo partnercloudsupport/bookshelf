@@ -6,6 +6,7 @@ import com.fuyumi.bookshelf.App
 import com.fuyumi.bookshelf.di.component.AppComponent
 
 abstract class BaseActivity : AppCompatActivity() {
+
     fun getAppComponent(): AppComponent {
         return (application as App).getAppComponent()
     }

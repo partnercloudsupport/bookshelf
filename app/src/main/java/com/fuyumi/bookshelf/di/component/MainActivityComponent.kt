@@ -19,4 +19,9 @@ interface MainActivityComponent {
         fun activity(activity: Activity): Builder
         fun build(): MainActivityComponent
     }
+
+    fun bookshelfFragmentComponent(): BookshelfFragmentComponent.Builder
+    fun mangaFragmentComponent(): MangaFragmentComponent.Builder
+    fun novelFragmentComponent(): NovelFragmentComponent.Builder
+    fun doujinshiFragmentComponent(): DoujinshiFragmentComponent.Builder
 }

@@ -4,10 +4,9 @@ import android.app.Application
 import com.fuyumi.bookshelf.di.component.AppComponent
 import com.fuyumi.bookshelf.di.component.DaggerAppComponent
 import com.fuyumi.bookshelf.di.module.AppModule
+import com.squareup.leakcanary.LeakCanary
+import com.squareup.leakcanary.RefWatcher
 
-/**
- * Created by fuyumi on 2017/9/20 0020.
- */
 
 class App : Application() {
 
@@ -16,7 +15,15 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        setupLeakCanary()
+
         initInjector()
+    }
+
+    private fun setupLeakCanary(): RefWatcher {
+        return if (LeakCanary.isInAnalyzerProcess(this)) {
+            RefWatcher.DISABLED
+        } else LeakCanary.install(this)
     }
 
     private fun initInjector() {

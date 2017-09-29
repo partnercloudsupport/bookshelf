@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import com.fuyumi.bookshelf.R
 import com.fuyumi.bookshelf.di.component.MainActivityComponent
+import com.fuyumi.bookshelf.ui.fragment.*
 import dagger.Module
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -36,7 +37,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         nav_view.setNavigationItemSelectedListener(this)
 
-//        nav_view.setCheckedItem(R.id.nav_bookshelf)
+        replaceFragment(R.id.fragment_container, BookshelfFragment.newInstance(), BookshelfFragment.TAG)
+        setTitle(R.string.nav_bookshelf)
+        nav_view.setCheckedItem(R.id.nav_bookshelf)
     }
 
     private fun initInjector() {
@@ -54,21 +57,18 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.main, menu)
-//        return true
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        when (item.itemId) {
-//            R.id.action_settings -> return true
-//            else -> return super.onOptionsItemSelected(item)
-//        }
-//    }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.container_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.search_btn) {
+            startActivity(SearchActivity.newIntent(this))
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
 //    private fun toggleNightmode() {
 //
@@ -78,12 +78,28 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         // Handle navigation view item clicks here.
         when (item.itemId) {
             R.id.nav_bookshelf -> {
+                if(null == fragmentManager.findFragmentByTag(BookshelfFragment.TAG)) {
+                    replaceFragment(R.id.fragment_container, BookshelfFragment.newInstance(), BookshelfFragment.TAG)
+                    setTitle(R.string.nav_bookshelf)
+                }
             }
             R.id.nav_manga -> {
+                if(null == fragmentManager.findFragmentByTag(MangaFragment.TAG)) {
+                    replaceFragment(R.id.fragment_container, MangaFragment.newInstance(), MangaFragment.TAG)
+                    setTitle(R.string.nav_manga)
+                }
             }
             R.id.nav_novel -> {
+                if(null == fragmentManager.findFragmentByTag(NovelFragment.TAG)) {
+                    replaceFragment(R.id.fragment_container, NovelFragment.newInstance(), NovelFragment.TAG)
+                    setTitle(R.string.nav_novel)
+                }
             }
             R.id.nav_doujinshi -> {
+                if(null == fragmentManager.findFragmentByTag(DoujinshiFragment.TAG)) {
+                    replaceFragment(R.id.fragment_container, DoujinshiFragment.newInstance(), DoujinshiFragment.TAG)
+                    setTitle(R.string.nav_doujinshi)
+                }
             }
             R.id.nav_themes -> {
                 return true
@@ -92,6 +108,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 return true
             }
             R.id.nav_settings -> {
+                startActivity(SettingsActivity.newIntent(this))
             }
             R.id.nav_about -> {
                 startActivity(AboutActivity.newIntent(this))
