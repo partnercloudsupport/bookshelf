@@ -19,4 +19,6 @@
 
     <string name="search_placeholder">Search...</string>
 
+    <!--parser name-->
+    <string name="parser_dmzj">Dongmanzhijia</string>
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.fuyumi.bookshelf.R
@@ -66,6 +67,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         if (item.itemId == R.id.search_btn) {
             startActivity(SearchActivity.newIntent(this))
             return true
+        } else if (item.itemId == R.id.refresh_btn) {
+            try {
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
         return super.onOptionsItemSelected(item)
     }

@@ -19,3 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Ensures entities remain un-obfuscated so table and columns are named correctly
+-keep class com.fuyumi.bookshelf.domainclasspackage.** { *; }
