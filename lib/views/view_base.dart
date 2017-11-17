@@ -78,6 +78,7 @@ class _BasePageState extends State<BasePage> {
   Widget build(BuildContext context) {
     return new DefaultTabController(
         length: tabbarLength[widget.draweritemSelected],
+        initialIndex: tabbarInitindex[widget.draweritemSelected],
         child: new Scaffold(
           appBar: new AppBar(
             title: new Text(widget.draweritemSelected),

@@ -1,5 +1,5 @@
 name: bookshelf
-description: A new Flutter project.
+description: A bookshelf app.
 
 dependencies:
   flutter:
@@ -7,10 +7,12 @@ dependencies:
   html: any
   shared_preferences: any
   http: any
+#  redux: any
+#  flutter_redux: any
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.0
+#  cupertino_icons: ^0.1.0
 
 dev_dependencies:
   flutter_test:

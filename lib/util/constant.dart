@@ -17,3 +17,17 @@ final ThemeData nightmodeTheme = new ThemeData(
 final Map<String, String> ua = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.78 Safari/537.36',
 };
+
+
+getParserName(parserName) {
+  switch (parserName) {
+    case 'manga_dmzj': return '动漫之家';
+    default: return parserName;
+  }
+}
+
+//enum SourceType {
+//  manga,
+//  novel,
+//  doujinshi,
+//}
