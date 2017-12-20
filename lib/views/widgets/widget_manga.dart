@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 TabBar tabbarManga() {
   return new TabBar(
     tabs: <Widget>[
-      new Tab(text: 'Recommend'),
-      new Tab(text: 'Favorite'),
-      new Tab(text: 'Local'),
-      new Tab(text: 'History'),
+      const Tab(text: '推荐'),
+      const Tab(text: '喜欢'),
+      const Tab(text: '本地'),
+      const Tab(text: '历史'),
     ],
   );
 }

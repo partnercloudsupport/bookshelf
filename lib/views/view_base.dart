@@ -81,7 +81,7 @@ class _BasePageState extends State<BasePage> {
         initialIndex: tabbarInitindex[widget.draweritemSelected],
         child: new Scaffold(
           appBar: new AppBar(
-            title: new Text(widget.draweritemSelected),
+            title: new Text(basePageName[widget.draweritemSelected]),
             actions: <Widget>[
               new IconButton(
                 icon: const Icon(Icons.search),

@@ -69,9 +69,6 @@ class MangaDmzj extends ApiParser {
     };
   }
 
-  @override
-  checkUpdate() {}
-
 //  getRecommend() {
 //    String url = baseUrl + '/v3/recommend.json';
 //    Map response = httpGet(url, headers);

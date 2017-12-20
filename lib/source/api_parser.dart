@@ -9,6 +9,4 @@ abstract class ApiParser {
 
   getChaptercontent(String bid, String cid);
 
-  checkUpdate();
-
 }

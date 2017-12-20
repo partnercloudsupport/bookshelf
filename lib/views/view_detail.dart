@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bookshelf/model/db.dart';
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
 import 'package:bookshelf/service/parse/parser.dart';
 import 'package:bookshelf/util/image_provider.dart';
@@ -23,28 +25,69 @@ class ViewDetailState extends State<ViewDetail> {
   bool isFavourite = false;
   Parser parser = new Parser();
   Map bookDetail;
-
   Map chapterSelected;
+  DB _db = new DB();
+  String bookId;
+  Map cachedResult;
+  Map bookHistory;
+  Map bookFavored;
 
   @override
   void initState() {
     super.initState();
-    _getBookdetail();
+    _db.init().then((_) => _getBookdetail());
+  }
+
+  // NOTE: rewrite save function
+  _saveDetail(String cachedId, Map detail) {
+    cachedResult[cachedId] = detail;
+    _db.set('cached_detail', cachedResult).catchError((_){});
+  }
+  _saveHistory(String historyId, Map chapter) {
+    bookHistory[historyId] = chapter;
+    _db.set('book_history', bookHistory).catchError((_){});
+  }
+  _saveFavored() {
+    _db.set('book_favored', bookFavored).catchError((_){});
+  }
+  _loadBookstate () async {
+    bookHistory = await _db.get('book_history');
+    bookFavored = await _db.get('book_favored');
+    if (bookHistory != null) {
+      if (bookHistory.containsKey(bookId)) setState(() => chapterSelected = bookHistory[bookId]);
+    } else bookHistory = {};
+    if (bookFavored != null) {
+      if (bookFavored.containsKey(widget.bookInfo['type']) && bookFavored[widget.bookInfo['type']].contains(bookId)) setState(() => isFavourite = true);
+    } else bookFavored = {'manga': [], 'novel': [], 'doujinshi': []};
   }
 
   _getBookdetail() async {
+    bookId = md5.convert(UTF8.encode(widget.bookInfo['title'] + widget.bookInfo['id'] + widget.bookInfo['parser'])).toString().substring(0, 9);
+
+    cachedResult = await _db.get('cached_detail');
+    if (cachedResult != null) {
+      if (cachedResult.containsKey(bookId)) setState(() => bookDetail = cachedResult[bookId]);
+    } else cachedResult = {};
+    await _loadBookstate();
+
     var bookParser = parserSelector([widget.bookInfo['parser']])[0];
-    Map result = await parser.getBookdetail(bookParser, widget.bookInfo['id']);
-    setState(() {
-      bookDetail = result;
-    });
+    parser.getBookdetail(bookParser, widget.bookInfo['id']).then((Map result) {
+      result['entry'] = widget.bookInfo;
+      if (cachedResult[bookId].toString() != result.toString()) {
+        setState(() => bookDetail = result);
+        if (chapterSelected != null || isFavourite) _saveDetail(bookId, result);
+      } else print('no diff!');
+    }).catchError((e) => print(e));
   }
 
   _selectChapter(chapter) {
     setState(() => chapterSelected = chapter);
+    _saveDetail(bookId, bookDetail);
+    _saveHistory(bookId, chapter);
     Map val = {
       'title': widget.bookInfo['title'],
       'parser': widget.bookInfo['parser'],
+      'chapter_title': chapter['chapter_title'].toString(),
       'bid': widget.bookInfo['id'].toString(),
       'cid': chapter['chapter_id'].toString(),
     };
@@ -63,6 +106,21 @@ class ViewDetailState extends State<ViewDetail> {
     return completer.future.then((_) {});
   }
 
+  friendlyDate(DateTime datetime) {
+    int days = new DateTime.now().toLocal().difference(datetime).inDays;
+    return days <= 100 ? '$days天前' : new DateFormat("yyyy-MM-dd").format(datetime);
+  }
+
+  toggleFavored() {
+    setState(() => isFavourite = !isFavourite);
+    if (isFavourite) {
+      _saveDetail(bookId, bookDetail);
+      bookFavored[widget.bookInfo['type']].add(bookId);
+    } else bookFavored[widget.bookInfo['type']].remove(bookId);
+    _saveFavored();
+  }
+  toggleDownloadMode() {}
+
   @override
   Widget build(BuildContext context) {
     final Orientation orientation = MediaQuery.of(context).orientation;
@@ -73,19 +131,14 @@ class ViewDetailState extends State<ViewDetail> {
         actions: <Widget>[
           new IconButton(
             icon: isFavourite ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border),
-            onPressed: () => setState(() => isFavourite = !isFavourite),
-            tooltip: 'Add favourite',
+            onPressed: toggleFavored,
+            tooltip: '喜欢',
           ),
           new IconButton(
             icon: const Icon(Icons.file_download),
-            onPressed: () {},
-            tooltip: 'Download',
+            onPressed: toggleDownloadMode,
+            tooltip: '下载',
           ),
-//          new IconButton(
-//            icon: const Icon(Icons.refresh),
-//            onPressed: () {_getBookdetail();},
-//            tooltip: 'Refresh',
-//          ),
         ],
       ),
       body: new Column(
@@ -101,7 +154,7 @@ class ViewDetailState extends State<ViewDetail> {
                   width: 170.0,
                   margin: const EdgeInsets.only(right: 5.0),
                   child: bookDetail != null ? new Image(
-                    image: new NetworkImageWithRetry(bookDetail['coverurl'], header: bookDetail['coverurl_header']),
+                    image: new NetworkImageAdvance(bookDetail['coverurl'], header: bookDetail['coverurl_header']),
                   ) : null,
                 ),
                 new Expanded(
@@ -185,7 +238,7 @@ class ViewDetailState extends State<ViewDetail> {
                       alignment: Alignment.centerRight,
                       child: new Container(
                         margin: const EdgeInsets.only(right: 25.0),
-                        child: new Text(bookDetail != null ? new DateFormat("yyyy-MM-dd").format(new DateTime.fromMillisecondsSinceEpoch(bookDetail['last_updatetime']*1000)) : ''),
+                        child: new Text(bookDetail != null ? friendlyDate(new DateTime.fromMillisecondsSinceEpoch(bookDetail['last_updatetime']*1000)) : ''),
                       ),
                     ),
                   ),
@@ -206,7 +259,7 @@ class ViewDetailState extends State<ViewDetail> {
                     return new Material(
                         child: new ClipRRect(
                           borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                          child: chapter == chapterSelected ? new FlatButton(
+                          child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
                             onPressed: () => _selectChapter(chapter),
                             child: new Text(chapter['chapter_title'], style: new TextStyle(
                               color: Theme.of(context).cardColor,
@@ -217,7 +270,7 @@ class ViewDetailState extends State<ViewDetail> {
                             decoration: new BoxDecoration(
                               border: new Border.all(
                                 color: Colors.black54.withOpacity(0.5),
-                                width: 2.0,
+                                width: 1.5,
                               ),
                               borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
                             ),

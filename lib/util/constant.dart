@@ -19,11 +19,26 @@ final Map<String, String> ua = {
 };
 
 
+Map basePageName = {
+  'Bookshelf': '书架',
+  'Manga': '漫画',
+  'Novel': '小说',
+  'Doujinshi': '同人志',
+  'Themes': '主题',
+  'Nightmode': '夜间模式',
+  'Settings': '设置',
+  'About': '关于',
+};
+
 getParserName(parserName) {
   switch (parserName) {
     case 'manga_dmzj': return '动漫之家';
     default: return parserName;
   }
+}
+
+availableParserList() {
+  return ['manga_dmzj',];
 }
 
 //enum SourceType {

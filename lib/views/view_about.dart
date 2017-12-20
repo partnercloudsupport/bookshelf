@@ -6,7 +6,7 @@ class ViewAbout extends StatelessWidget {
   @override
   Widget build(BuildContext context) => new Scaffold(
     appBar: new AppBar(
-      title: new Text('About'),
+      title: new Text('关于'),
       elevation: 0.0,
     ),
     body: new ListView(

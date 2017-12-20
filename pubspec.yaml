@@ -7,8 +7,11 @@ dependencies:
   html: any
   shared_preferences: any
   http: any
-#  redux: any
-#  flutter_redux: any
+  sembast: any
+  path_provider: any
+  intl: any
+  battery: any
+  quiver: '>=0.26.2 <0.27.0'
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

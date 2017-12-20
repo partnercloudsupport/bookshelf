@@ -21,7 +21,7 @@ class ViewSearchState extends State<ViewSearch> {
   bool showSearchhistory = false;
   bool showSearchresult = false;
 
-  List<String> parsersName = ['manga_dmzj'];
+  List<String> parsersName = availableParserList();
   Parser parser = new Parser();
   List searchMangaResult = [];
 
@@ -39,8 +39,8 @@ class ViewSearchState extends State<ViewSearch> {
   }
 
   _setSearchhistoryPreference() async {
-//    final SharedPreferences prefs = await SharedPreferences.getInstance();
-//    prefs.setStringList('searchhistory', searchList);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('searchhistory', searchList);
   }
 
   _clearSearchhistoryPreference() async {
@@ -76,6 +76,7 @@ class ViewSearchState extends State<ViewSearch> {
       length: 3,
       child: new Scaffold(
         appBar: new AppBar(
+          elevation: 0.0,
           title: new Row(
             children: <Widget>[
               new Expanded(
@@ -87,21 +88,17 @@ class ViewSearchState extends State<ViewSearch> {
                     color: Colors.white70,
                   ),
                   decoration: new InputDecoration(
-                    hintText: 'Search something',
+                    hintText: '找本书看看吧',
                     hintStyle: new TextStyle(
                       fontSize: 20.0,
                       color: Colors.white30,
                     ),
                     hideDivider: true,
                   ),
-                  autofocus: true,
+                  autofocus: false,
                   autocorrect: false,
                   controller: controller,
-                  onChanged: (String val) {
-                    setState(() {
-                      showSearchhistory = val.isNotEmpty;
-                    });
-                  },
+                  onChanged: (String val) => setState(() => showSearchhistory = val.isNotEmpty),
                   onSubmitted: (String val) => beginSearch(val),
                 ),
               ),
@@ -116,29 +113,42 @@ class ViewSearchState extends State<ViewSearch> {
               ) : new Container(),
             ],
           ),
-          bottom: showSearchresult ? new TabBar(
-            tabs: <Widget>[
-              new Tab(text: 'Manga'),
-              new Tab(text: 'Novel'),
-              new Tab(text: 'Doujinshi'),
-            ],
-          ) : null,
         ),
-        body: new Stack(
+        body: new CustomMultiChildLayout(
+          delegate: new _ViewSearchLayout(),
           children: <Widget>[
-            new TabBarView(
-              children: <Widget>[
-                resultItems(context, searchMangaResult),
-                resultItems(context, []),
-                resultItems(context, []),
-              ],
+            new LayoutId(
+              id: _ViewSearchLayout.searchpage,
+              child: new TabBarView(
+                children: <Widget>[
+                  resultItems(context, searchMangaResult),
+                  resultItems(context, []),
+                  resultItems(context, []),
+                ],
+              ),
             ),
-//            new ListView(
-//              padding: const EdgeInsets.fromLTRB(60.0, 0.0, 60.0, 0.0),
-//              children: showSearchhistory
-//                  ? historyItems(searchList)
-//                  : <Widget>[],
-//            ),
+            new LayoutId(
+              id: _ViewSearchLayout.searchtabbar,
+              child: showSearchresult ? new Material(
+                color: Theme.of(context).primaryColor,
+                elevation: 8.0,
+                child: new TabBar(
+                  tabs: <Widget>[
+                    new Tab(text: '漫画'),
+                    new Tab(text: '小说'),
+                    new Tab(text: '同人志'),
+                  ],
+                ),
+              ) : new Container(),
+            ),
+            new LayoutId(
+              id: _ViewSearchLayout.searchpanel,
+              child: new Column(
+                children: showSearchhistory
+                    ? historyItems(searchList)
+                    : <Widget>[],
+              ),
+            ),
           ],
         ),
       ),
@@ -147,98 +157,98 @@ class ViewSearchState extends State<ViewSearch> {
 
   resultItems(BuildContext context, List resultList) {
     return new RefreshIndicator(
-        child: new ListView(
-          children: resultList.map((Map result) {
-            return new Container(
-              margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 5.0),
-              child: new Material(
-                color: Theme.of(context).cardColor,
-                child: new InkWell(
-                  onTap: () {
-                    Map val = {
-                      'id': result['id'],
-                      'title': result['title'],
-                      'parser': result['parser'],
-                      'type': result['type'],
-                    };
-                    Navigator.of(context).pushNamed('/detail/' + JSON.encode(val));
-                  },
-                  child: new Container(
-                    height: 110.0,
-                    margin: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-                    child: new Row(
-                      children: <Widget>[
-                        new Container(
+      child: new ListView(
+        children: resultList.map((Map result) {
+          return new Container(
+            margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 5.0),
+            child: new Material(
+              color: Theme.of(context).cardColor,
+              child: new InkWell(
+                onTap: () {
+                  Map val = {
+                    'id': result['id'],
+                    'title': result['title'],
+                    'parser': result['parser'],
+                    'type': result['type'],
+                  };
+                  Navigator.of(context).pushNamed('/detail/' + JSON.encode(val));
+                },
+                child: new Container(
+                  height: 110.0,
+                  margin: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                  child: new Row(
+                    children: <Widget>[
+                      new Container(
+                        height: 110.0,
+                        width: 80.0,
+                        margin: const EdgeInsets.only(right: 15.0),
+                        child: new Image(
                           height: 110.0,
-                          width: 80.0,
-                          margin: const EdgeInsets.only(right: 15.0),
-                          child: new Image(
-                            height: 110.0,
-                            image: new NetworkImageWithRetry(result['coverurl'], header: result['coverurl_header']),
-                          ),
+                          image: new NetworkImageAdvance(result['coverurl'], header: result['coverurl_header']),
                         ),
-                        new Expanded(
-                          child: new Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.max,
-                            children: <Widget>[
-                              new Text(result['title'],
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
-                                ),
+                      ),
+                      new Expanded(
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            new Text(result['title'],
+                              overflow: TextOverflow.ellipsis,
+                              style: new TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
                               ),
-                              new Text(result['authors'],
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(
-                                  color: Colors.black54,
-                                ),
+                            ),
+                            new Text(result['authors'],
+                              overflow: TextOverflow.ellipsis,
+                              style: new TextStyle(
+                                color: Colors.black54,
                               ),
-                              new Text(result['types'],
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(
-                                  color: Colors.black54,
-                                ),
+                            ),
+                            new Text(result['types'],
+                              overflow: TextOverflow.ellipsis,
+                              style: new TextStyle(
+                                color: Colors.black54,
                               ),
-                              new Text(result['status'],
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(
-                                  color: Colors.black54,
-                                ),
+                            ),
+                            new Text(result['status'],
+                              overflow: TextOverflow.ellipsis,
+                              style: new TextStyle(
+                                color: Colors.black54,
                               ),
-                              new Text(result['last_chapter'],
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(
-                                  color: Colors.black54,
-                                ),
+                            ),
+                            new Text(result['last_chapter'],
+                              overflow: TextOverflow.ellipsis,
+                              style: new TextStyle(
+                                color: Colors.black54,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        new SizedBox(
-                          height: 100.0,
-                          width: 80.0,
-                          child: new Column(
-                            children: <Widget>[
-                              new Text(getParserName(result['parser']),
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(
-                                  color: Colors.black54,
-                                ),
+                      ),
+                      new SizedBox(
+                        height: 100.0,
+                        width: 80.0,
+                        child: new Column(
+                          children: <Widget>[
+                            new Text(getParserName(result['parser']),
+                              overflow: TextOverflow.ellipsis,
+                              style: new TextStyle(
+                                color: Colors.black54,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            );
-          }).toList(),
-        ),
-        onRefresh: _refreshHandle,
+            ),
+          );
+        }).toList(),
+      ),
+      onRefresh: _refreshHandle,
     );
   }
 
@@ -252,7 +262,7 @@ class ViewSearchState extends State<ViewSearch> {
         if (!searchList.contains(val)) {
           try {
             searchList.add(val);
-          } catch (e) {
+          } catch (_) {
             _clearSearchhistoryPreference();
           } finally {
             _setSearchhistoryPreference();
@@ -286,7 +296,7 @@ class ViewSearchState extends State<ViewSearch> {
             child: new ListTile(
               leading: notHistoryitem ? null : const Icon(Icons.history),
               title: notHistoryitem
-                  ? new Text('Search "' + item + '"')
+                  ? new Text('搜索 "' + item + '"')
                   : new Text(item),
               onTap: () => beginSearch(item),
             ),
@@ -305,5 +315,25 @@ class ViewSearchState extends State<ViewSearch> {
       ],
     );
   }
+}
 
+class _ViewSearchLayout extends MultiChildLayoutDelegate {
+  _ViewSearchLayout();
+
+  static final String searchpanel = 'searchpanel';
+  static final String searchpage = 'searchpage';
+  static final String searchtabbar = 'searchtabbar';
+
+  @override
+  void performLayout(Size size) {
+    layoutChild(searchpanel, new BoxConstraints.tightForFinite(width: size.width - 120.0, height: double.infinity));
+    positionChild(searchpanel, new Offset(60.0, 0.0));
+    layoutChild(searchtabbar, new BoxConstraints.tightFor(width: size.width, height: 50.0));
+    positionChild(searchtabbar, Offset.zero);
+    layoutChild(searchpage, new BoxConstraints.tight(size));
+    positionChild(searchpage, new Offset(0.0, 55.0));
+  }
+
+  @override
+  bool shouldRelayout(_ViewSearchLayout oldDelegate) => false;
 }
