@@ -38,7 +38,7 @@ class ViewDetailState extends State<ViewDetail> {
     _db.init().then((_) => _getBookdetail());
   }
 
-  // NOTE: rewrite save function
+  /// TODO: rewrite save function
   _saveDetail(String cachedId, Map detail) {
     cachedResult[cachedId] = detail;
     _db.set('cached_detail', cachedResult).catchError((_){});

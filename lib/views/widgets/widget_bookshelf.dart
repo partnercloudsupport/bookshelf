@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:bookshelf/model/db.dart';
 import 'package:bookshelf/util/image_provider.dart';
@@ -98,28 +99,31 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
   }
 
   _bookItems(context, orientation, List bookList) {
-    final double bookwidth = (orientation == Orientation.portrait) ? 165.0 : 190.0;
-    final double bookheight = bookwidth * 1.25;
+    final double bookWidth = (orientation == Orientation.portrait) ? 165.0 : 190.0;
+    final double bookHeight = bookWidth * 1.25;
     return new Wrap(
       spacing: 10.0,
       runSpacing: 10.0,
       children: bookList.map((String bookId) {
         Map info = _getBookinfo(bookId);
         return info !=null ? new Container(
-          width: bookwidth,
-          height: bookheight,
+          width: bookWidth,
+          height: bookHeight,
           child: new GridTile(
             child: new Material(
               color: Theme.of(context).cardColor,
-              child: new Image(
-                image: new NetworkImageAdvance(info['coverurl'], header: info['coverurl_header']),
-                fit: BoxFit.cover,
+              child: new GestureDetector(
+                onTap: () => Navigator.of(context).pushNamed('/detail/' + JSON.encode(info['entry'])),
+                child: new Image(
+                  image: new NetworkImageAdvance(info['coverurl'], header: info['coverurl_header']),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             footer: new GestureDetector(
               child: new GridTileBar(
                 backgroundColor: Theme.of(context).cardColor.withOpacity(0.8),
-                title: new Text(info['title'], style: new TextStyle(color: Theme.of(context).accentColor, fontSize: 14.0),),
+                title: new Text(info['title'], style: new TextStyle(color: Theme.of(context).accentColor, fontSize: 14.0)),
               ),
             ),
           ),
@@ -131,7 +135,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
   Future<Null> _refreshHandle() {
     final Completer<Null> completer = new Completer<Null>();
     new Timer(const Duration(milliseconds: 200), () {
-      completer.complete();
+      completer.complete(_db.init().then((_) => _loadBooks()));
     });
     return completer.future.then((_) {});
   }

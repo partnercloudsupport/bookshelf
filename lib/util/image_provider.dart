@@ -11,6 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// TODO: cache required
+/// 1. memory lru cache
+/// 2. disk cache
 
 class NetworkImageAdvance extends ImageProvider<NetworkImageAdvance> {
   const NetworkImageAdvance(this.url, { this.scale: 1.0, this.header, this.fetchStrategy: defaultFetchStrategy })
@@ -313,4 +315,8 @@ class FetchStrategyBuilder {
       );
     };
   }
+}
+
+class ImageCache {
+  
 }
