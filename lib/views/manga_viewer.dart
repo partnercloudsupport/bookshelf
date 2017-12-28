@@ -63,7 +63,7 @@ class MangaViewerState extends State<MangaViewer> {
 
   _getChaptercontent() async {
     var bookParser = parserSelector([widget.chapterInfo['parser']])[0];
-    Map result = await parser.getChaptercontent(bookParser, widget.chapterInfo['bid'], widget.chapterInfo['cid']);
+    Map result = await parser.getChapterContent(bookParser, widget.chapterInfo['bid'], widget.chapterInfo['cid']);
     setState(() => content = result);
     _hideInformation();
   }
@@ -113,6 +113,7 @@ class MangaViewerState extends State<MangaViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final Orientation orientation = MediaQuery.of(context).orientation;
     return new CustomMultiChildLayout(
       delegate: new _MangaviewerLayout(),
       children: <Widget>[
@@ -124,8 +125,8 @@ class MangaViewerState extends State<MangaViewer> {
                   onDoubleTap: () {},
                   child: new Container(
                       color: Colors.black,
-//          padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-//          transform: new Matrix4.diagonal3(new Vector3(3.0, 3.0, 3.0)),
+//                      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+//                      transform: new Matrix4.diagonal3(new Vector3(3.0, 3.0, 3.0)),
                       child: new Transform(
                         transform: new Matrix4.identity()..scale(scaleSize, scaleSize),
                         alignment: Alignment.center,
@@ -169,6 +170,7 @@ class MangaViewerState extends State<MangaViewer> {
             child: new Row(
               children: <Widget>[
                 new Container(
+                  width: (orientation == Orientation.portrait) ? 235.0 : 395.0,
                   margin: const EdgeInsets.only(left: 10.0),
                   child: new Text(widget.chapterInfo != null ? widget.chapterInfo['title'] : '',
                     overflow: TextOverflow.ellipsis,
@@ -176,6 +178,7 @@ class MangaViewerState extends State<MangaViewer> {
                   ),
                 ),
                 new Container(
+                  width: 130.0,
                   margin: const EdgeInsets.only(left: 8.0),
                   child: new Text(widget.chapterInfo != null ? widget.chapterInfo['chapter_title'] : '',
                     overflow: TextOverflow.ellipsis,
@@ -187,7 +190,7 @@ class MangaViewerState extends State<MangaViewer> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                       new Container(
-                        margin: const EdgeInsets.only(right: 160.0),
+                        margin: const EdgeInsets.only(right: 15.0),
                         child: new Text(now != null ? new DateFormat("HH:mm").format(now) : '',
                           overflow: TextOverflow.ellipsis,
                           style: new TextStyle(color: Colors.white, fontSize: 12.0),

@@ -7,12 +7,12 @@ class Parser {
     }).toList();
   }
 
-  getBookdetail(parser, String bid) async {
-    return await parser.getBookdetail(bid);
+  getBookDetail(parser, String bid) async {
+    return await parser.getBookDetail(bid);
   }
 
-  getChaptercontent(parser, String bid, String cid) async {
-    return await parser.getChaptercontent(bid, cid);
+  getChapterContent(parser, String bid, String cid) async {
+    return await parser.getChapterContent(bid, cid);
   }
 }
 

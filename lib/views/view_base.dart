@@ -73,12 +73,11 @@ class BasePage extends StatefulWidget {
 }
 
 class _BasePageState extends State<BasePage> {
-
   @override
   Widget build(BuildContext context) {
     return new DefaultTabController(
         length: tabbarLength[widget.draweritemSelected],
-        initialIndex: tabbarInitindex[widget.draweritemSelected],
+//        initialIndex: tabbarInitindex[widget.draweritemSelected],
         child: new Scaffold(
           appBar: new AppBar(
             title: new Text(basePageName[widget.draweritemSelected]),

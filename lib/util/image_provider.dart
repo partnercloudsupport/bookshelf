@@ -1,322 +1,147 @@
-library network;
-
 import 'dart:async';
-import 'dart:io' as io;
-import 'dart:math' as math;
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-
-/// TODO: cache required
-/// 1. memory lru cache
-/// 2. disk cache
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:quiver/collection.dart';
 
 class NetworkImageAdvance extends ImageProvider<NetworkImageAdvance> {
-  const NetworkImageAdvance(this.url, { this.scale: 1.0, this.header, this.fetchStrategy: defaultFetchStrategy })
+  const NetworkImageAdvance(this.url, { this.scale: 1.0, this.header, this.useDiskCache: false })
       : assert(url != null),
         assert(scale != null),
-        assert(fetchStrategy != null);
+        assert(useDiskCache != null);
 
-  static final io.HttpClient _client = new io.HttpClient();
   final String url;
   final double scale;
   final Map<String, String> header;
-  final FetchStrategy fetchStrategy;
-  static final FetchStrategy _defaultFetchStrategyFunction = const FetchStrategyBuilder().build();
-
-  static Future<FetchInstructions> defaultFetchStrategy(Uri uri, FetchFailure failure) {
-    return _defaultFetchStrategyFunction(uri, failure);
-  }
+  final bool useDiskCache;
 
   @override
   Future<NetworkImageAdvance> obtainKey(ImageConfiguration configuration) {
     return new SynchronousFuture<NetworkImageAdvance>(this);
   }
-
   @override
   ImageStreamCompleter load(NetworkImageAdvance key) {
     return new OneFrameImageStreamCompleter(
-        _loadWithRetry(key),
+        _loadAsync(key),
         informationCollector: (StringBuffer information) {
           information.writeln('Image provider: $this');
-          information.write('Image key: $key');
+          information.write('Image provider: $key');
         }
     );
   }
 
-  void _debugCheckInstructions(FetchInstructions instructions) {
-    assert(() {
-      if (instructions == null) {
-        if (fetchStrategy == defaultFetchStrategy) {
-          throw new StateError(
-              'The default FetchStrategy returned null FetchInstructions. This\n'
-                  'is likely a bug in $runtimeType. Please file a bug at\n'
-                  'https://github.com/flutter/flutter/issues.'
-          );
-        } else {
-          throw new StateError(
-              'The custom FetchStrategy used to fetch $url returned null\n'
-                  'FetchInstructions. FetchInstructions must never be null, but\n'
-                  'instead instruct to either make another fetch attempt or give up.'
-          );
-        }
-      }
-      return true;
-    });
-  }
+/// NOTE: memory cache: LruMap(maximumSize: 128)
+///  {
+///    '$uid(image_url)': '$ImageData',
+///    ...
+///  }
 
-  Future<ImageInfo> _loadWithRetry(NetworkImageAdvance key) async {
+/// NOTE: disk cache
+/// CachedImageFilename: uid(part of hash hexString with imageUrl)
+/// MetaDataFilename:: getApplicationDocumentsDirectory + 'imagecache/' + 'CachedImageInfo.json'
+///  {
+///    '$uid(image_url)': '$etag',
+///    ...
+///  }
+
+  Future<ImageInfo> _loadAsync(NetworkImageAdvance key) async {
     assert(key == this);
 
-    final Stopwatch stopwatch = new Stopwatch()..start();
-    final Uri resolved = Uri.base.resolve(key.url);
-    FetchInstructions instructions = await fetchStrategy(resolved, null);
-    _debugCheckInstructions(instructions);
-    int attemptCount = 0;
-    FetchFailure lastFailure;
+    String uId = uid(url);
 
-    while (!instructions.shouldGiveUp) {
-      attemptCount += 1;
-      io.HttpClientRequest request;
-      try {
-        request = await _client.getUrl(instructions.uri).timeout(instructions.timeout);
-        if (this.header != null) {
-          request.headers.set(this.header.keys.first, this.header.values.first);
-        }
-        final io.HttpClientResponse response = await request.close().timeout(instructions.timeout);
-
-        if (response == null || response.statusCode != 200) {
-          throw new FetchFailure._(
-            totalDuration: stopwatch.elapsed,
-            attemptCount: attemptCount,
-            httpStatusCode: response.statusCode,
-          );
-        }
-
-        final _Uint8ListBuilder builder = await response.fold(
-          new _Uint8ListBuilder(),
-              (_Uint8ListBuilder buffer, List<int> bytes) => buffer..add(bytes),
-        ).timeout(instructions.timeout);
-
-        final Uint8List bytes = builder.data;
-
-        if (bytes.lengthInBytes == 0)
-          return null;
-
-        final ui.Image image = await decodeImageFromList(bytes);
-        if (image == null)
-          return null;
-
-        return new ImageInfo(
-          image: image,
-          scale: key.scale,
-        );
-      } catch (error) {
-        request?.close();
-        lastFailure = error is FetchFailure
-            ? error
-            : new FetchFailure._(
-          totalDuration: stopwatch.elapsed,
-          attemptCount: attemptCount,
-          originalException: error,
-        );
-        instructions = await fetchStrategy(instructions.uri, lastFailure);
-        _debugCheckInstructions(instructions);
-      }
+    if (imageMemoryCache != null && imageMemoryCache.containsKey(uId)) {
+      if (useDiskCache) _loadFromDiskCache(key, uId);
+      return await _decodeImageData(imageMemoryCache[uId]);
     }
+    if (useDiskCache) return await _decodeImageData(await _loadFromDiskCache(key, uId));
 
-    if (instructions.alternativeImage != null)
-      return instructions.alternativeImage;
-
-    assert(lastFailure != null);
-
-    FlutterError.onError(new FlutterErrorDetails(
-      exception: lastFailure,
-      library: 'package:flutter_image',
-      context: '$runtimeType failed to load ${instructions.uri}',
-    ));
+    Map imageInfo = await _loadFromRemote(key, url, header);
+    if (imageInfo != null) {
+      imageMemoryCache[uId] = imageInfo['ImageData'];
+      return await _decodeImageData(imageInfo['ImageData']);
+    }
 
     return null;
   }
 
+  Future<Uint8List> _loadFromDiskCache(NetworkImageAdvance key, String uId) async {
+    Directory _cacheImagesDirectory = new Directory(join((await getApplicationDocumentsDirectory()).path, 'imagecache'));
+    File _cacheImagesInfoFile = new File(join(_cacheImagesDirectory.path, 'CachedImageInfo.json'));
+    if (_cacheImagesDirectory.existsSync()) {
+      if (_cacheImagesInfoFile.existsSync()) {
+        if (diskCacheInfo == null || diskCacheInfo.length == 0) {
+          diskCacheInfo = JSON.decode(await _cacheImagesInfoFile.readAsString(encoding: utf8));
+        }
+        try {
+          Map<String, String> _responseHeaders = (await http.head(url, headers: header)).headers;
+          if (_responseHeaders.containsKey('etag')) {
+            String _freshETag = _responseHeaders['etag'];
+            if (diskCacheInfo.containsKey(uId) && (diskCacheInfo[uId]==_freshETag)) {
+              return await (new File(join(_cacheImagesDirectory.path, uId))).readAsBytes();
+            }
+          }
+        } catch(_) {
+          return await (new File(join(_cacheImagesDirectory.path, uId))).readAsBytes();
+        }
+      }
+    } else await _cacheImagesDirectory.create();
+
+    Map imageInfo = await _loadFromRemote(key, url, header);
+    if (imageInfo != null) {
+      diskCacheInfo[uId] = imageInfo['Etag'];
+      await (new File(join(_cacheImagesDirectory.path, uId))).writeAsBytes(imageInfo['ImageData']);
+      await (new File(_cacheImagesInfoFile.path).writeAsString(JSON.encode(diskCacheInfo), mode: FileMode.WRITE, encoding: utf8));
+      return imageInfo['ImageData'];
+    }
+
+    return null;
+  }
+
+  Future<Map> _loadFromRemote(NetworkImageAdvance key, String url, Map<String, String> header) async {
+    http.Response _response;
+    try { _response = await http.get(url, headers: header); } catch(_) { return null; }
+    if (_response != null) {
+      if (_response.statusCode == 200) {
+        return {
+          'ImageData': _response.bodyBytes,
+          'Etag': _response.headers.containsKey('etag') ? _response.headers['etag'] : ''
+        };
+      }
+    }
+
+    return null;
+  }
+
+  Future<ImageInfo> _decodeImageData(Uint8List imageData) async {
+    return new ImageInfo(image: await decodeImageFromList(imageData));
+  }
+  String uid(String str) {
+    return md5.convert(UTF8.encode(str)).toString().toLowerCase().substring(0, 9);
+  }
   @override
   bool operator ==(dynamic other) {
-    if (other.runtimeType != runtimeType)
-      return false;
+    if (other.runtimeType != runtimeType) return false;
     final NetworkImageAdvance typedOther = other;
     return url == typedOther.url
         && scale == typedOther.scale
         && header == typedOther.header;
   }
   @override
-  int get hashCode => hashValues(url, scale, header);
+  int get hashCode => hashValues(url, scale, header, useDiskCache);
   @override
-  String toString() => '$runtimeType("$url", scale: $scale, header: $header)';
+  String toString() => '$runtimeType("$url", scale: $scale, header: $header, useDiskCache:$useDiskCache)';
 }
 
+Map<String, String> diskCacheInfo = {};
+LruMap<String, Uint8List> imageMemoryCache = new LruMap(maximumSize: 128);
 
-typedef Future<FetchInstructions> FetchStrategy(Uri uri, FetchFailure failure);
-
-
-@immutable
-class FetchInstructions {
-  const FetchInstructions.giveUp({
-    @required this.uri,
-    this.alternativeImage,
-  })
-      : shouldGiveUp = true,
-        timeout = null;
-
-  const FetchInstructions.attempt({
-    @required this.uri,
-    @required this.timeout,
-  }) : shouldGiveUp = false,
-        alternativeImage = null;
-
-  final bool shouldGiveUp;
-  final Duration timeout;
-  final Uri uri;
-  final Future<ImageInfo> alternativeImage;
-
-  @override
-  String toString() {
-    return '$runtimeType(\n'
-        '  shouldGiveUp: $shouldGiveUp\n'
-        '  timeout: $timeout\n'
-        '  uri: $uri\n'
-        '  alternativeImage?: ${alternativeImage != null ? 'yes' : 'no'}\n'
-        ')';
-  }
-}
-
-@immutable
-class FetchFailure implements Exception {
-  const FetchFailure._({
-    @required this.totalDuration,
-    @required this.attemptCount,
-    this.httpStatusCode,
-    this.originalException,
-  }) : assert(totalDuration != null),
-        assert(attemptCount > 0);
-
-  final Duration totalDuration;
-  final int attemptCount;
-  final int httpStatusCode;
-  final dynamic originalException;
-
-  @override
-  String toString() {
-    return '$runtimeType(\n'
-        '  attemptCount: $attemptCount\n'
-        '  httpStatusCode: $httpStatusCode\n'
-        '  totalDuration: $totalDuration\n'
-        '  originalException: $originalException\n'
-        ')';
-  }
-}
-
-
-class _Uint8ListBuilder {
-  static const int _kInitialSize = 100000;  // 100KB-ish
-
-  int _usedLength = 0;
-  Uint8List _buffer = new Uint8List(_kInitialSize);
-
-  Uint8List get data => new Uint8List.view(_buffer.buffer, 0, _usedLength);
-
-  void add(List<int> bytes) {
-    _ensureCanAdd(bytes.length);
-    _buffer.setAll(_usedLength, bytes);
-    _usedLength += bytes.length;
-  }
-
-  void _ensureCanAdd(int byteCount) {
-    final int totalSpaceNeeded = _usedLength + byteCount;
-
-    int newLength = _buffer.length;
-    while (totalSpaceNeeded > newLength) {
-      newLength *= 2;
-    }
-
-    if (newLength != _buffer.length) {
-      final Uint8List newBuffer = new Uint8List(newLength);
-      newBuffer.setAll(0, _buffer);
-      newBuffer.setRange(0, _usedLength, _buffer);
-      _buffer = newBuffer;
-    }
-  }
-}
-
-
-typedef bool TransientHttpStatusCodePredicate(int statusCode);
-
-
-class FetchStrategyBuilder {
-  static const List<int> defaultTransientHttpStatusCodes = const <int>[
-    0,   // Network error
-    408, // Request timeout
-    500, // Internal server error
-    502, // Bad gateway
-    503, // Service unavailable
-    504  // Gateway timeout
-  ];
-
-  const FetchStrategyBuilder({
-    this.timeout: const Duration(seconds: 30),
-    this.totalFetchTimeout: const Duration(minutes: 1),
-    this.maxAttempts: 5,
-    this.initialPauseBetweenRetries: const Duration(seconds: 1),
-    this.exponentialBackoffMultiplier: 2,
-    this.transientHttpStatusCodePredicate: defaultTransientHttpStatusCodePredicate,
-  }) : assert(timeout != null),
-        assert(totalFetchTimeout != null),
-        assert(maxAttempts != null),
-        assert(initialPauseBetweenRetries != null),
-        assert(exponentialBackoffMultiplier != null),
-        assert(transientHttpStatusCodePredicate != null);
-
-  final Duration timeout;
-  final Duration totalFetchTimeout;
-  final int maxAttempts;
-  final Duration initialPauseBetweenRetries;
-  final num exponentialBackoffMultiplier;
-  final TransientHttpStatusCodePredicate transientHttpStatusCodePredicate;
-  static bool defaultTransientHttpStatusCodePredicate(int statusCode) {
-    return defaultTransientHttpStatusCodes.contains(statusCode);
-  }
-
-  FetchStrategy build() {
-    return (Uri uri, FetchFailure failure) async {
-      if (failure == null) {
-        return new FetchInstructions.attempt(
-          uri: uri,
-          timeout: timeout,
-        );
-      }
-
-      final bool isRetriableFailure = transientHttpStatusCodePredicate(failure.httpStatusCode) ||
-          failure.originalException is io.SocketException;
-
-      if (!isRetriableFailure ||  // retrying will not help
-          failure.totalDuration > totalFetchTimeout ||  // taking too long
-          failure.attemptCount > maxAttempts) {  // too many attempts
-        return new FetchInstructions.giveUp(uri: uri);
-      }
-
-      final Duration pauseBetweenRetries = initialPauseBetweenRetries * math.pow(exponentialBackoffMultiplier, failure.attemptCount - 1);
-      await new Future<Null>.delayed(pauseBetweenRetries);
-
-      return new FetchInstructions.attempt(
-        uri: uri,
-        timeout: timeout,
-      );
-    };
-  }
-}
-
-class ImageCache {
-  
-}
+/// TODO
+clearDiskCachedImages() {}

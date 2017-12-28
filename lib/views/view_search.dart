@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bookshelf/service/parse/parser.dart';
@@ -162,7 +163,6 @@ class ViewSearchState extends State<ViewSearch> {
           return new Container(
             margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 5.0),
             child: new Material(
-              color: Theme.of(context).cardColor,
               child: new InkWell(
                 onTap: () {
                   Map val = {
@@ -202,25 +202,25 @@ class ViewSearchState extends State<ViewSearch> {
                             new Text(result['authors'],
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
-                                color: Colors.black54,
+                                color: invertColor(Theme.of(context).cardColor.withOpacity(0.54)),
                               ),
                             ),
                             new Text(result['types'],
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
-                                color: Colors.black54,
+                                color: invertColor(Theme.of(context).cardColor.withOpacity(0.54)),
                               ),
                             ),
                             new Text(result['status'],
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
-                                color: Colors.black54,
+                                color: invertColor(Theme.of(context).cardColor.withOpacity(0.54)),
                               ),
                             ),
                             new Text(result['last_chapter'],
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
-                                color: Colors.black54,
+                                color: invertColor(Theme.of(context).cardColor.withOpacity(0.54)),
                               ),
                             ),
                           ],
@@ -234,7 +234,7 @@ class ViewSearchState extends State<ViewSearch> {
                             new Text(getParserName(result['parser']),
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
-                                color: Colors.black54,
+                                color: invertColor(Theme.of(context).cardColor.withOpacity(0.54)),
                               ),
                             ),
                           ],
@@ -260,16 +260,18 @@ class ViewSearchState extends State<ViewSearch> {
         showSearchhistory = false;
         showSearchresult = true;
         if (!searchList.contains(val)) {
+          /// FIXME: Unsupported operation: Cannot add to a fixed-length list
           try {
             searchList.add(val);
-          } catch (_) {
+          } catch (e) {
             _clearSearchhistoryPreference();
+            print(e);
           } finally {
             _setSearchhistoryPreference();
           }
         }
       });
-//      print(searchList);
+      print(searchList);
     }
   }
 
@@ -330,7 +332,7 @@ class _ViewSearchLayout extends MultiChildLayoutDelegate {
     positionChild(searchpanel, new Offset(60.0, 0.0));
     layoutChild(searchtabbar, new BoxConstraints.tightFor(width: size.width, height: 50.0));
     positionChild(searchtabbar, Offset.zero);
-    layoutChild(searchpage, new BoxConstraints.tight(size));
+    layoutChild(searchpage, new BoxConstraints.tightFor(width: size.width, height: size.height - 55.0));
     positionChild(searchpage, new Offset(0.0, 55.0));
   }
 

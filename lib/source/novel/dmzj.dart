@@ -8,17 +8,12 @@ class NovelDmzj extends ApiParser {
   Map headers = ua;
 
   @override
-  checkUpdate() {
-    // TODO: implement checkUpdate
-  }
-
-  @override
-  getBookdetail(String bid) {
+  getBookDetail(String bid) {
     // TODO: implement getBookdetail
   }
 
   @override
-  getChaptercontent(String bid, String cid) {
+  getChapterContent(String bid, String cid) {
     // TODO: implement getChaptercontent
   }
 

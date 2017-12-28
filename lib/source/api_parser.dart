@@ -5,8 +5,8 @@ abstract class ApiParser {
 
   searchBooks(String keyword);
 
-  getBookdetail(String bid);
+  getBookDetail(String bid);
 
-  getChaptercontent(String bid, String cid);
+  getChapterContent(String bid, String cid);
 
 }

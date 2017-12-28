@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bookshelf/model/db.dart';
+import 'package:bookshelf/dababase/db.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
@@ -35,7 +35,7 @@ class ViewDetailState extends State<ViewDetail> {
   @override
   void initState() {
     super.initState();
-    _db.init().then((_) => _getBookdetail());
+    _db.init().then((_) => _getBookDetail());
   }
 
   /// TODO: rewrite save function
@@ -44,34 +44,38 @@ class ViewDetailState extends State<ViewDetail> {
     _db.set('cached_detail', cachedResult).catchError((_){});
   }
   _saveHistory(String historyId, Map chapter) {
-    bookHistory[historyId] = chapter;
+    bookHistory[widget.bookInfo['type']][historyId] = chapter;
     _db.set('book_history', bookHistory).catchError((_){});
   }
   _saveFavored() {
     _db.set('book_favored', bookFavored).catchError((_){});
   }
-  _loadBookstate () async {
+  _loadBookState () async {
     bookHistory = await _db.get('book_history');
     bookFavored = await _db.get('book_favored');
     if (bookHistory != null) {
-      if (bookHistory.containsKey(bookId)) setState(() => chapterSelected = bookHistory[bookId]);
-    } else bookHistory = {};
+      if (bookHistory.containsKey(widget.bookInfo['type']) && bookHistory[widget.bookInfo['type']].containsKey(bookId)) {
+        setState(() => chapterSelected = bookHistory[widget.bookInfo['type']][bookId]);
+      }
+    } else bookHistory = {'manga': {}, 'novel': {}, 'doujinshi': {}};
     if (bookFavored != null) {
-      if (bookFavored.containsKey(widget.bookInfo['type']) && bookFavored[widget.bookInfo['type']].contains(bookId)) setState(() => isFavourite = true);
+      if (bookFavored.containsKey(widget.bookInfo['type']) && bookFavored[widget.bookInfo['type']].contains(bookId)) {
+        setState(() => isFavourite = true);
+      }
     } else bookFavored = {'manga': [], 'novel': [], 'doujinshi': []};
   }
 
-  _getBookdetail() async {
+  _getBookDetail() async {
     bookId = md5.convert(UTF8.encode(widget.bookInfo['title'] + widget.bookInfo['id'] + widget.bookInfo['parser'])).toString().substring(0, 9);
 
     cachedResult = await _db.get('cached_detail');
     if (cachedResult != null) {
       if (cachedResult.containsKey(bookId)) setState(() => bookDetail = cachedResult[bookId]);
     } else cachedResult = {};
-    await _loadBookstate();
+    await _loadBookState();
 
     var bookParser = parserSelector([widget.bookInfo['parser']])[0];
-    parser.getBookdetail(bookParser, widget.bookInfo['id']).then((Map result) {
+    parser.getBookDetail(bookParser, widget.bookInfo['id']).then((Map result) {
       result['entry'] = widget.bookInfo;
       if (cachedResult[bookId].toString() != result.toString()) {
         setState(() => bookDetail = result);
@@ -101,7 +105,7 @@ class ViewDetailState extends State<ViewDetail> {
   Future<Null> _handleRefresh() {
     final Completer<Null> completer = new Completer<Null>();
     new Timer(const Duration(milliseconds: 200), () {
-      completer.complete(_getBookdetail());
+      completer.complete(_getBookDetail());
     });
     return completer.future.then((_) {});
   }
@@ -154,7 +158,10 @@ class ViewDetailState extends State<ViewDetail> {
                   width: 170.0,
                   margin: const EdgeInsets.only(right: 5.0),
                   child: bookDetail != null ? new Image(
-                    image: new NetworkImageAdvance(bookDetail['coverurl'], header: bookDetail['coverurl_header']),
+                    image: new NetworkImageAdvance(
+                        bookDetail['coverurl'],
+                        header: bookDetail['coverurl_header'],
+                        useDiskCache: (chapterSelected != null || isFavourite) ? true : false),
                   ) : null,
                 ),
                 new Expanded(
@@ -219,7 +226,7 @@ class ViewDetailState extends State<ViewDetail> {
             ),
           ),
           new Material(
-            elevation: 3.0,
+            elevation: 5.0,
             child: new Container(
               height: 30.0,
               color: Colors.grey.withOpacity(0.2),
@@ -277,11 +284,14 @@ class ViewDetailState extends State<ViewDetail> {
                             child: new InkWell(
                               borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
                               onTap: () => _selectChapter(chapter),
-                              child: new Align(
-                                alignment: Alignment.center,
-                                child: new Text(chapter['chapter_title'], style: new TextStyle(
-                                  color: Colors.black54.withOpacity(0.5),
-                                ), overflow: TextOverflow.ellipsis,),
+                              child: new Padding(
+                                padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+                                child: new Align(
+                                  alignment: Alignment.center,
+                                  child: new Text(chapter['chapter_title'], style: new TextStyle(
+                                    color: Colors.black54.withOpacity(0.5),
+                                  ), overflow: TextOverflow.ellipsis,),
+                                ),
                               ),
                             ),
                           ),

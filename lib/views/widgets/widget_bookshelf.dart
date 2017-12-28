@@ -1,19 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bookshelf/model/db.dart';
+import 'package:bookshelf/dababase/db.dart';
 import 'package:bookshelf/util/image_provider.dart';
+import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
-
-TabBar tabbarBookshelf() {
-  return new TabBar(
-    tabs: <Widget>[
-      const Tab(text: '喜欢'),
-      const Tab(text: '历史'),
-      const Tab(text: '已下载'),
-    ],
-  );
-}
 
 class WidgetBookshelf extends StatefulWidget {
   const WidgetBookshelf({ Key key }) : super(key: key);
@@ -62,33 +53,42 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
                     new Divider(),
                     new Padding(
                       padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 12.0),
-                      child: new Text('漫画', style: new TextStyle(fontSize: 16.0, color: Theme.of(context).accentColor.withOpacity(0.7))),
+                      child: new Text('漫画', style: new TextStyle(fontSize: 16.0, color: invertColor(Theme.of(context).cardColor.withOpacity(0.6)))),
                     ),
                   ],
                 ) : new Column(),
-                _bookItems(context, orientation, bookList['manga']),
+                _bookItems(context, orientation, bookList['manga'], tabType),
+//                (tabType == 'favored') ? _bookItems(context, orientation, bookList['manga'], tabType) : new Container(),
+//                (tabType == 'history') ? _bookItems(context, orientation, bookList['manga'].keys.toList(), tabType) : new Container(),
+//                (tabType == 'downloaded') ? _bookItems(context, orientation, bookList['manga']) : new Container(),
+
                 bookList['novel'].length != 0 ? new Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     new Divider(),
                     new Padding(
                       padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 12.0),
-                      child: new Text('小说', style: new TextStyle(fontSize: 16.0, color: Theme.of(context).accentColor.withOpacity(0.7))),
+                      child: new Text('小说', style: new TextStyle(fontSize: 16.0, color: invertColor(Theme.of(context).cardColor.withOpacity(0.6)))),
                     ),
                   ],
                 ) : new Column(),
-                _bookItems(context, orientation, bookList['novel']),
+                _bookItems(context, orientation, bookList['novel'], tabType),
+//                (tabType == 'favored') ? _bookItems(context, orientation, bookList['novel'], tabType) : new Container(),
+//                (tabType == 'history') ? _bookItems(context, orientation, bookList['novel'].keys.toList(), tabType) : new Container(),
+
                 bookList['doujinshi'].length != 0 ? new Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     new Divider(),
                     new Padding(
                       padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 12.0),
-                      child: new Text('同人志', style: new TextStyle(fontSize: 16.0, color: Theme.of(context).accentColor.withOpacity(0.7))),
+                      child: new Text('同人志', style: new TextStyle(fontSize: 16.0, color: invertColor(Theme.of(context).cardColor.withOpacity(0.6)))),
                     ),
                   ],
                 ) : new Column(),
-                _bookItems(context, orientation, bookList['doujinshi']),
+                _bookItems(context, orientation, bookList['doujinshi'], tabType),
+//                (tabType == 'favored') ? _bookItems(context, orientation, bookList['doujinshi'], tabType) : new Container(),
+//                (tabType == 'history') ? _bookItems(context, orientation, bookList['doujinshi'].keys.toList(), tabType) : new Container(),
               ],
             ),
           ) : new Container(),
@@ -98,9 +98,17 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
     );
   }
 
-  _bookItems(context, orientation, List bookList) {
+  Widget _bookItems(context, orientation, var bookList, String tabType) {
+    String subtitleText(Map bookInfo, String tabType) {
+      if (tabType == 'history') return bookInfo['status'];
+      else                      return bookInfo['status'];
+    }
+
     final double bookWidth = (orientation == Orientation.portrait) ? 165.0 : 190.0;
     final double bookHeight = bookWidth * 1.25;
+    if (tabType == 'history') {
+      bookList = bookList.keys.toList();
+    }
     return new Wrap(
       spacing: 10.0,
       runSpacing: 10.0,
@@ -115,7 +123,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
               child: new GestureDetector(
                 onTap: () => Navigator.of(context).pushNamed('/detail/' + JSON.encode(info['entry'])),
                 child: new Image(
-                  image: new NetworkImageAdvance(info['coverurl'], header: info['coverurl_header']),
+                  image: new NetworkImageAdvance(info['coverurl'], header: info['coverurl_header'], useDiskCache: true),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -123,7 +131,8 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
             footer: new GestureDetector(
               child: new GridTileBar(
                 backgroundColor: Theme.of(context).cardColor.withOpacity(0.8),
-                title: new Text(info['title'], style: new TextStyle(color: Theme.of(context).accentColor, fontSize: 14.0)),
+                title: new Text(info['title'], style: new TextStyle(color: invertColor(Theme.of(context).cardColor), fontSize: 15.0)),
+                subtitle: new Text(info['status'], style: new TextStyle(color: invertColor(Theme.of(context).cardColor.withOpacity(0.8)), fontSize: 12.0)),
               ),
             ),
           ),
@@ -144,11 +153,12 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
   Widget build(BuildContext context) {
     final Orientation orientation = MediaQuery.of(context).orientation;
     return new TabBarView(
-        children: <Widget>[
-          bookPreview(context, orientation, bookFavored, 'favored'),
-          test(orientation),
-          test(orientation),
-        ],
+      children: <Widget>[
+        bookPreview(context, orientation, bookFavored, 'favored'),
+        bookPreview(context, orientation, bookHistory, 'history'),
+//        test(orientation),
+        test(orientation),
+      ],
     );
   }
 
@@ -177,6 +187,16 @@ GridView test(orientation) {
       new Container(
         color: Colors.amberAccent,
       ),
+    ],
+  );
+}
+
+TabBar tabbarBookshelf() {
+  return new TabBar(
+    tabs: <Widget>[
+      const Tab(text: '喜欢'),
+      const Tab(text: '历史'),
+      const Tab(text: '已下载'),
     ],
   );
 }

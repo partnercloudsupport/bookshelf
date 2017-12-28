@@ -53,9 +53,9 @@ Map tabbarLength = {
 };
 Map tabbarInitindex = {
   'Bookshelf': 0,
-  'Manga': 2,
-  'Novel': 2,
-  'Doujinshi': 2,
+  'Manga': 0,
+  'Novel': 0,
+  'Doujinshi': 0,
 };
 
 tabbarItems(draweritemName) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bookshelf/source/api_parser.dart';
 import 'package:bookshelf/util/constant.dart';
+import 'package:bookshelf/util/util.dart';
 import 'package:http/http.dart' as http;
 
 class MangaDmzj extends ApiParser {
@@ -12,8 +13,8 @@ class MangaDmzj extends ApiParser {
   final Map headers = ua;
 
   @override
-  searchBooks(String keyword) async {
-    String url = baseUrl + '/search/show/0/$keyword/0.json';
+  searchBooks(String keyword, [int order=0]) async {
+    String url = baseUrl + '/search/show/0/$keyword/$order.json';
     List response = JSON.decode((await http.get(url, headers: headers)).body);
     return response.map((Map<String, String> res) {
       return ({
@@ -32,7 +33,7 @@ class MangaDmzj extends ApiParser {
   }
 
   @override
-  getBookdetail(String bid) async {
+  getBookDetail(String bid) async {
     String url = baseUrl + '/comic/$bid.json';
     Map response = JSON.decode((await http.get(url, headers: headers)).body);
     List<Map> chapters = response['chapters'][0]['data'].map((Map chapter) {
@@ -60,9 +61,16 @@ class MangaDmzj extends ApiParser {
   }
 
   @override
-  getChaptercontent(String bid, String cid) async {
+  getChapterContent(String bid, String cid) async {
     String url = baseUrl + '/chapter/$bid/$cid.json';
-    Map response = JSON.decode((await http.get(url, headers: headers)).body);
+    String uId = uid(url);
+    Map response = {};
+    if (networkRequestCache != null && networkRequestCache.containsKey(uId)) {
+      response = networkRequestCache[uId];
+    } else {
+      response = JSON.decode((await http.get(url, headers: headers)).body);
+      networkRequestCache[uId] = response;
+    }
     return {
       'picture_urls': response['page_url'],
       'picture_header': {'Referer': 'http://v2.api.dmzj.com'},
