@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:bookshelf/views/view_search.dart';
-import 'package:bookshelf/views/view_detail.dart';
+import 'package:bookshelf/views/view_manga_detail.dart';
+import 'package:bookshelf/views/view_novel_detail.dart';
 import 'package:bookshelf/views/manga_viewer.dart';
 import 'package:bookshelf/views/novel_viewer.dart';
 import 'package:bookshelf/views/view_settings.dart';
@@ -18,8 +19,12 @@ routes(settings) {
       builder: (_) => new ViewSearch(),
       settings: settings,
     );
-    case 'detail': return new MaterialPageRoute(
-      builder: (_) => new ViewDetail(bookInfo: JSON.decode(settings.name.split('/')[2])),
+    case 'detail~manga': return new MaterialPageRoute(
+      builder: (_) => new ViewMangaDetail(bookInfo: JSON.decode(settings.name.split('/')[2])),
+      settings: settings,
+    );
+    case 'detail~novel': return new MaterialPageRoute(
+      builder: (_) => new ViewNovelDetail(bookInfo: JSON.decode(settings.name.split('/')[2])),
       settings: settings,
     );
     case 'viewer~manga': return new MaterialPageRoute(

@@ -153,7 +153,7 @@ class MangaViewerState extends State<MangaViewer> {
                             itemBuilder: (BuildContext context, int index) {
 //                            print(index);
                               return content != null ? new Image(
-                                image: new NetworkImageAdvance(content['picture_urls'][index], header: content['picture_header']),
+                                image: new AdvancedNetworkImage(content['picture_urls'][index], header: content['picture_header']),
                               ) : new Container();
                             },
                           ),

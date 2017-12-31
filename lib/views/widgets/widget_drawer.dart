@@ -31,6 +31,7 @@ class WidgetDrawer extends StatelessWidget {
       child: new Material(
         color: Theme.of(context).cardColor,
         child: new ListView(
+          padding: const EdgeInsets.only(top: 0.0),
           children: <Widget>[
             new UserAccountsDrawerHeader(
               accountName: const Text('fuyumi'),

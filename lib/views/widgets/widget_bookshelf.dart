@@ -57,10 +57,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
                     ),
                   ],
                 ) : new Column(),
-                _bookItems(context, orientation, bookList['manga'], tabType),
-//                (tabType == 'favored') ? _bookItems(context, orientation, bookList['manga'], tabType) : new Container(),
-//                (tabType == 'history') ? _bookItems(context, orientation, bookList['manga'].keys.toList(), tabType) : new Container(),
-//                (tabType == 'downloaded') ? _bookItems(context, orientation, bookList['manga']) : new Container(),
+                _bookItems(context, orientation, bookList['manga'], tabType, 'manga'),
 
                 bookList['novel'].length != 0 ? new Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,9 +69,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
                     ),
                   ],
                 ) : new Column(),
-                _bookItems(context, orientation, bookList['novel'], tabType),
-//                (tabType == 'favored') ? _bookItems(context, orientation, bookList['novel'], tabType) : new Container(),
-//                (tabType == 'history') ? _bookItems(context, orientation, bookList['novel'].keys.toList(), tabType) : new Container(),
+                _bookItems(context, orientation, bookList['novel'], tabType, 'novel'),
 
                 bookList['doujinshi'].length != 0 ? new Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,9 +81,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
                     ),
                   ],
                 ) : new Column(),
-                _bookItems(context, orientation, bookList['doujinshi'], tabType),
-//                (tabType == 'favored') ? _bookItems(context, orientation, bookList['doujinshi'], tabType) : new Container(),
-//                (tabType == 'history') ? _bookItems(context, orientation, bookList['doujinshi'].keys.toList(), tabType) : new Container(),
+                _bookItems(context, orientation, bookList['doujinshi'], tabType, 'doujinshi'),
               ],
             ),
           ) : new Container(),
@@ -98,15 +91,12 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
     );
   }
 
-  Widget _bookItems(context, orientation, var bookList, String tabType) {
-    String subtitleText(Map bookInfo, String tabType) {
-      if (tabType == 'history') return bookInfo['status'];
-      else                      return bookInfo['status'];
-    }
-
+  Widget _bookItems(context, orientation, bookList, String tabType, String bookType) {
     final double bookWidth = (orientation == Orientation.portrait) ? 165.0 : 190.0;
     final double bookHeight = bookWidth * 1.25;
+    Map historyItems = {};
     if (tabType == 'history') {
+      historyItems = bookList;
       bookList = bookList.keys.toList();
     }
     return new Wrap(
@@ -121,9 +111,9 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
             child: new Material(
               color: Theme.of(context).cardColor,
               child: new GestureDetector(
-                onTap: () => Navigator.of(context).pushNamed('/detail/' + JSON.encode(info['entry'])),
+                onTap: () => Navigator.of(context).pushNamed(((bookType=='novel')?'/detail~novel/':'/detail~manga/') + JSON.encode(info['entry'])),
                 child: new Image(
-                  image: new NetworkImageAdvance(info['coverurl'], header: info['coverurl_header'], useDiskCache: true),
+                  image: new AdvancedNetworkImage(info['coverurl'], header: info['coverurl_header'], useDiskCache: true),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -132,7 +122,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
               child: new GridTileBar(
                 backgroundColor: Theme.of(context).cardColor.withOpacity(0.8),
                 title: new Text(info['title'], style: new TextStyle(color: invertColor(Theme.of(context).cardColor), fontSize: 15.0)),
-                subtitle: new Text(info['status'], style: new TextStyle(color: invertColor(Theme.of(context).cardColor.withOpacity(0.8)), fontSize: 12.0)),
+                subtitle: new Text((tabType != 'history') ? info['status'] : '看到'+historyItems[bookId]['chapter_title'], style: new TextStyle(color: invertColor(Theme.of(context).cardColor.withOpacity(0.8)), fontSize: 12.0)),
               ),
             ),
           ),
@@ -146,7 +136,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
     new Timer(const Duration(milliseconds: 200), () {
       completer.complete(_db.init().then((_) => _loadBooks()));
     });
-    return completer.future.then((_) {});
+    return completer.future;
   }
 
   @override

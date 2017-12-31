@@ -9,8 +9,8 @@ import 'package:bookshelf/service/parse/parser.dart';
 import 'package:bookshelf/util/image_provider.dart';
 import 'package:bookshelf/util/constant.dart';
 
-class ViewDetail extends StatefulWidget {
-  const ViewDetail({
+class ViewMangaDetail extends StatefulWidget {
+  const ViewMangaDetail({
     Key key,
     this.bookInfo,
   }) : super(key: key);
@@ -18,10 +18,10 @@ class ViewDetail extends StatefulWidget {
   final Map bookInfo;
 
   @override
-  ViewDetailState createState() => new ViewDetailState();
+  ViewMangaDetailState createState() => new ViewMangaDetailState();
 }
 
-class ViewDetailState extends State<ViewDetail> {
+class ViewMangaDetailState extends State<ViewMangaDetail> {
   bool isFavourite = false;
   Parser parser = new Parser();
   Map bookDetail;
@@ -158,7 +158,7 @@ class ViewDetailState extends State<ViewDetail> {
                   width: 170.0,
                   margin: const EdgeInsets.only(right: 5.0),
                   child: bookDetail != null ? new Image(
-                    image: new NetworkImageAdvance(
+                    image: new AdvancedNetworkImage(
                         bookDetail['coverurl'],
                         header: bookDetail['coverurl_header'],
                         useDiskCache: (chapterSelected != null || isFavourite) ? true : false),

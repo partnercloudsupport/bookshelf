@@ -1,16 +1,17 @@
 import 'dart:convert';
 
-import 'package:bookshelf/source/api_parser.dart';
+import 'package:bookshelf/source/manga/manga.dart';
 import 'package:bookshelf/util/constant.dart';
 import 'package:bookshelf/util/util.dart';
 import 'package:http/http.dart' as http;
 
-class MangaDmzj extends ApiParser {
+class MangaDmzj extends MangaParser {
   final String parserName = 'manga_dmzj';
   final String baseUrl = 'http://v2.api.dmzj.com';
   final int versionId = 1;
   final String mainLang = 'cn';
   final Map headers = ua;
+  final String type = 'manga';
 
   @override
   searchBooks(String keyword, [int order=0]) async {
@@ -27,7 +28,7 @@ class MangaDmzj extends ApiParser {
         'types': res['types'],
         'last_chapter': res['last_name'],
         'parser': parserName,
-        'type': 'manga'
+        'type': type
       });
     }).toList();
   }

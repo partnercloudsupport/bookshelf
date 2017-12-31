@@ -5,36 +5,36 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quiver/collection.dart';
 
-class NetworkImageAdvance extends ImageProvider<NetworkImageAdvance> {
-  const NetworkImageAdvance(this.url, { this.scale: 1.0, this.header, this.useDiskCache: false })
-      : assert(url != null),
-        assert(scale != null),
-        assert(useDiskCache != null);
+class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
+  const AdvancedNetworkImage(this.url, { this.scale: 1.0, this.header, this.useMemCache: true, this.useDiskCache: false })
+    : assert(url != null),
+      assert(scale != null),
+      assert(useDiskCache != null);
 
   final String url;
   final double scale;
   final Map<String, String> header;
+  final bool useMemCache;
   final bool useDiskCache;
 
   @override
-  Future<NetworkImageAdvance> obtainKey(ImageConfiguration configuration) {
-    return new SynchronousFuture<NetworkImageAdvance>(this);
+  Future<AdvancedNetworkImage> obtainKey(ImageConfiguration configuration) {
+    return new SynchronousFuture<AdvancedNetworkImage>(this);
   }
   @override
-  ImageStreamCompleter load(NetworkImageAdvance key) {
+  ImageStreamCompleter load(AdvancedNetworkImage key) {
     return new OneFrameImageStreamCompleter(
-        _loadAsync(key),
-        informationCollector: (StringBuffer information) {
-          information.writeln('Image provider: $this');
-          information.write('Image provider: $key');
-        }
+      _loadAsync(key),
+      informationCollector: (StringBuffer information) {
+        information.writeln('Image provider: $this');
+        information.write('Image provider: $key');
+      }
     );
   }
 
@@ -52,27 +52,28 @@ class NetworkImageAdvance extends ImageProvider<NetworkImageAdvance> {
 ///    ...
 ///  }
 
-  Future<ImageInfo> _loadAsync(NetworkImageAdvance key) async {
+  Future<ImageInfo> _loadAsync(AdvancedNetworkImage key) async {
     assert(key == this);
 
     String uId = uid(url);
+    if (!key.useMemCache) imageMemoryCache.clear();
 
     if (imageMemoryCache != null && imageMemoryCache.containsKey(uId)) {
       if (useDiskCache) _loadFromDiskCache(key, uId);
-      return await _decodeImageData(imageMemoryCache[uId]);
+      return await _decodeImageData(imageMemoryCache[uId], key.scale);
     }
-    if (useDiskCache) return await _decodeImageData(await _loadFromDiskCache(key, uId));
+    if (useDiskCache) return await _decodeImageData(await _loadFromDiskCache(key, uId), key.scale);
 
     Map imageInfo = await _loadFromRemote(key, url, header);
     if (imageInfo != null) {
       imageMemoryCache[uId] = imageInfo['ImageData'];
-      return await _decodeImageData(imageInfo['ImageData']);
+      return await _decodeImageData(imageInfo['ImageData'], key.scale);
     }
 
     return null;
   }
 
-  Future<Uint8List> _loadFromDiskCache(NetworkImageAdvance key, String uId) async {
+  Future<Uint8List> _loadFromDiskCache(AdvancedNetworkImage key, String uId) async {
     Directory _cacheImagesDirectory = new Directory(join((await getApplicationDocumentsDirectory()).path, 'imagecache'));
     File _cacheImagesInfoFile = new File(join(_cacheImagesDirectory.path, 'CachedImageInfo.json'));
     if (_cacheImagesDirectory.existsSync()) {
@@ -105,9 +106,10 @@ class NetworkImageAdvance extends ImageProvider<NetworkImageAdvance> {
     return null;
   }
 
-  Future<Map> _loadFromRemote(NetworkImageAdvance key, String url, Map<String, String> header) async {
+  Future<Map> _loadFromRemote(AdvancedNetworkImage key, String url, Map<String, String> header) async {
     http.Response _response;
-    try { _response = await http.get(url, headers: header); } catch(_) { return null; }
+    if (header != null) try { _response = await http.get(url, headers: header); } catch(_) { return null; }
+    else try { _response = await http.get(url); } catch(_) { return null; }
     if (_response != null) {
       if (_response.statusCode == 200) {
         return {
@@ -120,8 +122,8 @@ class NetworkImageAdvance extends ImageProvider<NetworkImageAdvance> {
     return null;
   }
 
-  Future<ImageInfo> _decodeImageData(Uint8List imageData) async {
-    return new ImageInfo(image: await decodeImageFromList(imageData));
+  Future<ImageInfo> _decodeImageData(Uint8List imageData, double scaleSize) async {
+    return new ImageInfo(image: await decodeImageFromList(imageData), scale: scaleSize);
   }
   String uid(String str) {
     return md5.convert(UTF8.encode(str)).toString().toLowerCase().substring(0, 9);
@@ -129,19 +131,27 @@ class NetworkImageAdvance extends ImageProvider<NetworkImageAdvance> {
   @override
   bool operator ==(dynamic other) {
     if (other.runtimeType != runtimeType) return false;
-    final NetworkImageAdvance typedOther = other;
+    final AdvancedNetworkImage typedOther = other;
     return url == typedOther.url
         && scale == typedOther.scale
-        && header == typedOther.header;
+        && header == typedOther.header
+        && useDiskCache == typedOther.useDiskCache;
   }
   @override
-  int get hashCode => hashValues(url, scale, header, useDiskCache);
+  int get hashCode => hashValues(url, scale, header, useMemCache, useDiskCache);
   @override
-  String toString() => '$runtimeType("$url", scale: $scale, header: $header, useDiskCache:$useDiskCache)';
+  String toString() => '$runtimeType("$url", scale: $scale, header: $header, useMemCache: $useMemCache, useDiskCache:$useDiskCache)';
+}
+
+Future<bool> clearDiskCachedImages() async {
+  Directory _cacheImagesDirectory = new Directory(join((await getApplicationDocumentsDirectory()).path, 'imagecache'));
+  try {
+    await _cacheImagesDirectory.delete(recursive: true);
+  } catch(_) {
+    return false;
+  }
+  return true;
 }
 
 Map<String, String> diskCacheInfo = {};
 LruMap<String, Uint8List> imageMemoryCache = new LruMap(maximumSize: 128);
-
-/// TODO
-clearDiskCachedImages() {}

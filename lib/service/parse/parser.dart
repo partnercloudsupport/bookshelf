@@ -1,4 +1,4 @@
-import 'package:bookshelf/source/manga/dmzj.dart';
+import 'package:bookshelf/source/source.dart' show MangaDmzj;
 
 class Parser {
   searchBooks(List parsers, String keyword) {

@@ -49,6 +49,7 @@ class ViewSearchState extends State<ViewSearch> {
     prefs.clear();
   }
 
+  /// TODO: Incremental search
   _getSearchResult(keyword) {
     List parsersList = parserSelector(parsersName);
     List results = parser.searchBooks(parsersList, keyword);
@@ -171,7 +172,9 @@ class ViewSearchState extends State<ViewSearch> {
                     'parser': result['parser'],
                     'type': result['type'],
                   };
-                  Navigator.of(context).pushNamed('/detail/' + JSON.encode(val));
+                  (result['type'] == 'novel')
+                  ? Navigator.of(context).pushNamed('/detail~novel/' + JSON.encode(val))
+                  : Navigator.of(context).pushNamed('/detail~manga/' + JSON.encode(val));
                 },
                 child: new Container(
                   height: 110.0,
@@ -184,7 +187,7 @@ class ViewSearchState extends State<ViewSearch> {
                         margin: const EdgeInsets.only(right: 15.0),
                         child: new Image(
                           height: 110.0,
-                          image: new NetworkImageAdvance(result['coverurl'], header: result['coverurl_header']),
+                          image: new AdvancedNetworkImage(result['coverurl'], header: result['coverurl_header']),
                         ),
                       ),
                       new Expanded(
