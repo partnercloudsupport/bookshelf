@@ -5,22 +5,26 @@ import 'package:sembast/sembast.dart';
 import 'package:sembast/sembast_io.dart';
 import 'package:path_provider/path_provider.dart';
 
-class DB {
-  Database _db;
+class Db {
+  Database db;
 
-  init() async {
-    Directory _path = await getApplicationDocumentsDirectory();
-    String _dbPath = join(_path.path, 'bookshelf_database.db');
-    _db = await ioDatabaseFactory.openDatabase(_dbPath);
+  Db([Function f]) {
+    getApplicationDocumentsDirectory().then((Directory _path) {
+      String _dbPath = join(_path.path, 'bookshelf_database.db');
+      ioDatabaseFactory.openDatabase(_dbPath).then((Database _db) {
+        db = _db;
+        if (f != null) f(); // ignore: invocation_of_non_function
+      });
+    });
   }
 
   get(String key) async {
-    try { return await _db.get(key); } catch (_) {}
+    try { return await db.get(key); } catch (_) {}
   }
   set(String key, var value) async {
-    try { return await _db.put(value, key); } catch (_) {}
+    try { return await db.put(value, key); } catch (_) {}
   }
   remove(String key) async {
-    try { return await _db.delete(key); } catch (_) {}
+    try { return await db.delete(key); } catch (_) {}
   }
 }

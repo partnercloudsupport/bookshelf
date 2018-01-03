@@ -5,7 +5,7 @@ TabBar tabbarDoujinshi() {
     tabs: <Widget>[
       const Tab(text: '喜欢'),
       const Tab(text: '本地'),
-      const Tab(text: '推荐'),
+      const Tab(text: '艺术家'),
       const Tab(text: '历史'),
     ],
   );

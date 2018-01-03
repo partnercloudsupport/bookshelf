@@ -1,4 +1,4 @@
-import 'package:bookshelf/source/source.dart' show MangaDmzj;
+import 'package:bookshelf/source/source.dart' show MangaDmzj, NovelDmzj;
 
 class Parser {
   searchBooks(List parsers, String keyword) {
@@ -17,11 +17,15 @@ class Parser {
 }
 
 parserSelector(List parsersName) {
-  List parsers = [];
+  Map<String, List> parsers = {'manga': [], 'novel': [], 'doujinshi': []};
   parsersName.forEach((String parserName) {
     switch (parserName) {
       case 'manga_dmzj':
-        parsers.add(new MangaDmzj());
+        parsers['manga'].add(new MangaDmzj());
+        break;
+      case 'novel_dmzj':
+        parsers['novel'].add(new NovelDmzj());
+        break;
     }
   });
   return parsers;

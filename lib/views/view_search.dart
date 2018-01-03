@@ -19,46 +19,60 @@ class ViewSearchState extends State<ViewSearch> {
   List<String> searchList = [];
   bool showClearTextBtn = false;
   TextEditingController controller = new TextEditingController();
-  bool showSearchhistory = false;
-  bool showSearchresult = false;
+  bool showSearchHistory = false;
+  bool showSearchResult = false;
+  ScrollController _scrollController = new ScrollController();
 
   List<String> parsersName = availableParserList();
   Parser parser = new Parser();
   List searchMangaResult = [];
+  List searchNovelResult = [];
+  List searchDoujinshiResult = [];
 
   @override
   void initState() {
     super.initState();
-    _getSearchhistoryPreference();
+    _getSearchHistoryPreference();
     controller.addListener(() =>
         setState(() => showClearTextBtn = controller.text.isNotEmpty));
   }
 
-  _getSearchhistoryPreference() async {
+  _getSearchHistoryPreference() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() => searchList = prefs.getStringList('searchhistory') ?? []);
+    setState(() => searchList.addAll(prefs.getStringList('searchhistory') ?? []));
   }
 
-  _setSearchhistoryPreference() async {
+  _setSearchHistoryPreference() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setStringList('searchhistory', searchList);
   }
 
-  _clearSearchhistoryPreference() async {
+  _clearSearchHistoryPreference() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.clear();
   }
 
   /// TODO: Incremental search
   _getSearchResult(keyword) {
-    List parsersList = parserSelector(parsersName);
-    List results = parser.searchBooks(parsersList, keyword);
-    results.forEach((var res) async {
+    Map parsersList = parserSelector(parsersName);
+    List mangaResults = parser.searchBooks(parsersList['manga'], keyword);
+    List novelResults = parser.searchBooks(parsersList['novel'], keyword);
+    List doujinshiResults = parser.searchBooks(parsersList['doujinshi'], keyword);
+    mangaResults.forEach((var res) async {
       List result = await res;
       setState(() => searchMangaResult.addAll(result));
       result.forEach((Map<String, String> val){
         if (!val['title'].contains(keyword)) {
           setState(() => searchMangaResult.remove(val));
+        }
+      });
+    });
+    novelResults.forEach((var res) async {
+      List result = await res;
+      setState(() => searchNovelResult.addAll(result));
+      result.forEach((Map<String, String> val){
+        if (!val['title'].contains(keyword)) {
+          setState(() => searchNovelResult.remove(val));
         }
       });
     });
@@ -69,7 +83,7 @@ class ViewSearchState extends State<ViewSearch> {
     new Timer(const Duration(milliseconds: 200), () {
       completer.complete(beginSearch(controller.text));
     });
-    return completer.future.then((_) {});
+    return completer.future;
   }
 
   @override
@@ -100,7 +114,7 @@ class ViewSearchState extends State<ViewSearch> {
                   autofocus: false,
                   autocorrect: false,
                   controller: controller,
-                  onChanged: (String val) => setState(() => showSearchhistory = val.isNotEmpty),
+                  onChanged: (String val) => setState(() => showSearchHistory = val.isNotEmpty),
                   onSubmitted: (String val) => beginSearch(val),
                 ),
               ),
@@ -109,7 +123,7 @@ class ViewSearchState extends State<ViewSearch> {
                   onPressed: () {
                     controller.text = '';
                     setState(() {
-                      showSearchhistory = false;
+                      showSearchHistory = false;
                     });
                   }
               ) : new Container(),
@@ -120,18 +134,18 @@ class ViewSearchState extends State<ViewSearch> {
           delegate: new _ViewSearchLayout(),
           children: <Widget>[
             new LayoutId(
-              id: _ViewSearchLayout.searchpage,
+              id: _ViewSearchLayout.searchPage,
               child: new TabBarView(
                 children: <Widget>[
                   resultItems(context, searchMangaResult),
-                  resultItems(context, []),
+                  resultItems(context, searchNovelResult),
                   resultItems(context, []),
                 ],
               ),
             ),
             new LayoutId(
-              id: _ViewSearchLayout.searchtabbar,
-              child: showSearchresult ? new Material(
+              id: _ViewSearchLayout.searchTabbar,
+              child: showSearchResult ? new Material(
                 color: Theme.of(context).primaryColor,
                 elevation: 8.0,
                 child: new TabBar(
@@ -144,9 +158,9 @@ class ViewSearchState extends State<ViewSearch> {
               ) : new Container(),
             ),
             new LayoutId(
-              id: _ViewSearchLayout.searchpanel,
+              id: _ViewSearchLayout.searchPanel,
               child: new Column(
-                children: showSearchhistory
+                children: showSearchHistory
                     ? historyItems(searchList)
                     : <Widget>[],
               ),
@@ -157,10 +171,13 @@ class ViewSearchState extends State<ViewSearch> {
     );
   }
 
-  resultItems(BuildContext context, List resultList) {
+  Widget resultItems(BuildContext context, List resultList) {
     return new RefreshIndicator(
-      child: new ListView(
-        children: resultList.map((Map result) {
+      child: new ListView.builder(
+        controller: _scrollController,
+        itemCount: resultList.length,
+        itemBuilder: (BuildContext context, int index) {
+          Map result = resultList[index];
           return new Container(
             margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 5.0),
             child: new Material(
@@ -173,21 +190,22 @@ class ViewSearchState extends State<ViewSearch> {
                     'type': result['type'],
                   };
                   (result['type'] == 'novel')
-                  ? Navigator.of(context).pushNamed('/detail~novel/' + JSON.encode(val))
-                  : Navigator.of(context).pushNamed('/detail~manga/' + JSON.encode(val));
+                      ? Navigator.of(context).pushNamed('/detail~novel/' + JSON.encode(val))
+                      : Navigator.of(context).pushNamed('/detail~manga/' + JSON.encode(val));
                 },
                 child: new Container(
-                  height: 110.0,
+                  height: 120.0,
                   margin: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
                   child: new Row(
                     children: <Widget>[
                       new Container(
-                        height: 110.0,
-                        width: 80.0,
+                        height: 120.0,
+                        width: 100.0,
                         margin: const EdgeInsets.only(right: 15.0),
                         child: new Image(
-                          height: 110.0,
+                          height: 120.0,
                           image: new AdvancedNetworkImage(result['coverurl'], header: result['coverurl_header']),
+                          fit: BoxFit.cover,
                         ),
                       ),
                       new Expanded(
@@ -249,7 +267,7 @@ class ViewSearchState extends State<ViewSearch> {
               ),
             ),
           );
-        }).toList(),
+        },
       ),
       onRefresh: _refreshHandle,
     );
@@ -260,25 +278,24 @@ class ViewSearchState extends State<ViewSearch> {
     if (val.isNotEmpty) {
       _getSearchResult(val);
       setState(() {
-        showSearchhistory = false;
-        showSearchresult = true;
+        showSearchHistory = false;
+        showSearchResult = true;
         if (!searchList.contains(val)) {
-          /// FIXME: Unsupported operation: Cannot add to a fixed-length list
           try {
             searchList.add(val);
           } catch (e) {
-            _clearSearchhistoryPreference();
+            _clearSearchHistoryPreference();
             print(e);
           } finally {
-            _setSearchhistoryPreference();
+            _setSearchHistoryPreference();
           }
         }
       });
-      print(searchList);
+//      print(searchList);
     }
   }
 
-  historyItems(List<String> items) {
+  List<Widget> historyItems(List<String> items) {
     return []
       ..add(new Material(
         child: historyItem(context, controller.text, true),
@@ -292,29 +309,31 @@ class ViewSearchState extends State<ViewSearch> {
       }).toList().reversed);
   }
 
-  Row historyItem(BuildContext context, String item,
-      [bool notHistoryitem = false]) {
+  Widget historyItem(BuildContext context, String item, [bool notHistoryItem = false]) {
     return new Row(
       children: <Widget>[
         new Expanded(
           child: new ListTileTheme(
             child: new ListTile(
-              leading: notHistoryitem ? null : const Icon(Icons.history),
-              title: notHistoryitem
+              leading: notHistoryItem ? null : const Icon(Icons.history),
+              title: notHistoryItem
                   ? new Text('搜索 "' + item + '"')
                   : new Text(item),
-              onTap: () => beginSearch(item),
+              onTap: () {
+                setState(() => this.controller.text = item);
+                beginSearch(item);
+              },
             ),
-            textColor: notHistoryitem
+            textColor: notHistoryItem
                 ? Theme.of(context).accentColor
                 : null,
           ),
         ),
-        notHistoryitem ? new Container() : new IconButton(
+        notHistoryItem ? new Container() : new IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
             setState(() => searchList.remove(item));
-            _setSearchhistoryPreference();
+            _setSearchHistoryPreference();
           },
         ),
       ],
@@ -325,18 +344,18 @@ class ViewSearchState extends State<ViewSearch> {
 class _ViewSearchLayout extends MultiChildLayoutDelegate {
   _ViewSearchLayout();
 
-  static final String searchpanel = 'searchpanel';
-  static final String searchpage = 'searchpage';
-  static final String searchtabbar = 'searchtabbar';
+  static final String searchPanel = 'searchpanel';
+  static final String searchPage = 'searchpage';
+  static final String searchTabbar = 'searchtabbar';
 
   @override
   void performLayout(Size size) {
-    layoutChild(searchpanel, new BoxConstraints.tightForFinite(width: size.width - 120.0, height: double.infinity));
-    positionChild(searchpanel, new Offset(60.0, 0.0));
-    layoutChild(searchtabbar, new BoxConstraints.tightFor(width: size.width, height: 50.0));
-    positionChild(searchtabbar, Offset.zero);
-    layoutChild(searchpage, new BoxConstraints.tightFor(width: size.width, height: size.height - 55.0));
-    positionChild(searchpage, new Offset(0.0, 55.0));
+    layoutChild(searchPanel, new BoxConstraints.tightForFinite(width: size.width - 120.0, height: double.infinity));
+    positionChild(searchPanel, new Offset(60.0, 0.0));
+    layoutChild(searchTabbar, new BoxConstraints.tightFor(width: size.width, height: 50.0));
+    positionChild(searchTabbar, Offset.zero);
+    layoutChild(searchPage, new BoxConstraints.tightFor(width: size.width, height: size.height - 50.0));
+    positionChild(searchPage, new Offset(0.0, 50.0));
   }
 
   @override

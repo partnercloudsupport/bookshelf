@@ -33,12 +33,14 @@ Map basePageName = {
 getParserName(parserName) {
   switch (parserName) {
     case 'manga_dmzj': return '动漫之家';
+    case 'novel_dmzj': return '动漫之家';
     default: return parserName;
   }
 }
 
+/// NOTE: temporary setup
 availableParserList() {
-  return ['manga_dmzj',];
+  return ['manga_dmzj', 'novel_dmzj'];
 }
 
 //enum SourceType {

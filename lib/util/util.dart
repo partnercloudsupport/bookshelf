@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:bookshelf/dababase/db.dart';
+import 'package:bookshelf/util/eventbus.dart';
 import 'package:crypto/crypto.dart';
 import 'package:quiver/collection.dart';
 
@@ -12,3 +14,5 @@ String uid(String str) {
 }
 
 LruMap networkRequestCache = new LruMap(maximumSize: 512);
+
+Db defaultDb = new Db(() => bus.post('reload_bookshelf'));

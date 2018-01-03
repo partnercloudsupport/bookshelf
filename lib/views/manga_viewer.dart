@@ -86,7 +86,7 @@ class MangaViewerState extends State<MangaViewer> {
     final Completer<Null> completer = new Completer<Null>();
     new Timer(const Duration(milliseconds: 200), () {
       completer.complete();
-      print('t');
+      print('at bottom');
     });
     return completer.future.then((_) {});
   }

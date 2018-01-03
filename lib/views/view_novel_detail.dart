@@ -26,7 +26,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
   Parser parser = new Parser();
   Map bookDetail;
   Map chapterSelected;
-  DB _db = new DB();
+  Db _db = new Db();
   String bookId;
   Map cachedResult;
   Map bookHistory;
@@ -35,7 +35,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
   @override
   void initState() {
     super.initState();
-    _db.init().then((_) => _getBookDetail());
+//    _db.init().then((_) => _getBookDetail());
   }
 
   /// TODO: rewrite save function
@@ -74,7 +74,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
     } else cachedResult = {};
     await _loadBookState();
 
-    var bookParser = parserSelector([widget.bookInfo['parser']])[0];
+    var bookParser = parserSelector([widget.bookInfo['parser']])['novel'][0];
     parser.getBookDetail(bookParser, widget.bookInfo['id']).then((Map result) {
       result['entry'] = widget.bookInfo;
       if (cachedResult[bookId].toString() != result.toString()) {
@@ -255,53 +255,73 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
           ),
           new Expanded(
             child: new RefreshIndicator(
-                child: new GridView.count(
-                  padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
-                  crossAxisCount: (orientation == Orientation.portrait) ? 5 : 8,
-                  childAspectRatio: (orientation == Orientation.portrait) ? 2.5 : 2.5,
-                  mainAxisSpacing: 15.0,
-                  crossAxisSpacing: 12.0,
-                  children: bookDetail !=null ?
-                  bookDetail['chapters'].map((Map chapter) {
-                    return new Material(
-                        child: new ClipRRect(
-                          borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                          child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
-                            onPressed: () => _selectChapter(chapter),
-                            child: new Text(chapter['chapter_title'], style: new TextStyle(
-                              color: Theme.of(context).cardColor,
-                            ), overflow: TextOverflow.ellipsis,),
-                            color: Theme.of(context).primaryColor,
-                            splashColor: Theme.of(context).primaryColor.withOpacity(0.8),
-                          ) : new Container(
-                            decoration: new BoxDecoration(
-                              border: new Border.all(
-                                color: Colors.black54.withOpacity(0.5),
-                                width: 1.5,
-                              ),
-                              borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                            ),
-                            child: new InkWell(
-                              borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                              onTap: () => _selectChapter(chapter),
-                              child: new Padding(
-                                padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
-                                child: new Align(
-                                  alignment: Alignment.center,
-                                  child: new Text(chapter['chapter_title'], style: new TextStyle(
-                                    color: Colors.black54.withOpacity(0.5),
-                                  ), overflow: TextOverflow.ellipsis,),
-                                ),
-                              ),
-                            ),
-                          ),
+              child: new ListView(
+                children: <Widget>[
+                  new Material(
+                    child: new Row(
+                      children: <Widget>[
+                        new Container(
+                          width: 100.0,
+                          height: 40.0,
+                          color: Colors.blue,
                         )
-                    );
-                  }).toList() : <Widget>[],
-                ),
-                onRefresh: _handleRefresh,
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              onRefresh: _handleRefresh,
             ),
           ),
+//          new Expanded(
+//            child: new RefreshIndicator(
+//                child: new GridView.count(
+//                  padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
+//                  crossAxisCount: (orientation == Orientation.portrait) ? 5 : 8,
+//                  childAspectRatio: (orientation == Orientation.portrait) ? 2.5 : 2.5,
+//                  mainAxisSpacing: 15.0,
+//                  crossAxisSpacing: 12.0,
+//                  children: bookDetail !=null ?
+//                  bookDetail['chapters'].map((Map chapter) {
+//                    return new Material(
+//                        child: new ClipRRect(
+//                          borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+//                          child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
+//                            onPressed: () => _selectChapter(chapter),
+//                            child: new Text(chapter['chapter_title'], style: new TextStyle(
+//                              color: Theme.of(context).cardColor,
+//                            ), overflow: TextOverflow.ellipsis,),
+//                            color: Theme.of(context).primaryColor,
+//                            splashColor: Theme.of(context).primaryColor.withOpacity(0.8),
+//                          ) : new Container(
+//                            decoration: new BoxDecoration(
+//                              border: new Border.all(
+//                                color: Colors.black54.withOpacity(0.5),
+//                                width: 1.5,
+//                              ),
+//                              borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+//                            ),
+//                            child: new InkWell(
+//                              borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+//                              onTap: () => _selectChapter(chapter),
+//                              child: new Padding(
+//                                padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+//                                child: new Align(
+//                                  alignment: Alignment.center,
+//                                  child: new Text(chapter['chapter_title'], style: new TextStyle(
+//                                    color: Colors.black54.withOpacity(0.5),
+//                                  ), overflow: TextOverflow.ellipsis,),
+//                                ),
+//                              ),
+//                            ),
+//                          ),
+//                        )
+//                    );
+//                  }).toList() : <Widget>[],
+//                ),
+//                onRefresh: _handleRefresh,
+//            ),
+//          ),
         ],
       ),
     );

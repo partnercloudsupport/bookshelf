@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bookshelf/dababase/db.dart';
+import 'package:bookshelf/util/eventbus.dart';
 import 'package:bookshelf/util/image_provider.dart';
 import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class WidgetBookshelf extends StatefulWidget {
 }
 
 class WidgetBookshelfState extends State<WidgetBookshelf> {
-  DB _db = new DB();
+  Db _db = defaultDb;
   Map cachedResult;
   Map bookHistory;
   Map bookFavored;
@@ -22,14 +23,14 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
   @override
   void initState() {
     super.initState();
-    _db.init().then((_) => _loadBooks());
+    bus.subscribe('reload_bookshelf', _refreshHandle);
   }
 
   _loadBooks() async {
     cachedResult = await _db.get('cached_detail');
     bookHistory = await _db.get('book_history');
     bookFavored = await _db.get('book_favored');
-    setState(() {});
+    setState((){});
   }
 
   _getBookinfo(bookId) {
@@ -134,7 +135,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
   Future<Null> _refreshHandle() {
     final Completer<Null> completer = new Completer<Null>();
     new Timer(const Duration(milliseconds: 200), () {
-      completer.complete(_db.init().then((_) => _loadBooks()));
+      completer.complete(_loadBooks());
     });
     return completer.future;
   }

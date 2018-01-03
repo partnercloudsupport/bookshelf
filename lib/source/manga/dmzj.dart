@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bookshelf/source/manga/manga.dart';
@@ -14,7 +15,7 @@ class MangaDmzj extends MangaParser {
   final String type = 'manga';
 
   @override
-  searchBooks(String keyword, [int order=0]) async {
+  Future<List> searchBooks(String keyword, [int order=0]) async {
     String url = baseUrl + '/search/show/0/$keyword/$order.json';
     List response = JSON.decode((await http.get(url, headers: headers)).body);
     return response.map((Map<String, String> res) {
@@ -34,7 +35,7 @@ class MangaDmzj extends MangaParser {
   }
 
   @override
-  getBookDetail(String bid) async {
+  Future<Map> getBookDetail(String bid) async {
     String url = baseUrl + '/comic/$bid.json';
     Map response = JSON.decode((await http.get(url, headers: headers)).body);
     List<Map> chapters = response['chapters'][0]['data'].map((Map chapter) {
@@ -62,7 +63,7 @@ class MangaDmzj extends MangaParser {
   }
 
   @override
-  getChapterContent(String bid, String cid) async {
+  Future<Map> getChapterContent(String bid, String cid) async {
     String url = baseUrl + '/chapter/$bid/$cid.json';
     String uId = uid(url);
     Map response = {};
