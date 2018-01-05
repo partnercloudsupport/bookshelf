@@ -41,14 +41,16 @@ class NovelDmzj extends NovelParser {
     List responseChapter = JSON.decode((await http.get(urlChapter, headers: headers)).body);
     List<Map> chapters = responseChapter.map((Map volume) {
       String vid = volume['volume_id'].toString();
-      return volume['chapters'].map((Map chapter) {
-        return {
-          'book_id': bid.toString(),
-          'volume_id': vid,
-          'chapter_id': chapter['chapter_id'],
-          'chapter_title': chapter['chapter_name']
-        };
-      }).toList();
+      return {
+        'volume_title': volume['volume_name'].trim(),
+        'chapters': volume['chapters'].map((Map chapter) {
+          return {
+            'book_id': bid.toString(),
+            'volume_id': vid,
+            'chapter_id': chapter['chapter_id'],
+            'chapter_title': chapter['chapter_name'].trim()
+          };
+        }).toList()};
     }).toList();
 
     return {

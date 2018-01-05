@@ -121,15 +121,13 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
     setState(() => isFavourite = !isFavourite);
     if (isFavourite) {
       _saveDetail(bookId, bookDetail);
-      bookFavored[widget.bookInfo['type']].add(bookId);
+      if (!bookFavored[widget.bookInfo['type']].contains(bookId))
+        bookFavored[widget.bookInfo['type']].add(bookId);
     } else bookFavored[widget.bookInfo['type']].remove(bookId);
     _saveFavored();
     bus.post('reload_bookshelf');
   }
-  toggleDownloadMode() {
-
-    bus.post('reload_bookshelf');
-  }
+  toggleDownloadMode() {}
 
   @override
   Widget build(BuildContext context) {
@@ -172,12 +170,12 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                           child: new Text(chapter['chapter_title'], style: new TextStyle(
                             color: Theme.of(context).cardColor,
                           ), overflow: TextOverflow.ellipsis,),
-                          color: Theme.of(context).primaryColor,
-                          splashColor: Theme.of(context).primaryColor.withOpacity(0.8),
+                          color: invertColor(Theme.of(context).primaryColor),
+                          splashColor: invertColor(Theme.of(context).primaryColor.withOpacity(0.8)),
                         ) : new Container(
                           decoration: new BoxDecoration(
                             border: new Border.all(
-                              color: Colors.black54.withOpacity(0.5),
+                              color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
                               width: 1.5,
                             ),
                             borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
@@ -190,7 +188,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                               child: new Align(
                                 alignment: Alignment.center,
                                 child: new Text(chapter['chapter_title'], style: new TextStyle(
-                                  color: Colors.black54.withOpacity(0.5),
+                                  color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
                                 ), overflow: TextOverflow.ellipsis,),
                               ),
                             ),
@@ -237,16 +235,19 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
             color: Theme.of(context).primaryColor,
             child: new Row(
               children: <Widget>[
-                new Container(
-                  height: 200.0,
-                  width: 170.0,
-                  margin: const EdgeInsets.only(right: 5.0),
-                  child: bookDetail != null ? new Image(
-                    image: new AdvancedNetworkImage(
-                        bookDetail['coverurl'],
-                        header: bookDetail['coverurl_header'],
-                        useDiskCache: (chapterSelected != null || isFavourite) ? true : false),
-                  ) : null,
+                new GestureDetector(
+                  onTap: () {},
+                  child: new Container(
+                    height: 200.0,
+                    width: 170.0,
+                    margin: const EdgeInsets.only(right: 5.0),
+                    child: bookDetail != null ? new Image(
+                      image: new AdvancedNetworkImage(
+                          bookDetail['coverurl'],
+                          header: bookDetail['coverurl_header'],
+                      ),
+                    ) : null,
+                  ),
                 ),
                 new Expanded(
                   child: new Column(

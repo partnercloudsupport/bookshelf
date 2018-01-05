@@ -12,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quiver/collection.dart';
 
 class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
-  const AdvancedNetworkImage(this.url, { this.scale: 1.0, this.header, this.useMemCache: true, this.useDiskCache: false })
+  const AdvancedNetworkImage(this.url, { this.scale: 1.0, this.header, this.useMemoryCache: true, this.useDiskCache: false })
     : assert(url != null),
       assert(scale != null),
       assert(useDiskCache != null);
@@ -20,7 +20,7 @@ class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
   final String url;
   final double scale;
   final Map<String, String> header;
-  final bool useMemCache;
+  final bool useMemoryCache;
   final bool useDiskCache;
 
   @override
@@ -46,7 +46,7 @@ class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
 
 /// NOTE: disk cache
 /// CachedImageFilename: uid(part of hash hexString with imageUrl)
-/// MetaDataFilename:: getApplicationDocumentsDirectory + 'imagecache/' + 'CachedImageInfo.json'
+/// MetaDataFilename:: getApplicationDocumentsDirectory + '/imagecache/' + 'CachedImageInfo.json'
 ///  {
 ///    '$uid(image_url)': '$etag',
 ///    ...
@@ -56,9 +56,7 @@ class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
     assert(key == this);
 
     String uId = uid(url);
-    if (!key.useMemCache) imageMemoryCache.clear();
-
-    if (imageMemoryCache != null && imageMemoryCache.containsKey(uId)) {
+    if (useMemoryCache && imageMemoryCache != null && imageMemoryCache.containsKey(uId)) {
       if (useDiskCache) _loadFromDiskCache(key, uId);
       return await _decodeImageData(imageMemoryCache[uId], key.scale);
     }
@@ -66,7 +64,7 @@ class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
 
     Map imageInfo = await _loadFromRemote(key, url, header);
     if (imageInfo != null) {
-      imageMemoryCache[uId] = imageInfo['ImageData'];
+      if (useMemoryCache) imageMemoryCache[uId] = imageInfo['ImageData'];
       return await _decodeImageData(imageInfo['ImageData'], key.scale);
     }
 
@@ -135,12 +133,13 @@ class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
     return url == typedOther.url
         && scale == typedOther.scale
         && header == typedOther.header
+        && useMemoryCache == typedOther.useMemoryCache
         && useDiskCache == typedOther.useDiskCache;
   }
   @override
-  int get hashCode => hashValues(url, scale, header, useMemCache, useDiskCache);
+  int get hashCode => hashValues(url, scale, header, useMemoryCache, useDiskCache);
   @override
-  String toString() => '$runtimeType("$url", scale: $scale, header: $header, useMemCache: $useMemCache, useDiskCache:$useDiskCache)';
+  String toString() => '$runtimeType("$url", scale: $scale, header: $header, useMemCache: $useMemoryCache, useDiskCache:$useDiskCache)';
 }
 
 Future<bool> clearDiskCachedImages() async {
@@ -151,6 +150,17 @@ Future<bool> clearDiskCachedImages() async {
     return false;
   }
   return true;
+}
+
+Future<int> getDiskCachedImagesSize() async {
+  Directory _cacheImagesDirectory = new Directory(join((await getApplicationDocumentsDirectory()).path, 'imagecache'));
+  int size = 0;
+  try {
+    _cacheImagesDirectory.listSync().forEach((var file) => size += file.statSync().size);
+    return size;
+  } catch(_) {
+    return null;
+  }
 }
 
 Map<String, String> diskCacheInfo = {};

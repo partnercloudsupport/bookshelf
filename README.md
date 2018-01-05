@@ -1,8 +1,7 @@
-# bookshelf
+# 书架
 
-A new Flutter project.
+一个可以看漫画、小说和本子的手机应用。
 
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](http://flutter.io/).
+- [x] 离线优先
+- [ ] 多站点支持
+- [ ] 可下载

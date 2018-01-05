@@ -76,6 +76,15 @@ class ViewSearchState extends State<ViewSearch> {
         }
       });
     });
+    doujinshiResults.forEach((var res) async {
+      List result = await res;
+      setState(() => searchDoujinshiResult.addAll(result));
+      result.forEach((Map<String, String> val){
+        if (!val['title'].contains(keyword)) {
+          setState(() => searchDoujinshiResult.remove(val));
+        }
+      });
+    });
   }
 
   Future<Null> _refreshHandle() {
