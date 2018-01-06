@@ -86,22 +86,21 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
     }).catchError((e) => print(e));
   }
 
-  _selectChapter(chapter) {
+  _selectChapter(Map chapter, String volumeTitle) {
     setState(() => chapterSelected = chapter);
-    _saveDetail(bookId, bookDetail);
-    _saveHistory(bookId, chapter);
+//    _saveDetail(bookId, bookDetail);
+//    _saveHistory(bookId, chapter);
     Map val = {
       'title': widget.bookInfo['title'],
       'parser': widget.bookInfo['parser'],
       'chapter_title': chapter['chapter_title'].toString(),
+      'volume_title': volumeTitle,
       'bid': widget.bookInfo['id'].toString(),
+      'vid': chapter['volume_id'].toString(),
       'cid': chapter['chapter_id'].toString(),
     };
-    switch (widget.bookInfo['type']) {
-      case 'manga': Navigator.of(context).pushNamed('/viewer~manga/' + JSON.encode(val)); break;
-      case 'novel': Navigator.of(context).pushNamed('/viewer~novel/' + JSON.encode(val)); break;
-      case 'doujinshi': Navigator.of(context).pushNamed('/viewer~manga/' + JSON.encode(val)); break;
-    }
+    bus.post('reload_bookshelf');
+    Navigator.of(context).pushNamed('/viewer~novel/' + JSON.encode(val));
   }
 
   Future<Null> _handleRefresh() {
@@ -112,7 +111,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
     return completer.future.then((_) {});
   }
 
-  friendlyDate(DateTime datetime) {
+  String friendlyDate(DateTime datetime) {
     int days = new DateTime.now().toLocal().difference(datetime).inDays;
     return days <= 100 ? '$days天前' : new DateFormat("yyyy-MM-dd").format(datetime);
   }
@@ -285,7 +284,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
                     new Column(
                       children: volume['chapters'].map((Map chapter) {
                         return new InkWell(
-                          onTap: () {},
+                          onTap: () {_selectChapter(chapter, volume['volume_title']);},
                           child: new Container(
                             height: 40.0,
                             padding: const EdgeInsets.only(left: 40.0),

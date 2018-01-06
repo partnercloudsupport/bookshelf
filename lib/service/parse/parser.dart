@@ -11,7 +11,8 @@ class Parser {
     return await parser.getBookDetail(bid);
   }
 
-  getChapterContent(parser, String bid, String cid) async {
+  getChapterContent(parser, String bid, String cid, [String vid]) async {
+    if (vid != null) return await parser.getChapterContent(bid, vid, cid);
     return await parser.getChapterContent(bid, cid);
   }
 }

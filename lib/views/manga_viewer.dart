@@ -23,7 +23,7 @@ class MangaViewerState extends State<MangaViewer> {
   Parser parser = new Parser();
 
   Map content;
-  bool isShowinformation = false;
+  bool isShowInformation = false;
 
   Battery _battery = new Battery();
   BatteryState batteryState;
@@ -39,7 +39,8 @@ class MangaViewerState extends State<MangaViewer> {
   @override
   void initState() {
     super.initState();
-    _getChaptercontent();
+    _hideInformation();
+    _getChapterContent();
     _batteryStateSubscription = _battery.onBatteryStateChanged.listen((BatteryState state) {
       setState(() => batteryState = state);
     });
@@ -61,19 +62,14 @@ class MangaViewerState extends State<MangaViewer> {
     repeater.cancel();
   }
 
-  _getChaptercontent() async {
-    var bookParser = parserSelector([widget.chapterInfo['parser']])[0];
+  _getChapterContent() async {
+    var bookParser = parserSelector([widget.chapterInfo['parser']])['manga'][0];
     Map result = await parser.getChapterContent(bookParser, widget.chapterInfo['bid'], widget.chapterInfo['cid']);
     setState(() => content = result);
-    _hideInformation();
   }
 
-  _hideInformation() {
-    SystemChrome.setEnabledSystemUIOverlays([]);
-  }
-  _showInformation() {
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-  }
+  _hideInformation() => SystemChrome.setEnabledSystemUIOverlays([]);
+  _showInformation() => SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
 
   Future<Null> _loadPreviewChapter() {
     final Completer<Null> completer = new Completer<Null>();
@@ -94,16 +90,12 @@ class MangaViewerState extends State<MangaViewer> {
   batteryLevelIcon() {
     IconData batteryIcon = Icons.battery_unknown;
     if (batteryState == BatteryState.discharging) {
-      if (batteryLevel <= 25) {
-        batteryIcon = Icons.battery_alert;
-      } else {
-        batteryIcon = Icons.battery_std;
-      }
-    } else if (batteryState == BatteryState.charging) {
-      batteryIcon = Icons.battery_charging_full;
-    } else {
-      batteryIcon = Icons.battery_full;
+      if (batteryLevel <= 25) batteryIcon = Icons.battery_alert;
+      else batteryIcon = Icons.battery_std;
     }
+    else if (batteryState == BatteryState.charging) batteryIcon = Icons.battery_charging_full;
+    else batteryIcon = Icons.battery_full;
+
     return batteryIcon;
   }
 
@@ -115,56 +107,57 @@ class MangaViewerState extends State<MangaViewer> {
   Widget build(BuildContext context) {
     final Orientation orientation = MediaQuery.of(context).orientation;
     return new CustomMultiChildLayout(
-      delegate: new _MangaviewerLayout(),
+      delegate: new _MangaViewerLayout(),
       children: <Widget>[
         new LayoutId(
-            id: _MangaviewerLayout.viewer,
-            child: new RefreshIndicator(
-                onRefresh: _loadPreviewChapter,
-                child: new GestureDetector(
-                  onDoubleTap: () {},
-                  child: new Container(
-                      color: Colors.black,
-//                      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-//                      transform: new Matrix4.diagonal3(new Vector3(3.0, 3.0, 3.0)),
-                      child: new Transform(
-                        transform: new Matrix4.identity()..scale(scaleSize, scaleSize),
-                        alignment: Alignment.center,
-                        child: new NotificationListener(
-                          onNotification: (_) {
-                            if (content != null) {
-                              double maxRange = _scrollController.position.maxScrollExtent;
-                              int page = (_scrollController.offset / maxRange * content['picture_urls'].length).ceil();
-                              setState(() => currentPage = (page == 0 ? 1 : page));
-                              if (currentPage == content['picture_urls'].length) {
-                                if (atBottom == false) {
-                                  setState(() => atBottom = true);
-                                  _loadNextChapter();
-                                }
-                              } else {
-                                if (atBottom == true) setState(() => atBottom = false);
-                              }
-                            }
-                          },
-                          child: new ListView.builder(
-//                          scrollDirection: Axis.horizontal,
-                            controller: _scrollController,
-                            itemCount: content != null ? content['picture_urls'].length : 0,
-                            itemBuilder: (BuildContext context, int index) {
-//                            print(index);
-                              return content != null ? new Image(
-                                image: new AdvancedNetworkImage(content['picture_urls'][index], header: content['picture_header']),
-                              ) : new Container();
-                            },
-                          ),
-                        ),
-                      )
+          id: _MangaViewerLayout.viewer,
+          child: new RefreshIndicator(
+            onRefresh: _loadPreviewChapter,
+            child: new GestureDetector(
+              onDoubleTap: () {},
+              onScaleUpdate: (detail) {},
+              child: new Container(
+                color: Colors.black,
+//                padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+//                transform: new Matrix4.diagonal3(new Vector3(3.0, 3.0, 3.0)),
+                child: new Transform(
+                  transform: new Matrix4.identity()..scale(scaleSize, scaleSize),
+                  alignment: Alignment.center,
+                  child: new NotificationListener(
+                    onNotification: (_) {
+                      if (content != null) {
+                        double maxRange = _scrollController.position.maxScrollExtent;
+                        int page = (_scrollController.offset / maxRange * content['picture_urls'].length).ceil();
+                        setState(() => currentPage = (page == 0 ? 1 : page));
+                        if (currentPage == content['picture_urls'].length) {
+                          if (atBottom == false) {
+                            setState(() => atBottom = true);
+                            _loadNextChapter();
+                          }
+                        } else {
+                          if (atBottom == true) setState(() => atBottom = false);
+                        }
+                      }
+                    },
+                    child: new ListView.builder(
+//                    scrollDirection: Axis.horizontal,
+                      controller: _scrollController,
+                      itemCount: content != null ? content['picture_urls'].length : 0,
+                      itemBuilder: (BuildContext context, int index) {
+//                      print(index);
+                        return content != null ? new Image(
+                          image: new AdvancedNetworkImage(content['picture_urls'][index], header: content['picture_header']),
+                        ) : new Container();
+                      },
+                    ),
                   ),
                 )
-            ),
+              ),
+            )
+          ),
         ),
         new LayoutId(
-          id: _MangaviewerLayout.statusbartop,
+          id: _MangaViewerLayout.statusbartop,
           child: new Material(
             color: Colors.black.withOpacity(0.3),
             child: new Row(
@@ -218,7 +211,7 @@ class MangaViewerState extends State<MangaViewer> {
           ),
         ),
         new LayoutId(
-          id: _MangaviewerLayout.statusbarbottom,
+          id: _MangaViewerLayout.statusbarbottom,
           child: new Material(
             color: Colors.black.withOpacity(0.3),
             child: new Container(
@@ -235,8 +228,8 @@ class MangaViewerState extends State<MangaViewer> {
   }
 }
 
-class _MangaviewerLayout extends MultiChildLayoutDelegate {
-  _MangaviewerLayout();
+class _MangaViewerLayout extends MultiChildLayoutDelegate {
+  _MangaViewerLayout();
 
   static final String statusbartop = 'statusbartop';
   static final String statusbarbottom = 'statusbarbottom';
@@ -254,5 +247,5 @@ class _MangaviewerLayout extends MultiChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(_MangaviewerLayout oldDelegate) => false;
+  bool shouldRelayout(_MangaViewerLayout oldDelegate) => false;
 }

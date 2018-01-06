@@ -97,9 +97,9 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
       'bid': widget.bookInfo['id'].toString(),
       'cid': chapter['chapter_id'].toString(),
     };
+    bus.post('reload_bookshelf');
     switch (widget.bookInfo['type']) {
       case 'manga': Navigator.of(context).pushNamed('/viewer~manga/' + JSON.encode(val)); break;
-      case 'novel': Navigator.of(context).pushNamed('/viewer~novel/' + JSON.encode(val)); break;
       case 'doujinshi': Navigator.of(context).pushNamed('/viewer~manga/' + JSON.encode(val)); break;
     }
   }
@@ -149,6 +149,10 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
           ),
         ],
       ),
+      floatingActionButton: chapterSelected != null ? new FloatingActionButton(
+        onPressed: () => _selectChapter(chapterSelected),
+        child: const Icon(Icons.chrome_reader_mode),
+      ): null,
       body: new Column(
         verticalDirection: VerticalDirection.up, // BUG: Column/ListView shadow casting
         children: <Widget>[

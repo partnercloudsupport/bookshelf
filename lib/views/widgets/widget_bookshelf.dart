@@ -92,14 +92,14 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
     );
   }
 
-  Widget _bookItems(context, orientation, bookList, String tabType, String bookType) {
+  Widget _bookItems(BuildContext context, Orientation orientation, bookList, String tabType, String bookType) {
     final double bookWidth = (orientation == Orientation.portrait) ? 165.0 : 190.0;
     final double bookHeight = bookWidth * 1.25;
     Map historyItems = {};
     if (tabType == 'history') {
       historyItems = bookList;
-      bookList = bookList.keys.toList();
-    }
+      bookList = bookList.keys.toList().reversed;
+    } else bookList = bookList.reversed;
     return new Wrap(
       spacing: 10.0,
       runSpacing: 10.0,

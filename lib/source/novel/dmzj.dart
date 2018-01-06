@@ -45,7 +45,6 @@ class NovelDmzj extends NovelParser {
         'volume_title': volume['volume_name'].trim(),
         'chapters': volume['chapters'].map((Map chapter) {
           return {
-            'book_id': bid.toString(),
             'volume_id': vid,
             'chapter_id': chapter['chapter_id'],
             'chapter_title': chapter['chapter_name'].trim()
@@ -67,8 +66,14 @@ class NovelDmzj extends NovelParser {
   }
 
   @override
-  String getChapterContent(String bid, String vid ,String cid) {
+  Future<String> getChapterContent(String bid, String vid ,String cid) async {
     String url = baseUrl + '/novel/download/$bid\_$vid\_$cid.txt';
-    return http.get(url).toString();
+    return (UTF8.decode((await http.get(url)).bodyBytes)
+      .replaceAll('&nbsp;', ' ')
+      .replaceAll('<br />', '')
+      .replaceAll('<br/>', '\n')
+      .replaceAll('&hellip;', '…')
+      .replaceAll('&mdash;', '—')
+    );
   }
 }
