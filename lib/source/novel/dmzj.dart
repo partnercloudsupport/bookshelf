@@ -74,6 +74,10 @@ class NovelDmzj extends NovelParser {
       .replaceAll('<br/>', '\n')
       .replaceAll('&hellip;', '…')
       .replaceAll('&mdash;', '—')
+//      .replaceAll(new RegExp('<img\s*|\s*src=[\'"]\s*|\s*alt=[\'"]\d*\w*\s*[\'"]\s*|[\'"] *\/>'), '')
+//      .replaceAll(new RegExp('width=[\'"][0|1|2|3|4|5|6|7|8|9|0]*[\'"]'), '')
+//      .replaceAll(new RegExp('height=[\'"][0|1|2|3|4|5|6|7|8|9|0]*[\'"]'), '')
+      .trim()
     );
   }
 }

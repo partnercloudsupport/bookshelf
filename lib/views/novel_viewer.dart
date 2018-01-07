@@ -21,7 +21,8 @@ class NovelViewer extends StatefulWidget {
 class NovelViewerState extends State<NovelViewer> {
   Parser parser = new Parser();
 
-  String content;
+  List content;
+//  String content;
   bool isShowInformation = false;
 
   Battery _battery = new Battery();
@@ -62,8 +63,13 @@ class NovelViewerState extends State<NovelViewer> {
   _getChapterContent() async {
     var bookParser = parserSelector([widget.chapterInfo['parser']])['novel'][0];
     String result = await parser.getChapterContent(bookParser, widget.chapterInfo['bid'], widget.chapterInfo['cid'], widget.chapterInfo['vid']);
-    setState(() => content = result);
+    _parseContent(result);
+//    setState(() => content = result);
     _hideInformation();
+  }
+
+  _parseContent(String rawString) {
+
   }
 
   _hideInformation() => SystemChrome.setEnabledSystemUIOverlays([]);
@@ -84,7 +90,7 @@ class NovelViewerState extends State<NovelViewer> {
   Future<Null> _loadPreviewChapter() {
     final Completer<Null> completer = new Completer<Null>();
     new Timer(const Duration(milliseconds: 200), () {
-      completer.complete();
+      completer.complete(_getChapterContent());
     });
     return completer.future.then((_) {});
   }
@@ -173,15 +179,20 @@ class NovelViewerState extends State<NovelViewer> {
                   },
                   child: new RefreshIndicator(
                     child: new SingleChildScrollView(
+//                      physics: const AlwaysScrollableScrollPhysics(),
                       controller: _scrollController,
-                      child: new Material(
-                        color: Colors.black.withOpacity(0.3),
-                        child: new Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: content != null ?
-                          new Text(content, style: new TextStyle(fontSize: fontSize, height: 1.8))
-                              : const Text(''),
-                        )
+                      child: new ConstrainedBox(
+                        constraints: (orientation == Orientation.portrait) ? const BoxConstraints(minHeight: 850.0) : const BoxConstraints(minHeight: 550.0),
+                        child: new Material(
+                          color: Colors.black.withOpacity(0.3),
+                          child: new Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: new Container()
+//                            child: content != null ?
+//                              new Text(content, style: new TextStyle(fontSize: fontSize, height: 1.8))
+//                              : new Container(),
+                          )
+                        ),
                       ),
                     ),
                     onRefresh: _loadPreviewChapter

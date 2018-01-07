@@ -18,7 +18,7 @@ final Map<String, String> ua = {
 };
 
 
-Map basePageName = {
+final Map basePageName = {
   'Bookshelf': '书架',
   'Manga': '漫画',
   'Novel': '小说',

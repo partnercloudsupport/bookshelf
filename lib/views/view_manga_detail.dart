@@ -34,6 +34,10 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
   Map bookHistory;
   Map bookFavored;
 
+  ScrollController _scrollController = new ScrollController();
+
+  double scrollProgress = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -149,58 +153,67 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
           ),
         ],
       ),
-      floatingActionButton: chapterSelected != null ? new FloatingActionButton(
+      floatingActionButton: (chapterSelected != null && scrollProgress < 0.90) ? new FloatingActionButton(
         onPressed: () => _selectChapter(chapterSelected),
         child: const Icon(Icons.chrome_reader_mode),
       ): null,
       body: new Column(
-        verticalDirection: VerticalDirection.up, // BUG: Column/ListView shadow casting
+        verticalDirection: VerticalDirection.up, // BUG: Column shadow casting
         children: <Widget>[
           new Expanded(
             child: new RefreshIndicator(
-              child: new GridView.count(
-                padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
-                crossAxisCount: (orientation == Orientation.portrait) ? 5 : 8,
-                childAspectRatio: (orientation == Orientation.portrait) ? 2.5 : 2.5,
-                mainAxisSpacing: 15.0,
-                crossAxisSpacing: 12.0,
-                children: bookDetail !=null ?
-                bookDetail['chapters'].map((Map chapter) {
-                  return new Material(
-                      child: new ClipRRect(
-                        borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                        child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
-                          onPressed: () => _selectChapter(chapter),
-                          child: new Text(chapter['chapter_title'], style: new TextStyle(
-                            color: Theme.of(context).cardColor,
-                          ), overflow: TextOverflow.ellipsis,),
-                          color: invertColor(Theme.of(context).primaryColor),
-                          splashColor: invertColor(Theme.of(context).primaryColor.withOpacity(0.8)),
-                        ) : new Container(
-                          decoration: new BoxDecoration(
-                            border: new Border.all(
-                              color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
-                              width: 1.5,
+              child: new NotificationListener(
+                onNotification: (_) {
+                  if (bookDetail != null) {
+                    double progress = _scrollController.offset / _scrollController.position.maxScrollExtent;
+                    setState(() => scrollProgress = progress);
+                  }
+                },
+                child: new GridView.count(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
+                  crossAxisCount: (orientation == Orientation.portrait) ? 5 : 8,
+                  childAspectRatio: (orientation == Orientation.portrait) ? 2.5 : 2.5,
+                  mainAxisSpacing: 15.0,
+                  crossAxisSpacing: 12.0,
+                  children: bookDetail !=null ?
+                  bookDetail['chapters'].map((Map chapter) {
+                    return new Material(
+                        child: new ClipRRect(
+                          borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                          child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
+                            onPressed: () => _selectChapter(chapter),
+                            child: new Text(chapter['chapter_title'], style: new TextStyle(
+                              color: Theme.of(context).cardColor,
+                            ), overflow: TextOverflow.ellipsis,),
+                            color: invertColor(Theme.of(context).primaryColor),
+                            splashColor: invertColor(Theme.of(context).primaryColor.withOpacity(0.8)),
+                          ) : new Container(
+                            decoration: new BoxDecoration(
+                              border: new Border.all(
+                                color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
+                                width: 1.5,
+                              ),
+                              borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
                             ),
-                            borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                          ),
-                          child: new InkWell(
-                            borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                            onTap: () => _selectChapter(chapter),
-                            child: new Padding(
-                              padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
-                              child: new Align(
-                                alignment: Alignment.center,
-                                child: new Text(chapter['chapter_title'], style: new TextStyle(
-                                  color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
-                                ), overflow: TextOverflow.ellipsis,),
+                            child: new InkWell(
+                              borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                              onTap: () => _selectChapter(chapter),
+                              child: new Padding(
+                                padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+                                child: new Align(
+                                  alignment: Alignment.center,
+                                  child: new Text(chapter['chapter_title'], style: new TextStyle(
+                                    color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
+                                  ), overflow: TextOverflow.ellipsis,),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      )
-                  );
-                }).toList() : <Widget>[],
+                        )
+                    );
+                  }).toList() : <Widget>[],
+                )
               ),
               onRefresh: _handleRefresh,
             ),
