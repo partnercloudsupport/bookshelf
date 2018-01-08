@@ -99,9 +99,9 @@ class MangaViewerState extends State<MangaViewer> {
     return batteryIcon;
   }
 
-  scrollTo(double offset) {
-    _scrollController.animateTo(offset, duration: new Duration(seconds: 1), curve: Curves.ease);
-  }
+//  scrollTo(double offset) {
+//    _scrollController.animateTo(offset, duration: new Duration(seconds: 1), curve: Curves.ease);
+//  }
 
   @override
   Widget build(BuildContext context) {

@@ -35,8 +35,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
   Map bookFavored;
 
   ScrollController _scrollController = new ScrollController();
-
-  double scrollProgress = 0.0;
+  bool enableContinueReadingBtn = true;
 
   @override
   void initState() {
@@ -153,7 +152,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
           ),
         ],
       ),
-      floatingActionButton: (chapterSelected != null && scrollProgress < 0.90) ? new FloatingActionButton(
+      floatingActionButton: (chapterSelected != null && enableContinueReadingBtn == true) ? new FloatingActionButton(
         onPressed: () => _selectChapter(chapterSelected),
         child: const Icon(Icons.chrome_reader_mode),
       ): null,
@@ -166,7 +165,8 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                 onNotification: (_) {
                   if (bookDetail != null) {
                     double progress = _scrollController.offset / _scrollController.position.maxScrollExtent;
-                    setState(() => scrollProgress = progress);
+                    if (progress > 0.95 && enableContinueReadingBtn == true) setState(() => enableContinueReadingBtn = false);
+                    else if (progress <= 0.95 && enableContinueReadingBtn == false) setState(() => enableContinueReadingBtn = true);
                   }
                 },
                 child: new GridView.count(
@@ -179,38 +179,38 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                   children: bookDetail !=null ?
                   bookDetail['chapters'].map((Map chapter) {
                     return new Material(
-                        child: new ClipRRect(
-                          borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                          child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
-                            onPressed: () => _selectChapter(chapter),
-                            child: new Text(chapter['chapter_title'], style: new TextStyle(
-                              color: Theme.of(context).cardColor,
-                            ), overflow: TextOverflow.ellipsis,),
-                            color: invertColor(Theme.of(context).primaryColor),
-                            splashColor: invertColor(Theme.of(context).primaryColor.withOpacity(0.8)),
-                          ) : new Container(
-                            decoration: new BoxDecoration(
-                              border: new Border.all(
-                                color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
-                                width: 1.5,
-                              ),
-                              borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                      child: new ClipRRect(
+                        borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                        child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
+                          onPressed: () => _selectChapter(chapter),
+                          child: new Text(chapter['chapter_title'], style: new TextStyle(
+                            color: Theme.of(context).cardColor,
+                          ), overflow: TextOverflow.ellipsis),
+                          color: invertColor(Theme.of(context).primaryColor),
+                          splashColor: invertColor(Theme.of(context).primaryColor.withOpacity(0.8)),
+                        ) : new Container(
+                          decoration: new BoxDecoration(
+                            border: new Border.all(
+                              color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
+                              width: 1.5,
                             ),
-                            child: new InkWell(
-                              borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                              onTap: () => _selectChapter(chapter),
-                              child: new Padding(
-                                padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
-                                child: new Align(
-                                  alignment: Alignment.center,
-                                  child: new Text(chapter['chapter_title'], style: new TextStyle(
-                                    color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
-                                  ), overflow: TextOverflow.ellipsis,),
-                                ),
+                            borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                          ),
+                          child: new InkWell(
+                            borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                            onTap: () => _selectChapter(chapter),
+                            child: new Padding(
+                              padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+                              child: new Align(
+                                alignment: Alignment.center,
+                                child: new Text(chapter['chapter_title'], style: new TextStyle(
+                                  color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
+                                ), overflow: TextOverflow.ellipsis,),
                               ),
                             ),
                           ),
-                        )
+                        ),
+                      )
                     );
                   }).toList() : <Widget>[],
                 )

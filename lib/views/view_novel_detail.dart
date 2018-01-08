@@ -33,11 +33,20 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
   Map cachedResult;
   Map bookHistory;
   Map bookFavored;
+  int readingProgress = 0;
+  String readingVolumeTitle = '';
+
+  ScrollController _scrollController = new ScrollController();
+  bool enableContinueReadingBtn = true;
 
   @override
   void initState() {
     super.initState();
     _getBookDetail();
+    bus.subscribe('set_reading_progress', (f) {
+      readingProgress = f();
+      _saveHistory(bookId, chapterSelected, readingVolumeTitle, readingProgress);
+    });
   }
 
   /// TODO: rewrite save function
@@ -45,8 +54,13 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
     cachedResult[cachedId] = detail;
     _db.set('cached_detail', cachedResult).catchError((_){});
   }
-  _saveHistory(String historyId, Map chapter) {
-    bookHistory[widget.bookInfo['type']][historyId] = chapter;
+  _saveHistory(String historyId, Map chapter, String volumeTitle, int progress) {
+    bookHistory[widget.bookInfo['type']][historyId] = {
+      'chapter': chapter,
+      'volume': volumeTitle,
+      'progress': progress,
+      'chapter_title': chapter['chapter_title']
+    };
     _db.set('book_history', bookHistory).catchError((_){});
   }
   _saveFavored() {
@@ -57,7 +71,11 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
     bookFavored = await _db.get('book_favored');
     if (bookHistory != null) {
       if (bookHistory.containsKey(widget.bookInfo['type']) && bookHistory[widget.bookInfo['type']].containsKey(bookId)) {
-        setState(() => chapterSelected = bookHistory[widget.bookInfo['type']][bookId]);
+        setState(() {
+          chapterSelected = bookHistory[widget.bookInfo['type']][bookId]['chapter'];
+          readingProgress = bookHistory[widget.bookInfo['type']][bookId]['progress'];
+          readingVolumeTitle = bookHistory[widget.bookInfo['type']][bookId]['volume'];
+        });
       }
     } else bookHistory = {'manga': {}, 'novel': {}, 'doujinshi': {}};
     if (bookFavored != null) {
@@ -87,9 +105,13 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
   }
 
   _selectChapter(Map chapter, String volumeTitle) {
-    setState(() => chapterSelected = chapter);
-//    _saveDetail(bookId, bookDetail);
-//    _saveHistory(bookId, chapter);
+    if (chapterSelected != chapter) readingProgress = 0;
+    setState(() {
+      chapterSelected = chapter;
+      readingVolumeTitle = volumeTitle;
+    });
+    _saveDetail(bookId, bookDetail);
+    _saveHistory(bookId, chapter, volumeTitle, readingProgress);
     Map val = {
       'title': widget.bookInfo['title'],
       'parser': widget.bookInfo['parser'],
@@ -98,6 +120,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
       'bid': widget.bookInfo['id'].toString(),
       'vid': chapter['volume_id'].toString(),
       'cid': chapter['chapter_id'].toString(),
+      'progress': readingProgress,
     };
     bus.post('reload_bookshelf');
     Navigator.of(context).pushNamed('/viewer~novel/' + JSON.encode(val));
@@ -147,160 +170,174 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
           ),
         ],
       ),
+      floatingActionButton: (chapterSelected != null && enableContinueReadingBtn) ? new FloatingActionButton(
+        onPressed: () => _selectChapter(chapterSelected, readingVolumeTitle),
+        child: const Icon(Icons.chrome_reader_mode),
+      ): null,
       body: new RefreshIndicator(
-        child: new ListView(
-          children: <Widget>[
-            new Container(
-              padding: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 20.0),
-              height: 235.0,
-              color: Theme.of(context).primaryColor,
-              child: new Row(
-                children: <Widget>[
-                  new GestureDetector(
-                    onTap: () {},
-                    child: new Container(
-                      height: 200.0,
-                      width: 170.0,
-                      margin: const EdgeInsets.only(right: 5.0),
-                      child: bookDetail != null ? new Image(
-                        image: new AdvancedNetworkImage(
-                          bookDetail['coverurl'],
-                          header: bookDetail['coverurl_header'],
-                        ),
-                      ) : null,
-                    ),
-                  ),
-                  new Expanded(
-                    child: new Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        new Container(
-                          child: new Text(bookDetail != null ? bookDetail['title'] : '',
-                            overflow: TextOverflow.ellipsis,
-                            style: new TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.0,
-                            ),
-                          ),
-                        ),
-                        new Container(
-                          padding: const EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0),
-                          child: new Row(
-                            children: bookDetail != null ?
-                            bookDetail['authors'].map((String author) {
-                              return new Text(author + '  ',
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15.0,
-                                ),
-                              );
-                            }).toList() : <Widget>[],
-                          ),
-                        ),
-                        new Container(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: new Row(
-                            children: bookDetail != null ?
-                            bookDetail['types'].map((String type) {
-                              return new Text(type + '  ',
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15.0,
-                                ),
-                              );
-                            }).toList() : <Widget>[],
-                          ),
-                        ),
-                        new Container(
-                          child: new Text(bookDetail != null ? bookDetail['description'] : '',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 5,
-                            style: new TextStyle(
-                              color: Colors.white,
-                              fontSize: 14.0,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            new Container(
-              height: 30.0,
-              color: Colors.grey.withOpacity(0.2),
-              child: new Row(
-                children: <Widget>[
-                  new Container(
-                    margin: const EdgeInsets.only(left: 25.0),
-                    child: new Text(widget.bookInfo != null ? getParserName(widget.bookInfo['parser']) : ''),
-                  ),
-                  new Container(
-                    margin: const EdgeInsets.only(left: 5.0),
-                    child: new Text(bookDetail != null ? bookDetail['status'] : ''),
-                  ),
-                  new Expanded(
-                    child: new Align(
-                      alignment: Alignment.centerRight,
-                      child: new Container(
-                        margin: const EdgeInsets.only(right: 25.0),
-                        child: new Text(bookDetail != null ? friendlyDate(new DateTime.fromMillisecondsSinceEpoch(bookDetail['last_updatetime']*1000)) : ''),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            new Column(
-              children: bookDetail != null ?
-              bookDetail['chapters'].map((Map volume) {
-                return new Column(
+        child: new NotificationListener(
+          onNotification: (_) {
+            if (bookDetail != null) {
+              double progress = _scrollController.offset / _scrollController.position.maxScrollExtent;
+              if (progress > 0.98 && enableContinueReadingBtn == true) setState(() => enableContinueReadingBtn = false);
+              else if (progress <= 0.98 && enableContinueReadingBtn == false) setState(() => enableContinueReadingBtn = true);
+            }
+          },
+          child: new ListView(
+            controller: _scrollController,
+            children: <Widget>[
+              new Container(
+                padding: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 20.0),
+                height: 235.0,
+                color: Theme.of(context).primaryColor,
+                child: new Row(
                   children: <Widget>[
-                    new Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: new Material(
-                        elevation: 8.0,
+                    new GestureDetector(
+                      onTap: () {},
+                      child: new Container(
+                        height: 200.0,
+                        width: 170.0,
+                        margin: const EdgeInsets.only(right: 5.0),
+                        child: bookDetail != null ? new Image(
+                          image: new AdvancedNetworkImage(
+                            bookDetail['coverurl'],
+                            header: bookDetail['coverurl_header'],
+                          ),
+                        ) : null,
+                      ),
+                    ),
+                    new Expanded(
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          new Container(
+                            child: new Text(bookDetail != null ? bookDetail['title'] : '',
+                              overflow: TextOverflow.ellipsis,
+                              style: new TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20.0,
+                              ),
+                            ),
+                          ),
+                          new Container(
+                            padding: const EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0),
+                            child: new Row(
+                              children: bookDetail != null ?
+                              bookDetail['authors'].map((String author) {
+                                return new Text(author + '  ',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: new TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15.0,
+                                  ),
+                                );
+                              }).toList() : <Widget>[],
+                            ),
+                          ),
+                          new Container(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: new Row(
+                              children: bookDetail != null ?
+                              bookDetail['types'].map((String type) {
+                                return new Text(type + '  ',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: new TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15.0,
+                                  ),
+                                );
+                              }).toList() : <Widget>[],
+                            ),
+                          ),
+                          new Container(
+                            child: new Text(bookDetail != null ? bookDetail['description'] : '',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 5,
+                              style: new TextStyle(
+                                color: Colors.white,
+                                fontSize: 14.0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              new Container(
+                height: 30.0,
+                color: Colors.grey.withOpacity(0.2),
+                child: new Row(
+                  children: <Widget>[
+                    new Container(
+                      margin: const EdgeInsets.only(left: 25.0),
+                      child: new Text(widget.bookInfo != null ? getParserName(widget.bookInfo['parser']) : ''),
+                    ),
+                    new Container(
+                      margin: const EdgeInsets.only(left: 5.0),
+                      child: new Text(bookDetail != null ? bookDetail['status'] : ''),
+                    ),
+                    new Expanded(
+                      child: new Align(
+                        alignment: Alignment.centerRight,
                         child: new Container(
-                          color: Theme.of(context).primaryColor,
-                          height: 80.0,
-                          child: new Align(
-                            alignment: Alignment.bottomLeft,
-                            child: new Padding(
-                              padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 10.0),
-                              child: new Text(volume['volume_title'], style: new TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0, fontWeight: FontWeight.bold
-                              )),
+                          margin: const EdgeInsets.only(right: 25.0),
+                          child: new Text(bookDetail != null ? friendlyDate(new DateTime.fromMillisecondsSinceEpoch(bookDetail['last_updatetime']*1000)) : ''),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              new Column(
+                children: bookDetail != null ?
+                bookDetail['chapters'].map((Map volume) {
+                  return new Column(
+                    children: <Widget>[
+                      new Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: new Material(
+                          elevation: 8.0,
+                          child: new Container(
+                            color: Theme.of(context).primaryColor,
+                            height: 80.0,
+                            child: new Align(
+                              alignment: Alignment.bottomLeft,
+                              child: new Padding(
+                                padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 10.0),
+                                child: new Text(volume['volume_title'], style: new TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.0, fontWeight: FontWeight.bold
+                                )),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    new Column(
-                      children: volume['chapters'].map((Map chapter) {
-                        return new InkWell(
-                          onTap: () {_selectChapter(chapter, volume['volume_title']);},
-                          child: new Container(
-                            height: 40.0,
-                            padding: const EdgeInsets.only(left: 40.0),
-                            child: new Align(
-                              alignment: Alignment.centerLeft,
-                              child: new Text(chapter['chapter_title']),
+                      new Column(
+                        children: volume['chapters'].map((Map chapter) {
+                          return new InkWell(
+                            onTap: () {_selectChapter(chapter, volume['volume_title']);},
+                            child: new Container(
+                              height: 40.0,
+                              padding: const EdgeInsets.only(left: 40.0),
+                              child: new Align(
+                                alignment: Alignment.centerLeft,
+                                child: new Text(chapter['chapter_title']),
+                              ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                    )
-                  ],
-                );
-              }).toList() : <Widget>[],
-            )
-          ],
+                          );
+                        }).toList(),
+                      )
+                    ],
+                  );
+                }).toList() : <Widget>[],
+              )
+            ],
+          )
         ),
         onRefresh: _handleRefresh,
       ),

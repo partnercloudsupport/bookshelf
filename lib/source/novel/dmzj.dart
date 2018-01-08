@@ -74,7 +74,7 @@ class NovelDmzj extends NovelParser {
         .replaceAll('\n', '\n\t')
         .replaceAll('&nbsp;', ' ')
         .replaceAll('<br />', '')
-        .replaceAll('<br/>', '\n')
+        .replaceAll('<br/>', '')
         .replaceAll('&hellip;', '…')
         .replaceAll('&mdash;', '—')
         .trim());

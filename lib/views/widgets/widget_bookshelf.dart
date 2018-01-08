@@ -33,7 +33,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
     setState((){});
   }
 
-  _getBookinfo(bookId) {
+  _getBookInfo(bookId) {
     if (cachedResult != null && cachedResult[bookId] != null) {
       return cachedResult[bookId];
     } else return null;
@@ -104,7 +104,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
       spacing: 10.0,
       runSpacing: 10.0,
       children: bookList.map((String bookId) {
-        Map info = _getBookinfo(bookId);
+        Map info = _getBookInfo(bookId);
         return info !=null ? new Container(
           width: bookWidth,
           height: bookHeight,

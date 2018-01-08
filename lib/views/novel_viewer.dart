@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:battery/battery.dart';
 import 'package:bookshelf/service/parse/parser.dart';
+import 'package:bookshelf/util/eventbus.dart';
 import 'package:bookshelf/util/image_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +24,6 @@ class NovelViewerState extends State<NovelViewer> {
   Parser parser = new Parser();
 
   List content;
-//  String content;
   bool isShowInformation = false;
 
   Battery _battery = new Battery();
@@ -50,6 +50,8 @@ class NovelViewerState extends State<NovelViewer> {
       _battery.batteryLevel.then((int val) => setState(() => batteryLevel = val));
       setState(() => now = new DateTime.now().toLocal());
     });
+    setState(() => readingProgress = widget.chapterInfo['progress']);
+    new Timer(new Duration(seconds: 2), () => scrollTo(_scrollController.position.maxScrollExtent*readingProgress/100));
   }
   @override
   void dispose() {
@@ -59,6 +61,7 @@ class NovelViewerState extends State<NovelViewer> {
       _batteryStateSubscription.cancel();
     }
     repeater.cancel();
+    bus.post('set_reading_progress', () => readingProgress);
   }
 
   _getChapterContent() async {
@@ -70,6 +73,10 @@ class NovelViewerState extends State<NovelViewer> {
 
   _hideInformation() => SystemChrome.setEnabledSystemUIOverlays([]);
   _showInformation() => SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+
+  scrollTo(double offset) {
+    _scrollController.animateTo(offset, duration: new Duration(seconds: 1), curve: Curves.ease);
+  }
 
   batteryLevelIcon() {
     IconData batteryIcon = Icons.battery_unknown;
@@ -86,7 +93,7 @@ class NovelViewerState extends State<NovelViewer> {
   Future<Null> _loadPreviewChapter() {
     final Completer<Null> completer = new Completer<Null>();
     new Timer(const Duration(milliseconds: 200), () {
-      completer.complete(_getChapterContent());
+      completer.complete();
     });
     return completer.future.then((_) {});
   }
@@ -106,8 +113,8 @@ class NovelViewerState extends State<NovelViewer> {
       delegate: new _NovelViewerLayout(),
       children: <Widget>[
         new LayoutId(
-            id: _NovelViewerLayout.background,
-            child: new Container(color: Theme.of(context).cardColor)
+          id: _NovelViewerLayout.background,
+          child: new Container(color: Theme.of(context).cardColor)
         ),
         new LayoutId(
           id: _NovelViewerLayout.viewer,
@@ -148,7 +155,7 @@ class NovelViewerState extends State<NovelViewer> {
                             margin: const EdgeInsets.only(right: 5.0),
                             child: new Transform.rotate(
                               angle: 4.7,
-                              child: new Icon(batteryLevelIcon(), size: 18.0, color: Colors.white,),
+                              child: new Icon(batteryLevelIcon(), size: 18.0, color: Colors.white),
                             ),
                           ),
                           new Container(
@@ -183,17 +190,11 @@ class NovelViewerState extends State<NovelViewer> {
                           color: Colors.black.withOpacity(0.3),
                           child: new Padding(
                             padding: const EdgeInsets.all(15.0),
-//                            child: new Container()
                             child: content != null ?
                               new ListBody(
                                 children: content.map((Map cont) {
-                                  if (cont.containsKey('img')) {
-                                    return new Image(
-                                        image: new AdvancedNetworkImage(cont['img']['url'], header: cont['img']['header'])
-                                    );
-                                  } else {
-                                    return new Text(cont['text'], style: new TextStyle(fontSize: fontSize, height: 1.8));
-                                  }
+                                  if (cont.containsKey('img')) return new Image(image: new AdvancedNetworkImage(cont['img']['url'], header: cont['img']['header']));
+                                  else return new Text(cont['text'], style: new TextStyle(fontSize: fontSize, height: 1.8));
                                 }).toList(),
                               )
                               : new Container(),
