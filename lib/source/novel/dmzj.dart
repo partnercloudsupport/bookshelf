@@ -3,7 +3,9 @@ import 'dart:convert';
 
 import 'package:bookshelf/source/novel/novel.dart';
 import 'package:bookshelf/util/constant.dart';
+import 'package:html/dom.dart';
 import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' show parse;
 
 class NovelDmzj extends NovelParser {
   final String parserName = 'novel_dmzj';
@@ -66,18 +68,19 @@ class NovelDmzj extends NovelParser {
   }
 
   @override
-  Future<String> getChapterContent(String bid, String vid ,String cid) async {
+  Future<List> getChapterContent(String bid, String vid ,String cid) async {
     String url = baseUrl + '/novel/download/$bid\_$vid\_$cid.txt';
-    return (UTF8.decode((await http.get(url)).bodyBytes)
-      .replaceAll('&nbsp;', ' ')
-      .replaceAll('<br />', '')
-      .replaceAll('<br/>', '\n')
-      .replaceAll('&hellip;', '…')
-      .replaceAll('&mdash;', '—')
-//      .replaceAll(new RegExp('<img\s*|\s*src=[\'"]\s*|\s*alt=[\'"]\d*\w*\s*[\'"]\s*|[\'"] *\/>'), '')
-//      .replaceAll(new RegExp('width=[\'"][0|1|2|3|4|5|6|7|8|9|0]*[\'"]'), '')
-//      .replaceAll(new RegExp('height=[\'"][0|1|2|3|4|5|6|7|8|9|0]*[\'"]'), '')
-      .trim()
-    );
+    String res = (UTF8.decode((await http.get(url)).bodyBytes)
+        .replaceAll('\n', '\n\t')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('<br />', '')
+        .replaceAll('<br/>', '\n')
+        .replaceAll('&hellip;', '…')
+        .replaceAll('&mdash;', '—')
+        .trim());
+    return parse(res).querySelector('body').nodes.map((Node el) {
+      if (el.attributes.containsKey('src')) return {'img': {'url': el.attributes['src'], 'header': {'Referer': 'http://v2.api.dmzj.com'}}};
+      else return {'text': el.text};
+    }).toList();
   }
 }

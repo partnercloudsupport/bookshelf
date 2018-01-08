@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:battery/battery.dart';
 import 'package:bookshelf/service/parse/parser.dart';
+import 'package:bookshelf/util/image_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -62,14 +63,9 @@ class NovelViewerState extends State<NovelViewer> {
 
   _getChapterContent() async {
     var bookParser = parserSelector([widget.chapterInfo['parser']])['novel'][0];
-    String result = await parser.getChapterContent(bookParser, widget.chapterInfo['bid'], widget.chapterInfo['cid'], widget.chapterInfo['vid']);
-    _parseContent(result);
-//    setState(() => content = result);
+    List result = await parser.getChapterContent(bookParser, widget.chapterInfo['bid'], widget.chapterInfo['cid'], widget.chapterInfo['vid']);
+    setState(() => content = result);
     _hideInformation();
-  }
-
-  _parseContent(String rawString) {
-
   }
 
   _hideInformation() => SystemChrome.setEnabledSystemUIOverlays([]);
@@ -187,10 +183,20 @@ class NovelViewerState extends State<NovelViewer> {
                           color: Colors.black.withOpacity(0.3),
                           child: new Padding(
                             padding: const EdgeInsets.all(15.0),
-                            child: new Container()
-//                            child: content != null ?
-//                              new Text(content, style: new TextStyle(fontSize: fontSize, height: 1.8))
-//                              : new Container(),
+//                            child: new Container()
+                            child: content != null ?
+                              new ListBody(
+                                children: content.map((Map cont) {
+                                  if (cont.containsKey('img')) {
+                                    return new Image(
+                                        image: new AdvancedNetworkImage(cont['img']['url'], header: cont['img']['header'])
+                                    );
+                                  } else {
+                                    return new Text(cont['text'], style: new TextStyle(fontSize: fontSize, height: 1.8));
+                                  }
+                                }).toList(),
+                              )
+                              : new Container(),
                           )
                         ),
                       ),
