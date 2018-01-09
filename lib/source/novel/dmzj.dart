@@ -18,53 +18,61 @@ class NovelDmzj extends NovelParser {
   @override
   Future<List> searchBooks(String keyword, [int order=0]) async {
     String url = baseUrl + '/search/show/1/$keyword/$order.json';
-    List response = JSON.decode((await http.get(url, headers: headers)).body);
-    return response.map((Map<String, String> res) {
-      return ({
-        'id': res['id'].toString(),
-        'title': res['title'],
-        'status': res['status'],
-        'coverurl': res['cover'],
-        'coverurl_header': {'Referer': 'http://v2.api.dmzj.com'},
-        'authors': res['authors'],
-        'types': res['types'],
-        'last_chapter': res['last_name'],
-        'parser': parserName,
-        'type': type
-      });
-    }).toList();
+    try {
+      List response = JSON.decode((await http.get(url, headers: headers)).body);
+      return response.map((Map<String, String> res) {
+        return ({
+          'id': res['id'].toString(),
+          'title': res['title'],
+          'status': res['status'],
+          'coverurl': res['cover'],
+          'coverurl_header': {'Referer': 'http://v2.api.dmzj.com'},
+          'authors': res['authors'],
+          'types': res['types'],
+          'last_chapter': res['last_name'],
+          'parser': parserName,
+          'type': type
+        });
+      }).toList();
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
   Future<Map> getBookDetail(String bid) async {
     String urlBook = baseUrl + '/novel/$bid.json';
     String urlChapter = baseUrl + '/novel/chapter/$bid.json';
-    Map responseBook = JSON.decode((await http.get(urlBook, headers: headers)).body);
-    List responseChapter = JSON.decode((await http.get(urlChapter, headers: headers)).body);
-    List<Map> chapters = responseChapter.map((Map volume) {
-      String vid = volume['volume_id'].toString();
-      return {
-        'volume_title': volume['volume_name'].trim(),
-        'chapters': volume['chapters'].map((Map chapter) {
-          return {
-            'volume_id': vid,
-            'chapter_id': chapter['chapter_id'],
-            'chapter_title': chapter['chapter_name'].trim()
-          };
-        }).toList()};
-    }).toList();
+    try {
+      Map responseBook = JSON.decode((await http.get(urlBook, headers: headers)).body);
+      List responseChapter = JSON.decode((await http.get(urlChapter, headers: headers)).body);
+      List<Map> chapters = responseChapter.map((Map volume) {
+        String vid = volume['volume_id'].toString();
+        return {
+          'volume_title': volume['volume_name'].trim(),
+          'chapters': volume['chapters'].map((Map chapter) {
+            return {
+              'volume_id': vid,
+              'chapter_id': chapter['chapter_id'],
+              'chapter_title': chapter['chapter_name'].trim()
+            };
+          }).toList()};
+      }).toList();
 
-    return {
-      'title': responseBook['name'],
-      'description': responseBook['introduction'],
-      'coverurl': responseBook['cover'],
-      'coverurl_header': {'Referer': 'http://v2.api.dmzj.com'},
-      'chapters': chapters,
-      'types': [responseBook['types'][0].replaceAll('/', '  ')],
-      'status': responseBook['status'],
-      'authors': [responseBook['authors']],
-      'last_updatetime': responseBook['last_update_time'],
-    };
+      return {
+        'title': responseBook['name'],
+        'description': responseBook['introduction'],
+        'coverurl': responseBook['cover'],
+        'coverurl_header': {'Referer': 'http://v2.api.dmzj.com'},
+        'chapters': chapters,
+        'types': [responseBook['types'][0].replaceAll('/', '  ')],
+        'status': responseBook['status'],
+        'authors': [responseBook['authors']],
+        'last_updatetime': responseBook['last_update_time'],
+      };
+    } catch (_) {
+      return null;
+    }
   }
 
   @override

@@ -51,7 +51,7 @@ class NovelViewerState extends State<NovelViewer> {
       setState(() => now = new DateTime.now().toLocal());
     });
     setState(() => readingProgress = widget.chapterInfo['progress']);
-    new Timer(new Duration(seconds: 2), () => scrollTo(_scrollController.position.maxScrollExtent*readingProgress/100));
+    new Timer(new Duration(seconds: 3), () => scrollTo(_scrollController.position.maxScrollExtent*readingProgress/100));
   }
   @override
   void dispose() {
