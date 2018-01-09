@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bookshelf/dababase/db.dart';
+import 'package:bookshelf/database/db.dart';
 import 'package:bookshelf/util/eventbus.dart';
 import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
