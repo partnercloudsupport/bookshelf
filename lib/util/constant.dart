@@ -33,13 +33,17 @@ String getParserName(parserName) {
   switch (parserName) {
     case 'manga_dmzj': return '动漫之家';
     case 'novel_dmzj': return '动漫之家';
+    case 'doujinshi_nhentai': return 'nhentai';
+    case 'doujinshi_ehentai': return 'e-hentai';
+    case 'doujinshi_exhentai': return 'exhentai';
+    case 'doujinshi_dlbooks': return 'dlbooks';
     default: return parserName;
   }
 }
 
 /// NOTE: temporary setup
 availableParserList() {
-  return ['manga_dmzj', 'novel_dmzj'];
+  return ['manga_dmzj', 'novel_dmzj', 'doujinshi_nhentai'];
 }
 
 //enum SourceType {

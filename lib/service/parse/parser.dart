@@ -1,4 +1,4 @@
-import 'package:bookshelf/source/source.dart' show MangaDmzj, NovelDmzj;
+import 'package:bookshelf/source/source.dart' show DoujinshiNhentai, MangaDmzj, NovelDmzj;
 
 class Parser {
   searchBooks(List parsers, String keyword) {
@@ -26,6 +26,9 @@ parserSelector(List parsersName) {
         break;
       case 'novel_dmzj':
         parsers['novel'].add(new NovelDmzj());
+        break;
+      case 'doujinshi_nhentai':
+        parsers['doujinshi'].add(new DoujinshiNhentai());
         break;
     }
   });

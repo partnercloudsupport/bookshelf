@@ -12,16 +12,26 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quiver/collection.dart';
 
 class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
-  const AdvancedNetworkImage(this.url, { this.scale: 1.0, this.header, this.useMemoryCache: true, this.useDiskCache: false })
-    : assert(url != null),
-      assert(scale != null),
-      assert(useDiskCache != null);
+  const AdvancedNetworkImage(this.url, {
+    this.scale: 1.0,
+    this.header,
+    this.useMemoryCache: true,
+    this.useDiskCache: false,
+    this.retryLimit: 5,
+    this.retryDuration: const Duration(seconds: 5) })
+      : assert(url != null),
+        assert(scale != null),
+        assert(useDiskCache != null),
+        assert(retryLimit != null),
+        assert(retryDuration != null);
 
   final String url;
   final double scale;
   final Map<String, String> header;
   final bool useMemoryCache;
   final bool useDiskCache;
+  final int retryLimit;
+  final Duration retryDuration;
 
   @override
   Future<AdvancedNetworkImage> obtainKey(ImageConfiguration configuration) {
@@ -134,12 +144,22 @@ class AdvancedNetworkImage extends ImageProvider<AdvancedNetworkImage> {
         && scale == typedOther.scale
         && header == typedOther.header
         && useMemoryCache == typedOther.useMemoryCache
-        && useDiskCache == typedOther.useDiskCache;
+        && useDiskCache == typedOther.useDiskCache
+        && retryLimit == typedOther.retryLimit
+        && retryDuration == typedOther.retryDuration;
   }
   @override
-  int get hashCode => hashValues(url, scale, header, useMemoryCache, useDiskCache);
+  int get hashCode => hashValues(url, scale, header, useMemoryCache, useDiskCache, retryLimit, retryDuration);
   @override
-  String toString() => '$runtimeType("$url", scale: $scale, header: $header, useMemCache: $useMemoryCache, useDiskCache:$useDiskCache)';
+  String toString() =>
+      '$runtimeType('
+          '"$url",'
+          'scale: $scale,'
+          'header: $header,'
+          'useMemCache: $useMemoryCache,'
+          'useDiskCache:$useDiskCache,'
+          'retryLimit:$retryLimit,'
+          'retryDuration:$retryDuration)';
 }
 
 Future<bool> clearDiskCachedImages() async {

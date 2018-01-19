@@ -159,93 +159,6 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
       body: new Column(
         verticalDirection: VerticalDirection.up, // BUG: Column shadow casting
         children: <Widget>[
-          new Expanded(
-            child: new RefreshIndicator(
-              child: new NotificationListener(
-                onNotification: (_) {
-                  if (bookDetail != null) {
-                    double progress = _scrollController.offset / _scrollController.position.maxScrollExtent;
-                    if (progress > 0.95 && enableContinueReadingBtn == true) setState(() => enableContinueReadingBtn = false);
-                    else if (progress <= 0.95 && enableContinueReadingBtn == false) setState(() => enableContinueReadingBtn = true);
-                  }
-                },
-                child: new GridView.count(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
-                  crossAxisCount: (orientation == Orientation.portrait) ? 5 : 8,
-                  childAspectRatio: (orientation == Orientation.portrait) ? 2.5 : 2.5,
-                  mainAxisSpacing: 15.0,
-                  crossAxisSpacing: 12.0,
-                  children: bookDetail !=null ?
-                  bookDetail['chapters'].map((Map chapter) {
-                    return new Material(
-                      child: new ClipRRect(
-                        borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                        child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
-                          onPressed: () => _selectChapter(chapter),
-                          child: new Text(chapter['chapter_title'], style: new TextStyle(
-                            color: Theme.of(context).cardColor,
-                          ), overflow: TextOverflow.ellipsis),
-                          color: invertColor(Theme.of(context).primaryColor),
-                          splashColor: invertColor(Theme.of(context).primaryColor.withOpacity(0.8)),
-                        ) : new Container(
-                          decoration: new BoxDecoration(
-                            border: new Border.all(
-                              color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
-                              width: 1.5,
-                            ),
-                            borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                          ),
-                          child: new InkWell(
-                            borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                            onTap: () => _selectChapter(chapter),
-                            child: new Padding(
-                              padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
-                              child: new Align(
-                                alignment: Alignment.center,
-                                child: new Text(chapter['chapter_title'], style: new TextStyle(
-                                  color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
-                                ), overflow: TextOverflow.ellipsis,),
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    );
-                  }).toList() : <Widget>[],
-                )
-              ),
-              onRefresh: _handleRefresh,
-            ),
-          ),
-          new Material(
-            elevation: 8.0,
-            child: new Container(
-              height: 30.0,
-              color: Colors.grey.withOpacity(0.2),
-              child: new Row(
-                children: <Widget>[
-                  new Container(
-                    margin: const EdgeInsets.only(left: 25.0),
-                    child: new Text(widget.bookInfo != null ? getParserName(widget.bookInfo['parser']) : ''),
-                  ),
-                  new Container(
-                    margin: const EdgeInsets.only(left: 5.0),
-                    child: new Text(bookDetail != null ? bookDetail['status'] : ''),
-                  ),
-                  new Expanded(
-                    child: new Align(
-                      alignment: Alignment.centerRight,
-                      child: new Container(
-                        margin: const EdgeInsets.only(right: 25.0),
-                        child: new Text(bookDetail != null ? friendlyDate(new DateTime.fromMillisecondsSinceEpoch(bookDetail['last_updatetime']*1000)) : ''),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
           new Container(
             padding: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 20.0),
             height: 235.0,
@@ -327,7 +240,94 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
               ],
             ),
           ),
-        ],
+          new Material(
+            elevation: 8.0,
+            child: new Container(
+              height: 30.0,
+              color: Colors.grey.withOpacity(0.2),
+              child: new Row(
+                children: <Widget>[
+                  new Container(
+                    margin: const EdgeInsets.only(left: 25.0),
+                    child: new Text(widget.bookInfo != null ? getParserName(widget.bookInfo['parser']) : ''),
+                  ),
+                  new Container(
+                    margin: const EdgeInsets.only(left: 5.0),
+                    child: new Text(bookDetail != null ? bookDetail['status'] : ''),
+                  ),
+                  new Expanded(
+                    child: new Align(
+                      alignment: Alignment.centerRight,
+                      child: new Container(
+                        margin: const EdgeInsets.only(right: 25.0),
+                        child: new Text(bookDetail != null ? friendlyDate(new DateTime.fromMillisecondsSinceEpoch(bookDetail['last_updatetime']*1000)) : ''),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          new Expanded(
+            child: new RefreshIndicator(
+              child: new NotificationListener(
+                  onNotification: (_) {
+                    if (bookDetail != null) {
+                      double progress = _scrollController.offset / _scrollController.position.maxScrollExtent;
+                      if (progress > 0.95 && enableContinueReadingBtn == true) setState(() => enableContinueReadingBtn = false);
+                      else if (progress <= 0.95 && enableContinueReadingBtn == false) setState(() => enableContinueReadingBtn = true);
+                    }
+                  },
+                  child: new GridView.count(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
+                    crossAxisCount: (orientation == Orientation.portrait) ? 5 : 8,
+                    childAspectRatio: (orientation == Orientation.portrait) ? 2.5 : 2.5,
+                    mainAxisSpacing: 15.0,
+                    crossAxisSpacing: 12.0,
+                    children: bookDetail !=null ?
+                    bookDetail['chapters'].map((Map chapter) {
+                      return new Material(
+                          child: new ClipRRect(
+                            borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                            child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
+                              onPressed: () => _selectChapter(chapter),
+                              child: new Text(chapter['chapter_title'], style: new TextStyle(
+                                color: Theme.of(context).cardColor,
+                              ), overflow: TextOverflow.ellipsis),
+                              color: invertColor(Theme.of(context).primaryColor),
+                              splashColor: invertColor(Theme.of(context).primaryColor.withOpacity(0.8)),
+                            ) : new Container(
+                              decoration: new BoxDecoration(
+                                border: new Border.all(
+                                  color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
+                                  width: 1.5,
+                                ),
+                                borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                              ),
+                              child: new InkWell(
+                                borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                                onTap: () => _selectChapter(chapter),
+                                child: new Padding(
+                                  padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+                                  child: new Align(
+                                    alignment: Alignment.center,
+                                    child: new Text(chapter['chapter_title'], style: new TextStyle(
+                                      color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
+                                    ), overflow: TextOverflow.ellipsis,),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                      );
+                    }).toList() : <Widget>[],
+                  )
+              ),
+              onRefresh: _handleRefresh,
+            ),
+          )
+        ].reversed.toList(),
       ),
     );
   }

@@ -23,6 +23,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
   @override
   void initState() {
     super.initState();
+    _loadBooks();
     bus.subscribe('reload_bookshelf', _refreshHandle);
   }
 

@@ -60,6 +60,7 @@ class ViewSearchState extends State<ViewSearch> {
     List doujinshiResults = parser.searchBooks(parsersList['doujinshi'], keyword);
     mangaResults.forEach((var res) async {
       List result = await res;
+      if (result == null) return;
       setState(() => searchMangaResult.addAll(result));
       result.forEach((Map<String, String> val){
         if (!val['title'].contains(keyword)) {
@@ -69,6 +70,7 @@ class ViewSearchState extends State<ViewSearch> {
     });
     novelResults.forEach((var res) async {
       List result = await res;
+      if (result == null) return;
       setState(() => searchNovelResult.addAll(result));
       result.forEach((Map<String, String> val){
         if (!val['title'].contains(keyword)) {
@@ -78,12 +80,13 @@ class ViewSearchState extends State<ViewSearch> {
     });
     doujinshiResults.forEach((var res) async {
       List result = await res;
+      if (result == null) return;
       setState(() => searchDoujinshiResult.addAll(result));
-      result.forEach((Map<String, String> val){
-        if (!val['title'].contains(keyword)) {
-          setState(() => searchDoujinshiResult.remove(val));
-        }
-      });
+//      result.forEach((Map<String, String> val){
+//        if (!val['title'].contains(keyword)) {
+//          setState(() => searchDoujinshiResult.remove(val));
+//        }
+//      });
     });
   }
 
@@ -148,7 +151,7 @@ class ViewSearchState extends State<ViewSearch> {
                 children: <Widget>[
                   resultItems(context, searchMangaResult),
                   resultItems(context, searchNovelResult),
-                  resultItems(context, []),
+                  resultItems(context, searchDoujinshiResult),
                 ],
               ),
             ),

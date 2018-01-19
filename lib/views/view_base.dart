@@ -15,7 +15,7 @@ class BookshelfApp extends StatefulWidget {
 
 class BookshelfAppState extends State<BookshelfApp> {
   bool _useNightmode = false;
-  String _draweritemSelected = 'Bookshelf';
+  String _drawerItemSelected = 'Bookshelf';
 
   @override
   void initState() {
@@ -51,8 +51,8 @@ class BookshelfAppState extends State<BookshelfApp> {
           _useNightmode = value;
           _setNightmodePreference();
         }),
-        draweritemSelected: _draweritemSelected,
-        ondraweritemSelected: (String value) => setState(() {_draweritemSelected = value;}),
+        drawerItemSelected: _drawerItemSelected,
+        onDrawerItemSelected: (String value) => setState(() {_drawerItemSelected = value;}),
     );
 
     return new MaterialApp(
@@ -69,14 +69,14 @@ class BasePage extends StatefulWidget {
     Key key,
     this.useNightmode: false,
     @required this.onNightmodeChanged,
-    this.draweritemSelected: 'Bookshelf',
-    @required this.ondraweritemSelected,
+    this.drawerItemSelected: 'Bookshelf',
+    @required this.onDrawerItemSelected,
   }) : super(key: key);
 
   final bool useNightmode;
   final ValueChanged<bool> onNightmodeChanged;
-  final String draweritemSelected;
-  final ValueChanged<String> ondraweritemSelected;
+  final String drawerItemSelected;
+  final ValueChanged<String> onDrawerItemSelected;
 
   @override
   _BasePageState createState() => new _BasePageState();
@@ -86,11 +86,11 @@ class _BasePageState extends State<BasePage> {
   @override
   Widget build(BuildContext context) {
     return new DefaultTabController(
-        length: tabbarLength[widget.draweritemSelected],
+        length: tabbarLength[widget.drawerItemSelected],
 //        initialIndex: tabbarInitindex[widget.draweritemSelected],
         child: new Scaffold(
           appBar: new AppBar(
-            title: new Text(basePageName[widget.draweritemSelected]),
+            title: new Text(basePageName[widget.drawerItemSelected]),
             actions: <Widget>[
               new IconButton(
                 icon: const Icon(Icons.search),
@@ -99,16 +99,16 @@ class _BasePageState extends State<BasePage> {
                 },
               ),
             ],
-            bottom: tabbarItems(widget.draweritemSelected),
+            bottom: tabbarItems(widget.drawerItemSelected),
 //            elevation: 0.0,
           ),
           drawer: new WidgetDrawer(
             useNightmode: widget.useNightmode,
             onNightmodeChanged: widget.onNightmodeChanged,
-            draweritemSelected: widget.draweritemSelected,
-            ondraweritemSelected: widget.ondraweritemSelected,
+            drawerItemSelected: widget.drawerItemSelected,
+            onDrawerItemSelected: widget.onDrawerItemSelected,
           ),
-          body: bodyItems(widget.draweritemSelected),
+          body: bodyItems(widget.drawerItemSelected),
         ),
     );
   }

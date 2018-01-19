@@ -7,22 +7,24 @@ class WidgetDrawer extends StatelessWidget {
     Key key,
     this.useNightmode: false,
     @required this.onNightmodeChanged,
-    this.draweritemSelected: 'Bookshelf',
-    @required this.ondraweritemSelected,
+    this.drawerItemSelected: 'Bookshelf',
+    @required this.onDrawerItemSelected,
   }) : super(key: key);
 
   final bool useNightmode;
   final ValueChanged<bool> onNightmodeChanged;
-  final String draweritemSelected;
-  final ValueChanged<String> ondraweritemSelected;
+  final String drawerItemSelected;
+  final ValueChanged<String> onDrawerItemSelected;
 
   _toggleNightmode() {
     onNightmodeChanged(!useNightmode);
   }
-  void _tapDraweritem(draweritemName) => ondraweritemSelected(draweritemName);
+  void _tapDrawerItem(drawerItemName) => onDrawerItemSelected(drawerItemName);
 
-  _draweritemselectedColor(context, draweritemName) {
-    return draweritemSelected == draweritemName ? (useNightmode ? const Color(0xff808080) : const Color(0xffefefef)) : Theme.of(context).cardColor;
+  _drawerItemSelectedColor(context, drawerItemName) {
+    return drawerItemSelected == drawerItemName
+        ? (useNightmode ? const Color(0xff808080) : const Color(0xffefefef))
+        : Theme.of(context).cardColor;
   }
 
   @override
@@ -43,51 +45,51 @@ class WidgetDrawer extends StatelessWidget {
               ),
             ),
             new Material(
-              color: _draweritemselectedColor(context, 'Bookshelf'),
+              color: _drawerItemSelectedColor(context, 'Bookshelf'),
               child: new ListTile(
                 leading: const Icon(Icons.view_comfy),
                 title: new Text(basePageName['Bookshelf']),
                 onTap: () {
                   Navigator.pop(context);
-                  _tapDraweritem('Bookshelf');
+                  _tapDrawerItem('Bookshelf');
                 },
-                selected: draweritemSelected == 'Bookshelf',
+                selected: drawerItemSelected == 'Bookshelf',
               ),
             ),
             new Material(
-              color: _draweritemselectedColor(context, 'Manga'),
+              color: _drawerItemSelectedColor(context, 'Manga'),
               child: new ListTile(
                 leading: const Icon(Icons.import_contacts),
                 title: new Text(basePageName['Manga']),
                 onTap: () {
                   Navigator.pop(context);
-                  _tapDraweritem('Manga');
+                  _tapDrawerItem('Manga');
                 },
-                selected: draweritemSelected == 'Manga',
+                selected: drawerItemSelected == 'Manga',
               ),
             ),
             new Material(
-              color: _draweritemselectedColor(context, 'Novel'),
+              color: _drawerItemSelectedColor(context, 'Novel'),
               child: new ListTile(
                 leading: const Icon(Icons.chrome_reader_mode),
                 title: new Text(basePageName['Novel']),
                 onTap: () {
                   Navigator.pop(context);
-                  _tapDraweritem('Novel');
+                  _tapDrawerItem('Novel');
                 },
-                selected: draweritemSelected == 'Novel',
+                selected: drawerItemSelected == 'Novel',
               ),
             ),
             new Material(
-              color: _draweritemselectedColor(context, 'Doujinshi'),
+              color: _drawerItemSelectedColor(context, 'Doujinshi'),
               child: new ListTile(
                 leading: const Icon(Icons.battery_charging_full),
                 title: new Text(basePageName['Doujinshi']),
                 onTap: () {
                   Navigator.pop(context);
-                  _tapDraweritem('Doujinshi');
+                  _tapDrawerItem('Doujinshi');
                 },
-                selected: draweritemSelected == 'Doujinshi',
+                selected: drawerItemSelected == 'Doujinshi',
               ),
             ),
             new Divider(),

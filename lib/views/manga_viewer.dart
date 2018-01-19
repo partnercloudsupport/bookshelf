@@ -116,43 +116,35 @@ class MangaViewerState extends State<MangaViewer> {
             child: new GestureDetector(
               onDoubleTap: () {},
               onScaleUpdate: (detail) {},
-              child: new Container(
-                color: Colors.black,
-//                padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-//                transform: new Matrix4.diagonal3(new Vector3(3.0, 3.0, 3.0)),
-                child: new Transform(
-                  transform: new Matrix4.identity()..scale(scaleSize, scaleSize),
-                  alignment: Alignment.center,
-                  child: new NotificationListener(
-                    onNotification: (_) {
-                      if (content != null) {
-                        double maxRange = _scrollController.position.maxScrollExtent;
-                        int page = (_scrollController.offset / maxRange * content['picture_urls'].length).ceil();
-                        setState(() => currentPage = (page == 0 ? 1 : page));
-                        if (currentPage == content['picture_urls'].length) {
-                          if (atBottom == false) {
-                            setState(() => atBottom = true);
-                            _loadNextChapter();
-                          }
-                        } else {
-                          if (atBottom == true) setState(() => atBottom = false);
-                        }
-                      }
-                    },
-                    child: new ListView.builder(
-//                    scrollDirection: Axis.horizontal,
-                      controller: _scrollController,
-                      itemCount: content != null ? content['picture_urls'].length : 0,
-                      itemBuilder: (BuildContext context, int index) {
+              child: new NotificationListener(
+                onNotification: (_) {
+                  if (content != null) {
+                    double maxRange = _scrollController.position.maxScrollExtent;
+                    if (maxRange <= 0) maxRange = 0.1;
+                    int page = (_scrollController.offset / maxRange * content['picture_urls'].length).ceil();
+                    setState(() => currentPage = (page == 0 ? 1 : page));
+//                    if (currentPage == content['picture_urls'].length) {
+//                      if (atBottom == false) {
+//                        setState(() => atBottom = true);
+//                        _loadNextChapter();
+//                      }
+//                    } else {
+//                      if (atBottom == true) setState(() => atBottom = false);
+//                    }
+                  }
+                },
+                child: new ListView.builder(
+//                  scrollDirection: Axis.horizontal,
+                  controller: _scrollController,
+                  itemCount: content != null ? content['picture_urls'].length : 0,
+                  itemBuilder: (BuildContext context, int index) {
 //                      print(index);
-                        return content != null ? new Image(
-                          image: new AdvancedNetworkImage(content['picture_urls'][index], header: content['picture_header']),
-                        ) : new Container();
-                      },
-                    ),
-                  ),
-                )
-              ),
+                    return content != null ? new Image(
+                      image: new AdvancedNetworkImage(content['picture_urls'][index], header: content['picture_header']),
+                    ) : new Container();
+                  },
+                ),
+              )
             )
           ),
         ),
