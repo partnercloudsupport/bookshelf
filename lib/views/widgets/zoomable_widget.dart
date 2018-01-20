@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-class ZoomableWidget extends StatefulWidget {
-  const ZoomableWidget({Key key}) : super(key: key);
+class ZoomableWidget extends StatelessWidget {
+  ZoomableWidget({
+    Key key,
+    this.minScale: 0.7,
+    this.maxScale: 1.4,
+  }) : super(key: key);
 
-  @override
-  ZoomableWidgetState createState() => new ZoomableWidgetState();
-}
+  final double maxScale;
+  final double minScale;
 
-class ZoomableWidgetState extends State<ZoomableWidget> {
   @override
   Widget build(BuildContext context) {
     return new Container();

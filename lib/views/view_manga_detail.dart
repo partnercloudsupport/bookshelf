@@ -79,7 +79,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
     } else cachedResult = {};
     await _loadBookState();
 
-    var bookParser = parserSelector([widget.bookInfo['parser']])['manga'][0];
+    var bookParser = parserSelector([widget.bookInfo['parser']])[widget.bookInfo['type']][0];
     parser.getBookDetail(bookParser, widget.bookInfo['id']).then((Map result) {
       result['entry'] = widget.bookInfo;
       if (cachedResult[bookId].toString() != result.toString()) {
@@ -99,6 +99,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
       'chapter_title': chapter['chapter_title'].toString(),
       'bid': widget.bookInfo['id'].toString(),
       'cid': chapter['chapter_id'].toString(),
+      'type': widget.bookInfo['type']
     };
     bus.post('reload_bookshelf');
     switch (widget.bookInfo['type']) {
@@ -160,7 +161,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
         verticalDirection: VerticalDirection.up, // BUG: Column shadow casting
         children: <Widget>[
           new Container(
-            padding: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 20.0),
+            padding: const EdgeInsets.fromLTRB(20.0, 20.0, 0.0, 20.0),
             height: 235.0,
             color: Theme.of(context).primaryColor,
             child: new Row(
@@ -169,13 +170,14 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                   onTap: () {},
                   child: new Container(
                     height: 200.0,
-                    width: 170.0,
-                    margin: const EdgeInsets.only(right: 5.0),
+                    width: 160.0,
+                    margin: const EdgeInsets.only(right: 15.0),
                     child: bookDetail != null ? new Image(
                       image: new AdvancedNetworkImage(
                           bookDetail['coverurl'],
                           header: bookDetail['coverurl_header'],
                       ),
+                      fit: BoxFit.cover,
                     ) : null,
                   ),
                 ),
@@ -191,6 +193,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 20.0,
+                            height: 1.6
                           ),
                         ),
                       ),
@@ -271,58 +274,59 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
           new Expanded(
             child: new RefreshIndicator(
               child: new NotificationListener(
-                  onNotification: (_) {
-                    if (bookDetail != null) {
-                      double progress = _scrollController.offset / _scrollController.position.maxScrollExtent;
-                      if (progress > 0.95 && enableContinueReadingBtn == true) setState(() => enableContinueReadingBtn = false);
-                      else if (progress <= 0.95 && enableContinueReadingBtn == false) setState(() => enableContinueReadingBtn = true);
-                    }
-                  },
-                  child: new GridView.count(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
-                    crossAxisCount: (orientation == Orientation.portrait) ? 5 : 8,
-                    childAspectRatio: (orientation == Orientation.portrait) ? 2.5 : 2.5,
-                    mainAxisSpacing: 15.0,
-                    crossAxisSpacing: 12.0,
-                    children: bookDetail !=null ?
-                    bookDetail['chapters'].map((Map chapter) {
-                      return new Material(
-                          child: new ClipRRect(
+                onNotification: (_) {
+                  if (bookDetail != null) {
+                    double progress = _scrollController.offset / _scrollController.position.maxScrollExtent;
+                    if (progress > 0.95 && enableContinueReadingBtn == true) setState(() => enableContinueReadingBtn = false);
+                    else if (progress <= 0.95 && enableContinueReadingBtn == false) setState(() => enableContinueReadingBtn = true);
+                  }
+                },
+                child: new GridView.count(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
+                  crossAxisCount: (orientation == Orientation.portrait) ? 5 : 8,
+                  childAspectRatio: (orientation == Orientation.portrait) ? 2.5 : 2.5,
+                  mainAxisSpacing: 15.0,
+                  crossAxisSpacing: 12.0,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: bookDetail !=null ?
+                  bookDetail['chapters'].map((Map chapter) {
+                    return new Material(
+                      child: new ClipRRect(
+                        borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                        child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
+                          onPressed: () => _selectChapter(chapter),
+                          child: new Text(chapter['chapter_title'], style: new TextStyle(
+                            color: Theme.of(context).cardColor,
+                          ), overflow: TextOverflow.ellipsis),
+                          color: invertColor(Theme.of(context).primaryColor),
+                          splashColor: invertColor(Theme.of(context).primaryColor.withOpacity(0.8)),
+                        ) : new Container(
+                          decoration: new BoxDecoration(
+                            border: new Border.all(
+                              color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
+                              width: 1.5,
+                            ),
                             borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                            child: chapter.toString() == chapterSelected.toString() ? new FlatButton(
-                              onPressed: () => _selectChapter(chapter),
-                              child: new Text(chapter['chapter_title'], style: new TextStyle(
-                                color: Theme.of(context).cardColor,
-                              ), overflow: TextOverflow.ellipsis),
-                              color: invertColor(Theme.of(context).primaryColor),
-                              splashColor: invertColor(Theme.of(context).primaryColor.withOpacity(0.8)),
-                            ) : new Container(
-                              decoration: new BoxDecoration(
-                                border: new Border.all(
+                          ),
+                          child: new InkWell(
+                            borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
+                            onTap: () => _selectChapter(chapter),
+                            child: new Padding(
+                              padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+                              child: new Align(
+                                alignment: Alignment.center,
+                                child: new Text(chapter['chapter_title'], style: new TextStyle(
                                   color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
-                                  width: 1.5,
-                                ),
-                                borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                              ),
-                              child: new InkWell(
-                                borderRadius: const BorderRadius.all(const Radius.circular(30.0)),
-                                onTap: () => _selectChapter(chapter),
-                                child: new Padding(
-                                  padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
-                                  child: new Align(
-                                    alignment: Alignment.center,
-                                    child: new Text(chapter['chapter_title'], style: new TextStyle(
-                                      color: invertColor(Theme.of(context).cardColor.withOpacity(0.5)),
-                                    ), overflow: TextOverflow.ellipsis,),
-                                  ),
-                                ),
+                                ), overflow: TextOverflow.ellipsis,),
                               ),
                             ),
-                          )
-                      );
-                    }).toList() : <Widget>[],
-                  )
+                          ),
+                        ),
+                      )
+                    );
+                  }).toList() : <Widget>[],
+                )
               ),
               onRefresh: _handleRefresh,
             ),

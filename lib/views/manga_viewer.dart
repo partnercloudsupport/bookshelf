@@ -63,7 +63,7 @@ class MangaViewerState extends State<MangaViewer> {
   }
 
   _getChapterContent() async {
-    var bookParser = parserSelector([widget.chapterInfo['parser']])['manga'][0];
+    var bookParser = parserSelector([widget.chapterInfo['parser']])[widget.chapterInfo['type']][0];
     Map result = await parser.getChapterContent(bookParser, widget.chapterInfo['bid'], widget.chapterInfo['cid']);
     setState(() => content = result);
   }

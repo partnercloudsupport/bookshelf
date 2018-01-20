@@ -151,6 +151,8 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
   }
   toggleDownloadMode() async {}
 
+  // TODO: rewrite the chapter style to popup dialog
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -187,7 +189,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
             controller: _scrollController,
             children: <Widget>[
               new Container(
-                padding: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 20.0),
+                padding: const EdgeInsets.fromLTRB(20.0, 20.0, 0.0, 20.0),
                 height: 235.0,
                 color: Theme.of(context).primaryColor,
                 child: new Row(
@@ -197,12 +199,13 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
                       child: new Container(
                         height: 200.0,
                         width: 170.0,
-                        margin: const EdgeInsets.only(right: 5.0),
+                        margin: const EdgeInsets.only(right: 15.0),
                         child: bookDetail != null ? new Image(
                           image: new AdvancedNetworkImage(
                             bookDetail['coverurl'],
                             header: bookDetail['coverurl_header'],
                           ),
+                          fit: BoxFit.cover,
                         ) : null,
                       ),
                     ),

@@ -64,6 +64,8 @@ class MangaDmzj extends MangaParser {
           return type['tag_name'];
         }).toList(),
         'last_updatetime': response['last_updatetime'],
+        'parser': parserName,
+        'type': type
       };
     } catch (_) {
       return null;

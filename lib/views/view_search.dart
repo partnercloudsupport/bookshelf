@@ -61,6 +61,7 @@ class ViewSearchState extends State<ViewSearch> {
     mangaResults.forEach((var res) async {
       List result = await res;
       if (result == null) return;
+      searchMangaResult = [];
       setState(() => searchMangaResult.addAll(result));
       result.forEach((Map<String, String> val){
         if (!val['title'].contains(keyword)) {
@@ -71,6 +72,7 @@ class ViewSearchState extends State<ViewSearch> {
     novelResults.forEach((var res) async {
       List result = await res;
       if (result == null) return;
+      searchNovelResult = [];
       setState(() => searchNovelResult.addAll(result));
       result.forEach((Map<String, String> val){
         if (!val['title'].contains(keyword)) {
@@ -81,6 +83,7 @@ class ViewSearchState extends State<ViewSearch> {
     doujinshiResults.forEach((var res) async {
       List result = await res;
       if (result == null) return;
+      searchDoujinshiResult = [];
       setState(() => searchDoujinshiResult.addAll(result));
 //      result.forEach((Map<String, String> val){
 //        if (!val['title'].contains(keyword)) {
@@ -236,24 +239,28 @@ class ViewSearchState extends State<ViewSearch> {
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
                                 color: invertColor(Theme.of(context).cardColor.withOpacity(0.54)),
+//                                height: 1.5,
                               ),
                             ),
                             new Text(result['types'],
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
                                 color: invertColor(Theme.of(context).cardColor.withOpacity(0.54)),
+//                                height: 1.5
                               ),
                             ),
                             new Text(result['status'],
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
                                 color: invertColor(Theme.of(context).cardColor.withOpacity(0.54)),
+//                                height: 1.5
                               ),
                             ),
                             new Text(result['last_chapter'],
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
                                 color: invertColor(Theme.of(context).cardColor.withOpacity(0.54)),
+//                                height: 1.5
                               ),
                             ),
                           ],
