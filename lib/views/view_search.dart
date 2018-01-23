@@ -49,7 +49,7 @@ class ViewSearchState extends State<ViewSearch> {
 
   _clearSearchHistoryPreference() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+    prefs.remove('searchhistory');
   }
 
   /// TODO: Incremental search

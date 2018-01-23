@@ -9,9 +9,13 @@ class ViewSettings extends StatefulWidget {
 
 class ViewSettingsState extends State<ViewSettings> {
   bool keepScreenAwake = false;
+  bool openSearchRecord = true;
 
   _toggleScreenAwake() {
     setState(() => keepScreenAwake = !keepScreenAwake);
+  }
+  _toggleOpenSearchRecord() {
+    setState(() => openSearchRecord = !openSearchRecord);
   }
 
   @override
@@ -66,7 +70,7 @@ class ViewSettingsState extends State<ViewSettings> {
             ),
             subtitle: new Container(
               padding: tileItemPadding,
-              child: const Text('此选项需要重启'),
+              child: const Text('此选项需要重启应用'),
             ),
             value: keepScreenAwake,
             onChanged: (bool value) {
@@ -84,9 +88,30 @@ class ViewSettingsState extends State<ViewSettings> {
             ),
             onTap: () {},
           ),
+          new SwitchListTile(
+            title: new Container(
+              padding: tileItemPadding,
+              child: const Text('搜索记录'),
+            ),
+            subtitle: new Container(
+              padding: tileItemPadding,
+              child: new Text(openSearchRecord ? '已启用' : '已禁用'),
+            ),
+            value: openSearchRecord,
+            onChanged: (bool value) {
+              _toggleOpenSearchRecord();
+            },
+          ),
           new Container(
               padding: const EdgeInsets.fromLTRB(66.0, 15.0, 0.0, 5.0),
               child: new Text('杂项', style: new TextStyle(color: Theme.of(context).primaryColor))
+          ),
+          new ListTile(
+            title: new Container(
+              padding: tileItemPadding,
+              child: const Text('清空搜索记录'),
+            ),
+            onTap: () {},
           ),
           new ListTile(
             title: new Container(
@@ -124,11 +149,11 @@ class ViewSettingsState extends State<ViewSettings> {
           new ListTile(
             title: new Container(
               padding: tileItemPadding,
-              child: const Text('清理'),
+              child: const Text('清理缓存'),
             ),
             subtitle: new Container(
               padding: tileItemPadding,
-              child: const Text('清空在线阅读数据库和缓存, 本地阅读不受影响'),
+              child: const Text('已占用3MB空间'),
             ),
             onTap: () {},
           ),

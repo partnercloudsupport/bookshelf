@@ -28,4 +28,4 @@ String fileSize(size, [int round = 2, bool decimal = false]){
 
 LruMap networkRequestCache = new LruMap(maximumSize: 512);
 
-Db defaultDb = new Db(() => bus.post('reload_bookshelf'));
+Db defaultDb = new Db(() { bus.post('reload_bookshelf'); });
