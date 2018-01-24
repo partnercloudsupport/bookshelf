@@ -45,14 +45,14 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
       child: new ListView(
         children: <Widget>[
           bookList != null ? new Container(
-            margin: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+            margin: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
             child: new Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 bookList['manga'].length != 0 ? new Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    new Divider(),
+//                    new Divider(),
                     new Padding(
                       padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 12.0),
                       child: new Text('漫画', style: new TextStyle(fontSize: 16.0, color: invertColor(Theme.of(context).cardColor.withOpacity(0.6)))),

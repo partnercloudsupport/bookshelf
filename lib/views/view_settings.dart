@@ -93,10 +93,10 @@ class ViewSettingsState extends State<ViewSettings> {
               padding: tileItemPadding,
               child: const Text('搜索记录'),
             ),
-            subtitle: new Container(
-              padding: tileItemPadding,
-              child: new Text(openSearchRecord ? '已启用' : '已禁用'),
-            ),
+//            subtitle: new Container(
+//              padding: tileItemPadding,
+//              child: new Text(openSearchRecord ? '已启用' : '已禁用'),
+//            ),
             value: openSearchRecord,
             onChanged: (bool value) {
               _toggleOpenSearchRecord();

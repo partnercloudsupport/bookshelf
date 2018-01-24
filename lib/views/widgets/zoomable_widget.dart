@@ -5,7 +5,9 @@ class ZoomableWidget extends StatelessWidget {
     Key key,
     this.minScale: 0.7,
     this.maxScale: 1.4,
-  }) : super(key: key);
+    Widget child,
+  }) : assert(minScale != null),
+       assert(maxScale != null);
 
   final double maxScale;
   final double minScale;

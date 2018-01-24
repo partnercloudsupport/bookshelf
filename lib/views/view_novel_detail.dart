@@ -49,7 +49,6 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
     });
   }
 
-  /// TODO: rewrite save function
   _saveDetail(String cachedId, Map detail) {
     cachedResult[cachedId] = detail;
     _db.set('cached_detail', cachedResult).catchError((_){});
