@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:battery/battery.dart';
 import 'package:bookshelf/service/parse/parser.dart';
 import 'package:bookshelf/util/eventbus.dart';
-import 'package:bookshelf/util/image_provider.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';

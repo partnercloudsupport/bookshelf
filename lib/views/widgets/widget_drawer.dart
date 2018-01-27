@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bookshelf/util/constant.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 
 class WidgetDrawer extends StatelessWidget {
   WidgetDrawer({
@@ -36,8 +37,8 @@ class WidgetDrawer extends StatelessWidget {
           padding: const EdgeInsets.only(top: 0.0),
           children: <Widget>[
             new UserAccountsDrawerHeader(
-              accountName: const Text('fuyumi'),
-              accountEmail: const Text('fuyumi@example.com'),
+              accountName: new Text('书架', style: new TextStyle(fontSize: 15.0),),
+              accountEmail: new Text('找本书看看吧', style: new TextStyle(fontSize: 12.0),),
               decoration: new BoxDecoration(
                 color: const Color(0xfff114b6),
                 image: null,

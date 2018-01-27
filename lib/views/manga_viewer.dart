@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:battery/battery.dart';
 import 'package:bookshelf/service/parse/parser.dart';
-import 'package:bookshelf/util/image_provider.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
+import 'package:flutter_advanced_networkimage/zoomable_widget.dart';
 import 'package:intl/intl.dart';
 
 class MangaViewer extends StatefulWidget {
@@ -111,11 +112,9 @@ class MangaViewerState extends State<MangaViewer> {
       children: <Widget>[
         new LayoutId(
           id: _MangaViewerLayout.viewer,
-          child: new RefreshIndicator(
-            onRefresh: _loadPreviewChapter,
-            child: new GestureDetector(
-              onDoubleTap: () {},
-              onScaleUpdate: (detail) {},
+          child: new ZoomableWidget(
+            child: new RefreshIndicator(
+              onRefresh: _loadPreviewChapter,
               child: new NotificationListener(
                 onNotification: (_) {
                   if (content != null) {
@@ -123,30 +122,30 @@ class MangaViewerState extends State<MangaViewer> {
                     if (maxRange <= 0) maxRange = 0.1;
                     int page = (_scrollController.offset / maxRange * content['picture_urls'].length).ceil();
                     setState(() => currentPage = (page == 0 ? 1 : page));
-//                    if (currentPage == content['picture_urls'].length) {
-//                      if (atBottom == false) {
-//                        setState(() => atBottom = true);
-//                        _loadNextChapter();
-//                      }
-//                    } else {
-//                      if (atBottom == true) setState(() => atBottom = false);
+//                  if (currentPage == content['picture_urls'].length) {
+//                    if (atBottom == false) {
+//                      setState(() => atBottom = true);
+//                      _loadNextChapter();
 //                    }
+//                  } else {
+//                    if (atBottom == true) setState(() => atBottom = false);
+//                  }
                   }
                 },
                 child: new ListView.builder(
-//                  scrollDirection: Axis.horizontal,
+//                scrollDirection: Axis.horizontal,
                   controller: _scrollController,
                   itemCount: content != null ? content['picture_urls'].length : 0,
                   itemBuilder: (BuildContext context, int index) {
-//                      print(index);
                     return content != null ? new Image(
-                      image: new AdvancedNetworkImage(content['picture_urls'][index], header: content['picture_header']),
+                      image: new AdvancedNetworkImage(content['picture_urls'][index],
+                          header: content['picture_header']),
                     ) : new Container();
                   },
                 ),
               )
-            )
-          ),
+            ),
+          )
         ),
         new LayoutId(
           id: _MangaViewerLayout.statusbartop,

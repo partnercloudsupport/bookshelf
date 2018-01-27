@@ -5,7 +5,7 @@ import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bookshelf/service/parse/parser.dart';
-import 'package:bookshelf/util/image_provider.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:bookshelf/util/constant.dart';
 
 class ViewSearch extends StatefulWidget {
@@ -106,6 +106,7 @@ class ViewSearchState extends State<ViewSearch> {
     return new DefaultTabController(
       length: 3,
       child: new Scaffold(
+        resizeToAvoidBottomPadding: false,
         appBar: new AppBar(
           elevation: 0.0,
           title: new Row(

@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:bookshelf/database/db.dart';
 import 'package:bookshelf/util/eventbus.dart';
-import 'package:bookshelf/util/image_provider.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
 

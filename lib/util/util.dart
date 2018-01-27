@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
 import 'package:bookshelf/database/db.dart';
 import 'package:bookshelf/util/eventbus.dart';
 import 'package:crypto/crypto.dart';
@@ -29,3 +30,10 @@ String fileSize(size, [int round = 2, bool decimal = false]){
 LruMap networkRequestCache = new LruMap(maximumSize: 512);
 
 Db defaultDb = new Db(() { bus.post('reload_bookshelf'); });
+
+final MethodChannel keepScreenOnPlatform = const MethodChannel('bookshelf.fuyumi.com/screen');
+
+Future<Null> activateKeepScreenOn() async {
+  
+}
+Future<Null> deactivateKeepScreenOn() async {}
