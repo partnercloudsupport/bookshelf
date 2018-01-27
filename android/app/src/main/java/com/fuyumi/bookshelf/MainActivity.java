@@ -2,28 +2,22 @@ package com.fuyumi.bookshelf;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowManager;
 
-import io.flutter.app.FlutterApplication;
 import io.flutter.app.FlutterActivity;
-import io.flutter.plugins.GeneratedPluginRegistrant;
-import io.flutter.plugin.common.MethodCall;
+import io.flutter.app.FlutterApplication;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
-    private static final String SCREEN_CHANNEL = "bookshelf.fuyumi.com/screen";
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        new MethodChannel(getFlutterView(), SCREEN_CHANNEL).setMethodCallHandler(
+        new MethodChannel(getFlutterView(), "bookshelf.fuyumi.com/screen").setMethodCallHandler(
                 (methodCall, result) -> {
                     final Activity activity = new FlutterApplication().getCurrentActivity();
                     switch (methodCall.method) {
@@ -48,13 +42,11 @@ public class MainActivity extends FlutterActivity {
     }
 
     private void activateKeepScreenOn(Activity activity) {
-        if (activity != null) {
+        if (activity != null)
             activity.runOnUiThread(() -> activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
-        }
     }
     private void deactivateKeepScreenOn(Activity activity) {
-        if (activity != null) {
+        if (activity != null)
             activity.runOnUiThread(() -> activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
-        }
     }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
@@ -33,7 +34,21 @@ Db defaultDb = new Db(() { bus.post('reload_bookshelf'); });
 
 final MethodChannel keepScreenOnPlatform = const MethodChannel('bookshelf.fuyumi.com/screen');
 
-Future<Null> activateKeepScreenOn() async {
-  
+Future<bool> activateKeepScreenOn() async {
+  try {
+    await keepScreenOnPlatform.invokeMethod('activateKeepScreenOn');
+    return true;
+  } on PlatformException catch (e) {
+    print(e.message);
+    return false;
+  }
 }
-Future<Null> deactivateKeepScreenOn() async {}
+Future<bool> deactivateKeepScreenOn() async {
+  try {
+    await keepScreenOnPlatform.invokeMethod('deactivateKeepScreenOn');
+    return true;
+  } on PlatformException catch (e) {
+    print(e.message);
+    return false;
+  }
+}

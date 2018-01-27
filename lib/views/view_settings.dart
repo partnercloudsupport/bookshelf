@@ -1,3 +1,4 @@
+import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
 
 class ViewSettings extends StatefulWidget {
@@ -11,7 +12,12 @@ class ViewSettingsState extends State<ViewSettings> {
   bool keepScreenAwake = false;
   bool openSearchRecord = true;
 
-  _toggleScreenAwake() {
+  _toggleScreenAwake() async {
+    if (keepScreenAwake) {
+      if (!(await deactivateKeepScreenOn())) return;
+    } else {
+      if (!(await activateKeepScreenOn())) return;
+    }
     setState(() => keepScreenAwake = !keepScreenAwake);
   }
   _toggleOpenSearchRecord() {
