@@ -14,10 +14,12 @@
       if ([@"activateKeepScreenOn" isEqualToString:methodCall.method]) {
         dispatch_async(dispatch_get_main_queue(), ^{
           [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
+          result(nil);
         });
       } else if ([@"deactivateKeepScreenOn" isEqualToString:methodCall.method]) {
         dispatch_async(dispatch_get_main_queue(), ^{
           [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
+          result(nil);
         });
       } else {
         result(FlutterMethodNotImplemented);

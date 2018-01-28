@@ -72,11 +72,7 @@ class ViewSettingsState extends State<ViewSettings> {
           new SwitchListTile(
             title: new Container(
               padding: tileItemPadding,
-              child: const Text('保持屏幕常亮(仅限安卓)'),
-            ),
-            subtitle: new Container(
-              padding: tileItemPadding,
-              child: const Text('此选项需要重启应用'),
+              child: const Text('保持屏幕常亮'),
             ),
             value: keepScreenAwake,
             onChanged: (bool value) {
