@@ -11,14 +11,14 @@ dependencies:
   path_provider: any
   intl: any
   battery: any
-  quiver: '>=0.26.2 <0.27.0'
+  quiver: any
   minibus: any
   quick_actions: any
-  flutter_advanced_networkimage: '^0.1.1'
+  flutter_advanced_networkimage: '^0.1.3'
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+ flutter_test:
+   sdk: flutter
 
 flutter:
   uses-material-design: true

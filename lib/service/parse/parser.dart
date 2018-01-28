@@ -17,7 +17,7 @@ class Parser {
   }
 }
 
-parserSelector(List parsersName) {
+parserSelector(List<String> parsersName) {
   Map<String, List> parsers = {'manga': [], 'novel': [], 'doujinshi': []};
   parsersName.forEach((String parserName) {
     switch (parserName) {

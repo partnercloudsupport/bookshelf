@@ -20,7 +20,7 @@ class DoujinshiNhentai extends DoujinshiParser {
     order += 1;
     String url = baseUrl + '/api/galleries/search?query=$keyword&language=japanese+chinese&page=$order';
     try {
-      List response = JSON.decode((await http.get(url, headers: headers)).body)['result'];
+      List<Map> response = JSON.decode((await http.get(url, headers: headers)).body)['result'];
       return response.map((Map res) {
         String lang = '';
         String authors = '';

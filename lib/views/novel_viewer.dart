@@ -23,7 +23,7 @@ class NovelViewer extends StatefulWidget {
 class NovelViewerState extends State<NovelViewer> {
   Parser parser = new Parser();
 
-  List content;
+  List<Map> content;
   bool isShowInformation = false;
 
   Battery _battery = new Battery();

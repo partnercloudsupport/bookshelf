@@ -59,7 +59,7 @@ class ViewSearchState extends State<ViewSearch> {
     List novelResults = parser.searchBooks(parsersList['novel'], keyword);
     List doujinshiResults = parser.searchBooks(parsersList['doujinshi'], keyword);
     mangaResults.forEach((var res) async {
-      List result = await res;
+      List<Map<String, String>> result = await res;
       if (result == null) return;
       searchMangaResult = [];
       setState(() => searchMangaResult.addAll(result));
@@ -70,7 +70,7 @@ class ViewSearchState extends State<ViewSearch> {
       });
     });
     novelResults.forEach((var res) async {
-      List result = await res;
+      List<Map<String, String>> result = await res;
       if (result == null) return;
       searchNovelResult = [];
       setState(() => searchNovelResult.addAll(result));
@@ -125,9 +125,9 @@ class ViewSearchState extends State<ViewSearch> {
                       fontSize: 20.0,
                       color: Colors.white30,
                     ),
-                    hideDivider: true,
+                    border: null,
                   ),
-                  autofocus: false,
+                  autofocus: true,
                   autocorrect: false,
                   controller: controller,
                   onChanged: (String val) => setState(() => showSearchHistory = val.isNotEmpty),

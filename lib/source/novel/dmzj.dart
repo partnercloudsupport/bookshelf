@@ -19,7 +19,7 @@ class NovelDmzj extends NovelParser {
   Future<List> searchBooks(String keyword, [int order=0]) async {
     String url = baseUrl + '/search/show/1/$keyword/$order.json';
     try {
-      List response = JSON.decode((await http.get(url, headers: headers)).body);
+      List<Map<String, String>> response = JSON.decode((await http.get(url, headers: headers)).body);
       return response.map((Map<String, String> res) {
         return ({
           'id': res['id'].toString(),
@@ -45,7 +45,7 @@ class NovelDmzj extends NovelParser {
     String urlChapter = baseUrl + '/novel/chapter/$bid.json';
     try {
       Map responseBook = JSON.decode((await http.get(urlBook, headers: headers)).body);
-      List responseChapter = JSON.decode((await http.get(urlChapter, headers: headers)).body);
+      List<Map> responseChapter = JSON.decode((await http.get(urlChapter, headers: headers)).body);
       List<Map> chapters = responseChapter.map((Map volume) {
         String vid = volume['volume_id'].toString();
         return {

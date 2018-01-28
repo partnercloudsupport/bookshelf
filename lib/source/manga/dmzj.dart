@@ -18,7 +18,7 @@ class MangaDmzj extends MangaParser {
   Future<List> searchBooks(String keyword, [int order=0]) async {
     String url = baseUrl + '/search/show/0/$keyword/$order.json';
     try {
-      List response = JSON.decode((await http.get(url, headers: headers)).body);
+      List<Map<String, String>> response = JSON.decode((await http.get(url, headers: headers)).body);
       return response.map((Map<String, String> res) {
         return ({
           'id': res['id'].toString(),
