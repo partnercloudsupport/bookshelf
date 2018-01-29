@@ -100,8 +100,8 @@ class WidgetDrawer extends StatelessWidget {
               onTap: () {},
             ),
             new SwitchListTile(
-              secondary: const Icon(Icons.brightness_4),
               title: new Text(basePageName['Nightmode']),
+              secondary: const Icon(Icons.brightness_4),
               value: useNightmode,
               onChanged: (useNightmode) {
                 Navigator.pop(context);

@@ -7,6 +7,8 @@ import 'package:bookshelf/database/db.dart';
 import 'package:bookshelf/util/eventbus.dart';
 import 'package:crypto/crypto.dart';
 import 'package:quiver/collection.dart';
+import 'package:flutter_keepscreenon/flutter_keepscreenon.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Color invertColor(Color color) {
   return new Color.fromARGB(color.alpha, 255-color.red, 255-color.green, 255-color.blue);
@@ -28,27 +30,25 @@ String fileSize(size, [int round = 2, bool decimal = false]){
   else return "${(size/divider/divider/divider).toStringAsFixed(round)} GB";
 }
 
+Future<bool> activateKeepAwake() async {
+  try {
+    await FlutterKeepscreenon.activateKeepScreenOn;
+    return true;
+  } on PlatformException catch (e) {
+    print(e.message);
+    return false;
+  }
+}
+Future<bool> deactivateKeepAwake() async {
+  try {
+    await FlutterKeepscreenon.deactivateKeepScreenOn;
+    return true;
+  } on PlatformException catch (e) {
+    print(e.message);
+    return false;
+  }
+}
+
 LruMap networkRequestCache = new LruMap(maximumSize: 512);
-
 Db defaultDb = new Db(() { bus.post('reload_bookshelf'); });
-
-final MethodChannel keepScreenOnPlatform = const MethodChannel('bookshelf.fuyumi.com/screen');
-
-Future<bool> activateKeepScreenOn() async {
-  try {
-    await keepScreenOnPlatform.invokeMethod('activateKeepScreenOn');
-    return true;
-  } on PlatformException catch (e) {
-    print(e.message);
-    return false;
-  }
-}
-Future<bool> deactivateKeepScreenOn() async {
-  try {
-    await keepScreenOnPlatform.invokeMethod('deactivateKeepScreenOn');
-    return true;
-  } on PlatformException catch (e) {
-    print(e.message);
-    return false;
-  }
-}
+Future<SharedPreferences> sharedPreferences = SharedPreferences.getInstance();

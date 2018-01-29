@@ -4,7 +4,7 @@ import 'package:quick_actions/quick_actions.dart';
 import 'package:bookshelf/util/constant.dart';
 import 'package:bookshelf/views/routes.dart';
 import 'package:bookshelf/views/widgets/widget_drawer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bookshelf/util/util.dart';
 
 class BookshelfApp extends StatefulWidget {
   const BookshelfApp({Key key}) : super(key: key);
@@ -33,14 +33,12 @@ class BookshelfAppState extends State<BookshelfApp> {
   }
 
   _getNightmodePreference() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('usenightmode') ?? false) {
+    if ((await sharedPreferences).getBool('usenightmode') ?? false) {
       setState(() => _useNightmode = true);
     }
   }
   _setNightmodePreference() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('usenightmode', _useNightmode);
+    (await sharedPreferences).setBool('usenightmode', _useNightmode);
   }
 
   @override

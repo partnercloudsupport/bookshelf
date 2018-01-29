@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewSettings extends StatefulWidget {
   const ViewSettings({ Key key }) : super(key: key);
@@ -9,20 +13,50 @@ class ViewSettings extends StatefulWidget {
 }
 
 class ViewSettingsState extends State<ViewSettings> {
-  bool keepScreenAwake = false;
-  bool openSearchRecord = true;
+  Map settings = {
+    'manga-viewer': {
+      'reader-method': 'scroll', // scroll, pageViewer
+      'reader-direction': 'vertical-top', // vertical-top, vertical-down, horizontal-left, horizontal-right
+      'picture-margin': 10,
+      'autoload-preview-next': true,
+    },
+    'novel-viewer': {
+      'reader-method': 'scroll', // scroll, pageViewer
+      'reader-direction': 'horizontal-top', // horizontal-top, horizontal-down, vertical-left, vertical-right
+      'background-color': '',
+      'autoload-preview-next': true,
+    },
+    'general': {
+      'keep-screen-on': false,
+      'bookshelf-screen-direction': '',
+      'record-search-keyword': true
+    },
+    'other': {},
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _getSettings();
+  }
 
   _toggleScreenAwake() async {
-    if (keepScreenAwake) {
-      if (!(await deactivateKeepScreenOn())) return;
-    } else {
-      if (!(await activateKeepScreenOn())) return;
-    }
-    setState(() => keepScreenAwake = !keepScreenAwake);
+    setState(() => settings['general']['keep-screen-on'] = !settings['general']['keep-screen-on']);
   }
   _toggleOpenSearchRecord() {
-    setState(() => openSearchRecord = !openSearchRecord);
+    setState(() => settings['general']['record-search-keyword'] = !settings['general']['record-search-keyword']);
   }
+  _getSettings() async {
+    SharedPreferences pref = await sharedPreferences;
+    try {
+      setState(() => settings = JSON.decode(pref.getString('settings')));
+    } catch (_) { }
+  }
+  _setSettings() async {
+    (await sharedPreferences).setString('settings', JSON.encode(settings));
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +82,11 @@ class ViewSettingsState extends State<ViewSettings> {
               padding: tileItemPadding,
               child: const Text('阅读方向: 竖向(从上至下)'),
             ),
-            onTap: () {},
+            onTap: () {
+              _mangaViewerSettings(context).then((val) {
+                print(val);
+              });
+            },
           ),
           new ListTile(
             title: new Container(
@@ -72,9 +110,9 @@ class ViewSettingsState extends State<ViewSettings> {
           new SwitchListTile(
             title: new Container(
               padding: tileItemPadding,
-              child: const Text('保持屏幕常亮'),
+              child: const Text('阅读时保持屏幕常亮'),
             ),
-            value: keepScreenAwake,
+            value: settings['general']['keep-screen-on'],
             onChanged: (bool value) {
               _toggleScreenAwake();
             },
@@ -82,7 +120,7 @@ class ViewSettingsState extends State<ViewSettings> {
           new ListTile(
             title: new Container(
               padding: tileItemPadding,
-              child: const Text('屏幕方向'),
+              child: const Text('书架屏幕方向'),
             ),
             subtitle: new Container(
               padding: tileItemPadding,
@@ -99,7 +137,7 @@ class ViewSettingsState extends State<ViewSettings> {
 //              padding: tileItemPadding,
 //              child: new Text(openSearchRecord ? '已启用' : '已禁用'),
 //            ),
-            value: openSearchRecord,
+            value: settings['general']['record-search-keyword'],
             onChanged: (bool value) {
               _toggleOpenSearchRecord();
             },
@@ -161,6 +199,24 @@ class ViewSettingsState extends State<ViewSettings> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<Null> _mangaViewerSettings(BuildContext context) async {
+    return await showDialog(
+        context: context,
+        child: new SimpleDialog(
+          title: const Text('漫画/同人志设置'),
+          children: <Widget>[
+            new SimpleDialogOption(
+//              child: new SwitchListTile(
+//                title: const Text(''),
+//                  value: null,
+//                  onChanged: null
+//              ),
+            ),
+          ],
+        ),
     );
   }
 }

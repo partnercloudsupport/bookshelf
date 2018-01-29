@@ -3,10 +3,10 @@ import 'dart:convert';
 
 import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bookshelf/service/parse/parser.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:bookshelf/util/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewSearch extends StatefulWidget {
   const ViewSearch({Key key}) : super(key: key);
@@ -38,18 +38,16 @@ class ViewSearchState extends State<ViewSearch> {
   }
 
   _getSearchHistoryPreference() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() => searchList.addAll(prefs.getStringList('searchhistory') ?? []));
+    SharedPreferences pref = await sharedPreferences;
+    setState(() => searchList.addAll(pref.getStringList('searchhistory') ?? []));
   }
 
   _setSearchHistoryPreference() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('searchhistory', searchList);
+    (await sharedPreferences).setStringList('searchhistory', searchList);
   }
 
   _clearSearchHistoryPreference() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('searchhistory');
+    (await sharedPreferences).remove('searchhistory');
   }
 
   /// TODO: Incremental search
