@@ -1,16 +1,5 @@
 import 'package:flutter/material.dart';
 
-TabBar tabbarDoujinshi() {
-  return new TabBar(
-    tabs: <Widget>[
-      const Tab(text: '喜欢'),
-      const Tab(text: '本地'),
-      const Tab(text: '艺术家'),
-      const Tab(text: '历史'),
-    ],
-  );
-}
-
 class WidgetDoujinshi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -25,4 +14,15 @@ class WidgetDoujinshi extends StatelessWidget {
       ),
     );
   }
+}
+
+TabBar tabbarDoujinshi() {
+  return new TabBar(
+    tabs: <Widget>[
+      const Tab(text: '喜欢'),
+//      const Tab(text: '本地'),
+//      const Tab(text: '艺术家'),
+      const Tab(text: '历史'),
+    ],
+  );
 }

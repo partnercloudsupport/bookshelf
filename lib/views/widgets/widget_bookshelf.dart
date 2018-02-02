@@ -187,7 +187,7 @@ TabBar tabbarBookshelf() {
     tabs: <Widget>[
       const Tab(text: '喜欢'),
       const Tab(text: '历史'),
-      const Tab(text: '已下载'),
+//      const Tab(text: '已下载'),
     ],
   );
 }

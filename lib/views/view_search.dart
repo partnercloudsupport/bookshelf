@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:bookshelf/service/parse/parser.dart';
+import 'package:bookshelf/service/parser.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:bookshelf/util/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';

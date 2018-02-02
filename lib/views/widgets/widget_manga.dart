@@ -1,16 +1,5 @@
 import 'package:flutter/material.dart';
 
-TabBar tabbarManga() {
-  return new TabBar(
-    tabs: <Widget>[
-      const Tab(text: '喜欢'),
-      const Tab(text: '本地'),
-      const Tab(text: '推荐'),
-      const Tab(text: '历史'),
-    ],
-  );
-}
-
 class WidgetManga extends StatefulWidget {
   const WidgetManga({ Key key }) : super(key: key);
 
@@ -57,6 +46,17 @@ GridView test(orientation) {
       new Container(
         color: Colors.green,
       ),
+    ],
+  );
+}
+
+TabBar tabbarManga() {
+  return new TabBar(
+    tabs: <Widget>[
+      const Tab(text: '喜欢'),
+//      const Tab(text: '本地'),
+//      const Tab(text: '推荐'),
+      const Tab(text: '历史'),
     ],
   );
 }

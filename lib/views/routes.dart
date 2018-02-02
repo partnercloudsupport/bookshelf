@@ -50,21 +50,15 @@ routes(settings) {
   }
 }
 
-Map tabbarLength = {
-  'Bookshelf': 3,
-  'Manga': 4,
-  'Novel': 4,
-  'Doujinshi': 4,
-};
-Map tabbarInitindex = {
-  'Bookshelf': 0,
-  'Manga': 0,
-  'Novel': 0,
-  'Doujinshi': 0,
-};
+//Map tabbarInitIndex = {
+//  'Bookshelf': 0,
+//  'Manga': 0,
+//  'Novel': 0,
+//  'Doujinshi': 0,
+//};
 
-tabbarItems(draweritemName) {
-  switch (draweritemName) {
+tabbarItems(drawerItemName) {
+  switch (drawerItemName) {
     case 'Bookshelf': return tabbarBookshelf();
     case 'Manga': return tabbarManga();
     case 'Novel': return tabbarNovel();
@@ -72,8 +66,8 @@ tabbarItems(draweritemName) {
   }
 }
 
-bodyItems(draweritemName) {
-  switch (draweritemName) {
+bodyItems(drawerItemName) {
+  switch (drawerItemName) {
     case 'Bookshelf': return new WidgetBookshelf();
     case 'Manga': return new WidgetManga();
     case 'Novel': return new WidgetNovel();

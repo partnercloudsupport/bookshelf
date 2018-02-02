@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bookshelf/service/setting.dart';
 
 class ViewSettings extends StatefulWidget {
   const ViewSettings({ Key key }) : super(key: key);
@@ -13,26 +11,7 @@ class ViewSettings extends StatefulWidget {
 }
 
 class ViewSettingsState extends State<ViewSettings> {
-  Map settings = {
-    'manga-viewer': {
-      'reader-method': 'scroll', // scroll, pageViewer
-      'reader-direction': 'vertical-top', // vertical-top, vertical-down, horizontal-left, horizontal-right
-      'picture-margin': 10,
-      'autoload-preview-next': true,
-    },
-    'novel-viewer': {
-      'reader-method': 'scroll', // scroll, pageViewer
-      'reader-direction': 'horizontal-top', // horizontal-top, horizontal-down, vertical-left, vertical-right
-      'background-color': '',
-      'autoload-preview-next': true,
-    },
-    'general': {
-      'keep-screen-on': false,
-      'bookshelf-screen-direction': '',
-      'record-search-keyword': true
-    },
-    'other': {},
-  };
+  Map settings;
 
   @override
   void initState() {
@@ -42,21 +21,17 @@ class ViewSettingsState extends State<ViewSettings> {
 
   _toggleScreenAwake() async {
     setState(() => settings['general']['keep-screen-on'] = !settings['general']['keep-screen-on']);
+    await _setSettings(settings);
   }
-  _toggleOpenSearchRecord() {
+  _toggleOpenSearchRecord() async {
     setState(() => settings['general']['record-search-keyword'] = !settings['general']['record-search-keyword']);
+    await _setSettings(settings);
   }
   _getSettings() async {
-    SharedPreferences pref = await sharedPreferences;
-    try {
-      setState(() => settings = JSON.decode(pref.getString('settings')));
-    } catch (_) { }
+    Map data = await getSettings();
+    setState(() => settings = data);
   }
-  _setSettings() async {
-    (await sharedPreferences).setString('settings', JSON.encode(settings));
-  }
-
-
+  var _setSettings = setSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -65,44 +40,44 @@ class ViewSettingsState extends State<ViewSettings> {
 
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('设置'),
+        title: const Text('设置'),
       ),
       body: new ListView(
         children: <Widget>[
-          new Container(
-            padding: const EdgeInsets.fromLTRB(66.0, 15.0, 0.0, 5.0),
-            child: new Text('阅读器设置', style: new TextStyle(color: Theme.of(context).primaryColor))
-          ),
-          new ListTile(
-            title: new Container(
-              padding: tileItemPadding,
-              child: const Text('漫画/同人志'),
-            ),
-            subtitle: new Container(
-              padding: tileItemPadding,
-              child: const Text('阅读方向: 竖向(从上至下)'),
-            ),
-            onTap: () {
-              _mangaViewerSettings(context).then((val) {
-                print(val);
-              });
-            },
-          ),
-          new ListTile(
-            title: new Container(
-              padding: tileItemPadding,
-              child: const Text('小说'),
-            ),
-            subtitle: new Container(
-              padding: tileItemPadding,
-              child: const Text('阅读方向: 横向(从上至下)'),
-            ),
-            onTap: () {},
-          ),
-          new Padding(
-            padding: dividerPadding,
-            child: new Divider(),
-          ),
+//          new Container(
+//            padding: const EdgeInsets.fromLTRB(66.0, 15.0, 0.0, 5.0),
+//            child: new Text('阅读器设置', style: new TextStyle(color: Theme.of(context).primaryColor))
+//          ),
+//          new ListTile(
+//            title: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('漫画/同人志'),
+//            ),
+//            subtitle: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('阅读方向: 竖向(从上至下)'),
+//            ),
+//            onTap: () {
+//              _mangaViewerSettings(context).then((val) {
+//                print(val);
+//              });
+//            },
+//          ),
+//          new ListTile(
+//            title: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('小说'),
+//            ),
+//            subtitle: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('阅读方向: 横向(从上至下)'),
+//            ),
+//            onTap: () {},
+//          ),
+//          new Padding(
+//            padding: dividerPadding,
+//            child: new Divider(),
+//          ),
           new Container(
               padding: const EdgeInsets.fromLTRB(66.0, 15.0, 0.0, 5.0),
               child: new Text('通用设置', style: new TextStyle(color: Theme.of(context).primaryColor))
@@ -117,30 +92,24 @@ class ViewSettingsState extends State<ViewSettings> {
               _toggleScreenAwake();
             },
           ),
-          new ListTile(
-            title: new Container(
-              padding: tileItemPadding,
-              child: const Text('书架屏幕方向'),
-            ),
-            subtitle: new Container(
-              padding: tileItemPadding,
-              child: const Text('自动选择'),
-            ),
-            onTap: () {},
-          ),
+//          new ListTile(
+//            title: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('书架屏幕方向'),
+//            ),
+//            subtitle: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('自动选择'),
+//            ),
+//            onTap: () {},
+//          ),
           new SwitchListTile(
             title: new Container(
               padding: tileItemPadding,
-              child: const Text('搜索记录'),
+              child: const Text('启用搜索记录'),
             ),
-//            subtitle: new Container(
-//              padding: tileItemPadding,
-//              child: new Text(openSearchRecord ? '已启用' : '已禁用'),
-//            ),
             value: settings['general']['record-search-keyword'],
-            onChanged: (bool value) {
-              _toggleOpenSearchRecord();
-            },
+            onChanged: (bool value) => _toggleOpenSearchRecord(),
           ),
           new Container(
               padding: const EdgeInsets.fromLTRB(66.0, 15.0, 0.0, 5.0),
@@ -180,10 +149,10 @@ class ViewSettingsState extends State<ViewSettings> {
               padding: tileItemPadding,
               child: const Text('优化'),
             ),
-            subtitle: new Container(
-              padding: tileItemPadding,
-              child: const Text('上次优化时间是3天前'),
-            ),
+//            subtitle: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('上次优化时间是3天前'),
+//            ),
             onTap: () {},
           ),
           new ListTile(
@@ -191,10 +160,10 @@ class ViewSettingsState extends State<ViewSettings> {
               padding: tileItemPadding,
               child: const Text('清理缓存'),
             ),
-            subtitle: new Container(
-              padding: tileItemPadding,
-              child: const Text('已占用3MB空间'),
-            ),
+//            subtitle: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('已占用3MB空间'),
+//            ),
             onTap: () {},
           ),
         ],
@@ -202,21 +171,21 @@ class ViewSettingsState extends State<ViewSettings> {
     );
   }
 
-  Future<Null> _mangaViewerSettings(BuildContext context) async {
-    return await showDialog(
-        context: context,
-        child: new SimpleDialog(
-          title: const Text('漫画/同人志设置'),
-          children: <Widget>[
-            new SimpleDialogOption(
-//              child: new SwitchListTile(
-//                title: const Text(''),
-//                  value: null,
-//                  onChanged: null
-//              ),
-            ),
-          ],
-        ),
-    );
-  }
+//  Future<Null> _mangaViewerSettings(BuildContext context) async {
+//    return await showDialog(
+//        context: context,
+//        child: new SimpleDialog(
+//          title: const Text('漫画/同人志设置'),
+//          children: <Widget>[
+//            new SimpleDialogOption(
+////              child: new SwitchListTile(
+////                title: const Text(''),
+////                  value: null,
+////                  onChanged: null
+////              ),
+//            ),
+//          ],
+//        ),
+//    );
+//  }
 }
