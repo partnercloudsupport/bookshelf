@@ -188,6 +188,7 @@ class ViewSearchState extends State<ViewSearch> {
   Widget resultItems(BuildContext context, List resultList) {
     return new RefreshIndicator(
       child: new ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
         itemCount: resultList.length,
         itemBuilder: (BuildContext context, int index) {
@@ -216,10 +217,11 @@ class ViewSearchState extends State<ViewSearch> {
                         height: 120.0,
                         width: 100.0,
                         margin: const EdgeInsets.only(right: 15.0),
-                        child: new Image(
-                          height: 120.0,
-                          image: new AdvancedNetworkImage(result['coverurl'], header: result['coverurl_header']),
-                          fit: BoxFit.cover,
+                        child: new FadeInImage(
+                            height: 120.0,
+                            fit: BoxFit.cover,
+                            placeholder: new AssetImage('assets/loading.gif'),
+                            image: new AdvancedNetworkImage(result['coverurl'], header: result['coverurl_header']),
                         ),
                       ),
                       new Expanded(

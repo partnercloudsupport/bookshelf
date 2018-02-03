@@ -114,9 +114,10 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
               color: Theme.of(context).cardColor,
               child: new GestureDetector(
                 onTap: () => Navigator.of(context).pushNamed(((bookType=='novel')?'/detail~novel/':'/detail~manga/') + JSON.encode(info['entry'])),
-                child: new Image(
-                  image: new AdvancedNetworkImage(info['coverurl'], header: info['coverurl_header'], useDiskCache: true),
+                child: new FadeInImage(
                   fit: BoxFit.cover,
+                  placeholder: new AssetImage('assets/loading.gif'),
+                  image: new AdvancedNetworkImage(info['coverurl'], header: info['coverurl_header'], useDiskCache: true),
                 ),
               ),
             ),

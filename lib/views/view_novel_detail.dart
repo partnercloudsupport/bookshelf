@@ -199,12 +199,13 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
                         height: 200.0,
                         width: 170.0,
                         margin: const EdgeInsets.only(right: 15.0),
-                        child: bookDetail != null ? new Image(
+                        child: bookDetail != null ? new FadeInImage(
+                          fit: BoxFit.cover,
+                          placeholder: new AssetImage('assets/loading.gif'),
                           image: new AdvancedNetworkImage(
                             bookDetail['coverurl'],
                             header: bookDetail['coverurl_header'],
                           ),
-                          fit: BoxFit.cover,
                         ) : null,
                       ),
                     ),

@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bookshelf/util/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-getSettings() async {
+Future<Map> getSettings() async {
   SharedPreferences pref = await sharedPreferences;
   try {
     return JSON.decode(pref.getString('settings'));
@@ -28,7 +29,7 @@ getSettings() async {
       },
       'others': {
         'night-mode': false,
-        'theme': ''
+        'theme': null
       }
     };
   }

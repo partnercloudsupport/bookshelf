@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:bookshelf/service/setting.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 
 class ViewSettings extends StatefulWidget {
   const ViewSettings({ Key key }) : super(key: key);
@@ -12,6 +14,7 @@ class ViewSettings extends StatefulWidget {
 
 class ViewSettingsState extends State<ViewSettings> {
   Map settings;
+  String cacheSize;
 
   @override
   void initState() {
@@ -21,17 +24,20 @@ class ViewSettingsState extends State<ViewSettings> {
 
   _toggleScreenAwake() async {
     setState(() => settings['general']['keep-screen-on'] = !settings['general']['keep-screen-on']);
-    await _setSettings(settings);
+    await setSettings(settings);
   }
   _toggleOpenSearchRecord() async {
     setState(() => settings['general']['record-search-keyword'] = !settings['general']['record-search-keyword']);
-    await _setSettings(settings);
+    await setSettings(settings);
   }
   _getSettings() async {
     Map data = await getSettings();
     setState(() => settings = data);
+    getDiskCachedImagesSize().then((int size) {
+      if (size != null) setState(() => cacheSize = fileSize(size));
+      else setState(() => cacheSize = '0KB');
+    });
   }
-  var _setSettings = setSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +93,7 @@ class ViewSettingsState extends State<ViewSettings> {
               padding: tileItemPadding,
               child: const Text('阅读时保持屏幕常亮'),
             ),
-            value: settings['general']['keep-screen-on'],
+            value: settings != null ? settings['general']['keep-screen-on'] : false,
             onChanged: (bool value) {
               _toggleScreenAwake();
             },
@@ -108,42 +114,35 @@ class ViewSettingsState extends State<ViewSettings> {
               padding: tileItemPadding,
               child: const Text('启用搜索记录'),
             ),
-            value: settings['general']['record-search-keyword'],
+            value: settings != null ? settings['general']['record-search-keyword'] : false,
             onChanged: (bool value) => _toggleOpenSearchRecord(),
           ),
           new Container(
               padding: const EdgeInsets.fromLTRB(66.0, 15.0, 0.0, 5.0),
               child: new Text('杂项', style: new TextStyle(color: Theme.of(context).primaryColor))
           ),
-          new ListTile(
-            title: new Container(
-              padding: tileItemPadding,
-              child: const Text('清空搜索记录'),
-            ),
-            onTap: () {},
-          ),
-          new ListTile(
-            title: new Container(
-              padding: tileItemPadding,
-              child: const Text('备份应用数据'),
-            ),
-            subtitle: new Container(
-              padding: tileItemPadding,
-              child: const Text('上次备份时间是21天前'),
-            ),
-            onTap: () {},
-          ),
-          new ListTile(
-            title: new Container(
-              padding: tileItemPadding,
-              child: const Text('还原应用数据'),
-            ),
-            subtitle: new Container(
-              padding: tileItemPadding,
-              child: const Text('还原喜爱列表和阅读列表(在线阅读)'),
-            ),
-            onTap: () {},
-          ),
+//          new ListTile(
+//            title: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('备份应用数据'),
+//            ),
+//            subtitle: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('上次备份时间是21天前'),
+//            ),
+//            onTap: () {},
+//          ),
+//          new ListTile(
+//            title: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('还原应用数据'),
+//            ),
+//            subtitle: new Container(
+//              padding: tileItemPadding,
+//              child: const Text('还原喜爱列表和阅读列表(在线阅读)'),
+//            ),
+//            onTap: () {},
+//          ),
           new ListTile(
             title: new Container(
               padding: tileItemPadding,
@@ -160,11 +159,18 @@ class ViewSettingsState extends State<ViewSettings> {
               padding: tileItemPadding,
               child: const Text('清理缓存'),
             ),
-//            subtitle: new Container(
-//              padding: tileItemPadding,
-//              child: const Text('已占用3MB空间'),
-//            ),
-            onTap: () {},
+            subtitle: new Container(
+              padding: tileItemPadding,
+              child: new Text('已占用$cacheSize空间'),
+            ),
+            onTap: () {
+              clearDiskCachedImages().then((bool val) {
+                getDiskCachedImagesSize().then((int size) {
+                  if (size != null) setState(() => cacheSize = fileSize(size));
+                  else setState(() => cacheSize = '0KB');
+                });
+              });
+            },
           ),
         ],
       ),

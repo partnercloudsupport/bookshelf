@@ -193,7 +193,10 @@ class NovelViewerState extends State<NovelViewer> {
                             child: content != null ?
                               new ListBody(
                                 children: content.map((Map cont) {
-                                  if (cont.containsKey('img')) return new Image(image: new AdvancedNetworkImage(cont['img']['url'], header: cont['img']['header']));
+                                  if (cont.containsKey('img')) return new FadeInImage(
+                                    placeholder: new AssetImage('assets/loading.gif'),
+                                    image: new AdvancedNetworkImage(cont['img']['url'], header: cont['img']['header'])
+                                  );
                                   else return new Text(cont['text'], style: new TextStyle(fontSize: fontSize, height: 1.8));
                                 }).toList(),
                               )

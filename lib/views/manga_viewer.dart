@@ -137,7 +137,8 @@ class MangaViewerState extends State<MangaViewer> {
                   controller: _scrollController,
                   itemCount: content != null ? content['picture_urls'].length : 0,
                   itemBuilder: (BuildContext context, int index) {
-                    return content != null ? new Image(
+                    return content != null ? new FadeInImage(
+                      placeholder: new AssetImage('assets/loading.gif'),
                       image: new AdvancedNetworkImage(content['picture_urls'][index],
                           header: content['picture_header']),
                     ) : new Container();

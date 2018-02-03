@@ -4,6 +4,7 @@ import 'package:quick_actions/quick_actions.dart';
 import 'package:bookshelf/util/constant.dart';
 import 'package:bookshelf/views/routes.dart';
 import 'package:bookshelf/views/widgets/widget_drawer.dart';
+import 'package:bookshelf/service/setting.dart';
 import 'package:bookshelf/util/util.dart';
 
 class BookshelfApp extends StatefulWidget {
@@ -14,7 +15,7 @@ class BookshelfApp extends StatefulWidget {
 }
 
 class BookshelfAppState extends State<BookshelfApp> {
-  bool _useNightmode = false;
+  Map settings;
   String _drawerItemSelected = 'Bookshelf';
 
   @override
@@ -29,32 +30,23 @@ class BookshelfAppState extends State<BookshelfApp> {
     quickActions.setShortcutItems(<ShortcutItem>[
       const ShortcutItem(type: 'search', localizedTitle: '搜索', icon: 'icon_search'),
     ]);
-    _getNightmodePreference();
-  }
-
-  _getNightmodePreference() async {
-    if ((await sharedPreferences).getBool('usenightmode') ?? false) {
-      setState(() => _useNightmode = true);
-    }
-  }
-  _setNightmodePreference() async {
-    (await sharedPreferences).setBool('usenightmode', _useNightmode);
+    getSettings().then((Map data) => setState(() => settings = data));
   }
 
   @override
   Widget build(BuildContext context) {
     Widget home = new BasePage(
-        useNightmode: _useNightmode,
-        onNightmodeChanged: (bool value) => setState(() {
-          _useNightmode = value;
-          _setNightmodePreference();
+        useNightmode: settings != null ? settings['others']['night-mode'] : false,
+        onNightmodeChanged: (bool val) => setState(() {
+          settings['others']['night-mode'] = val;
+          setSettings(settings);
         }),
         drawerItemSelected: _drawerItemSelected,
-        onDrawerItemSelected: (String value) => setState(() {_drawerItemSelected = value;}),
+        onDrawerItemSelected: (String val) => setState(() {_drawerItemSelected = val;}),
     );
 
     return new MaterialApp(
-      theme: _useNightmode ? nightmodeTheme : defaultTheme,
+      theme: (settings != null ? settings['others']['night-mode'] : false) ? nightmodeTheme : defaultTheme,
       home: home,
       onGenerateRoute: (RouteSettings settings) => routes(settings),
     );
