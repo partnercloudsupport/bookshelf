@@ -14,7 +14,7 @@ class MainActivity() : FlutterActivity() {
         super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(0x00000000)
+            window.statusBarColor = 0x00000000
         }
 
         GeneratedPluginRegistrant.registerWith(this)

@@ -145,11 +145,11 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
             onPressed: toggleFavored,
             tooltip: '喜欢',
           ),
-          new IconButton(
-            icon: const Icon(Icons.file_download),
-            onPressed: toggleDownloadMode,
-            tooltip: '下载',
-          ),
+//          new IconButton(
+//            icon: const Icon(Icons.file_download),
+//            onPressed: toggleDownloadMode,
+//            tooltip: '下载',
+//          ),
         ],
       ),
       floatingActionButton: (chapterSelected != null && enableContinueReadingBtn == true) ? new FloatingActionButton(

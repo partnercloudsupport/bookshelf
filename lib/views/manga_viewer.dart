@@ -138,6 +138,8 @@ class MangaViewerState extends State<MangaViewer> {
                   itemCount: content != null ? content['picture_urls'].length : 0,
                   itemBuilder: (BuildContext context, int index) {
                     return content != null ? new FadeInImage(
+                      fadeInDuration: const Duration(milliseconds: 250),
+                      fadeOutDuration: const Duration(milliseconds: 150),
                       placeholder: new AssetImage('assets/loading.gif'),
                       image: new AdvancedNetworkImage(content['picture_urls'][index],
                           header: content['picture_header']),

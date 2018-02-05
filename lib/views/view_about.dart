@@ -40,7 +40,7 @@ class ViewAbout extends StatelessWidget {
                     style: new TextStyle(
                       color: Colors.white,
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
