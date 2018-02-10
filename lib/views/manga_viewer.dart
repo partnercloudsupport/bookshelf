@@ -112,7 +112,7 @@ class MangaViewerState extends State<MangaViewer> {
       children: <Widget>[
         new LayoutId(
           id: _MangaViewerLayout.viewer,
-          child: new ZoomableWidget(
+          child: new Container(
             child: new RefreshIndicator(
               onRefresh: _loadPreviewChapter,
               child: new NotificationListener(

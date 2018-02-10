@@ -171,6 +171,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                     height: 200.0,
                     width: 160.0,
                     margin: const EdgeInsets.only(right: 15.0),
+                    color: Theme.of(context).cardColor,
                     child: bookDetail != null ? new FadeInImage(
                       fit: BoxFit.cover,
                       placeholder: new AssetImage('assets/loading.gif'),

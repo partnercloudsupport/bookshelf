@@ -149,7 +149,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
       children: <Widget>[
         bookPreview(context, orientation, bookFavored, 'favored'),
         bookPreview(context, orientation, bookHistory, 'history'),
-        test(orientation),
+//        test(orientation),
       ],
     );
   }
