@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:bookshelf/database/db.dart';
 import 'package:bookshelf/util/eventbus.dart';
 import 'package:bookshelf/util/util.dart';
+import 'package:bookshelf/views/widgets/transition_to_image.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
@@ -172,13 +173,11 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                     width: 160.0,
                     margin: const EdgeInsets.only(right: 15.0),
                     color: Theme.of(context).cardColor,
-                    child: bookDetail != null ? new FadeInImage(
-                      fit: BoxFit.cover,
-                      placeholder: new AssetImage('assets/loading.gif'),
-                      image: new AdvancedNetworkImage(
-                          bookDetail['coverurl'],
-                          header: bookDetail['coverurl_header'],
-                      ),
+                    child: bookDetail != null ? new TransitionToImage(
+                        new AdvancedNetworkImage(
+                            bookDetail['coverurl'],
+                            header: bookDetail['coverurl_header'],
+                        ),
                     ) : null,
                   ),
                 ),

@@ -94,11 +94,11 @@ class WidgetDrawer extends StatelessWidget {
               ),
             ),
             new Divider(),
-            new ListTile(
-              leading: const Icon(Icons.color_lens),
-              title: new Text(basePageName['Themes']),
-              onTap: () {},
-            ),
+//            new ListTile(
+//              leading: const Icon(Icons.color_lens),
+//              title: new Text(basePageName['Themes']),
+//              onTap: () {},
+//            ),
             new SwitchListTile(
               title: new Text(basePageName['Nightmode']),
               secondary: const Icon(Icons.brightness_4),

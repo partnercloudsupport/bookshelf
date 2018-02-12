@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:bookshelf/views/widgets/transition_to_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:battery/battery.dart';
 import 'package:bookshelf/service/parser.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
-import 'package:flutter_advanced_networkimage/zoomable_widget.dart';
 import 'package:intl/intl.dart';
 
 class MangaViewer extends StatefulWidget {
@@ -137,12 +137,9 @@ class MangaViewerState extends State<MangaViewer> {
                   controller: _scrollController,
                   itemCount: content != null ? content['picture_urls'].length : 0,
                   itemBuilder: (BuildContext context, int index) {
-                    return content != null ? new FadeInImage(
-                      fadeInDuration: const Duration(milliseconds: 250),
-                      fadeOutDuration: const Duration(milliseconds: 150),
-                      placeholder: new AssetImage('assets/loading.gif'),
-                      image: new AdvancedNetworkImage(content['picture_urls'][index],
-                          header: content['picture_header']),
+                    return content != null ? new TransitionToImage(
+                        new AdvancedNetworkImage(content['picture_urls'][index],
+                            header: content['picture_header']),
                     ) : new Container();
                   },
                 ),
@@ -242,4 +239,25 @@ class _MangaViewerLayout extends MultiChildLayoutDelegate {
 
   @override
   bool shouldRelayout(_MangaViewerLayout oldDelegate) => false;
+}
+
+class _CustomScrollViewer extends StatefulWidget {
+  @override
+  _CustomScrollViewerState createState() => new _CustomScrollViewerState();
+}
+
+class _CustomScrollViewerState extends State<_CustomScrollViewer> {
+  @override
+  Widget build(BuildContext context) {
+    return new CustomScrollView(
+      slivers: <Widget>[
+        new SliverFixedExtentList(
+            itemExtent: 50.0,
+            delegate: new SliverChildBuilderDelegate((BuildContext context, int index) {
+              return new Container();
+            }),
+        ),
+      ],
+    );
+  }
 }

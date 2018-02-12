@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:bookshelf/database/db.dart';
 import 'package:bookshelf/util/eventbus.dart';
+import 'package:bookshelf/views/widgets/transition_to_image.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
@@ -114,10 +115,8 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
               color: Theme.of(context).cardColor,
               child: new GestureDetector(
                 onTap: () => Navigator.of(context).pushNamed(((bookType=='novel')?'/detail~novel/':'/detail~manga/') + JSON.encode(info['entry'])),
-                child: new FadeInImage(
-                  fit: BoxFit.cover,
-                  placeholder: new AssetImage('assets/loading.gif'),
-                  image: new AdvancedNetworkImage(info['coverurl'], header: info['coverurl_header'], useDiskCache: true),
+                child: new TransitionToImage(
+                    new AdvancedNetworkImage(info['coverurl'], header: info['coverurl_header'], useDiskCache: true),
                 ),
               ),
             ),

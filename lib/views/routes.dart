@@ -62,7 +62,6 @@ class CustomPageRoute<T> extends MaterialPageRoute<T> {
       child: child,
     );
   }
-
 }
 final Tween<Offset> _customTween = new Tween<Offset>(
   begin: const Offset(0.25, 0.0),

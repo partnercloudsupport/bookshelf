@@ -16,8 +16,8 @@ class WidgetMangaState extends State<WidgetManga> {
       children: <Widget>[
         test(orientation),
         test(orientation),
-        test(orientation),
-        test(orientation),
+//        test(orientation),
+//        test(orientation),
       ],
     );
   }

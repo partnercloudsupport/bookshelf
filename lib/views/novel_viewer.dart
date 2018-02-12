@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:battery/battery.dart';
 import 'package:bookshelf/service/parser.dart';
 import 'package:bookshelf/util/eventbus.dart';
+import 'package:bookshelf/views/widgets/transition_to_image.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -192,12 +193,11 @@ class NovelViewerState extends State<NovelViewer> {
                             padding: const EdgeInsets.all(15.0),
                             child: content != null ?
                               new ListBody(
-                                children: content.map((Map cont) {
-                                  if (cont.containsKey('img')) return new FadeInImage(
-                                    placeholder: new AssetImage('assets/loading.gif'),
-                                    image: new AdvancedNetworkImage(cont['img']['url'], header: cont['img']['header'])
+                                children: content.map((Map context) {
+                                  if (context.containsKey('img')) return new TransitionToImage(
+                                      new AdvancedNetworkImage(context['img']['url'], header: context['img']['header'])
                                   );
-                                  else return new Text(cont['text'], style: new TextStyle(fontSize: fontSize, height: 1.8));
+                                  else return new Text(context['text'], style: new TextStyle(fontSize: fontSize, height: 1.8));
                                 }).toList(),
                               )
                               : new Container(),

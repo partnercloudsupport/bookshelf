@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bookshelf/util/util.dart';
+import 'package:bookshelf/views/widgets/transition_to_image.dart';
 import 'package:flutter/material.dart';
 import 'package:bookshelf/service/parser.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
@@ -217,11 +218,8 @@ class ViewSearchState extends State<ViewSearch> {
                         height: 120.0,
                         width: 100.0,
                         margin: const EdgeInsets.only(right: 15.0),
-                        child: new FadeInImage(
-                            height: 120.0,
-                            fit: BoxFit.cover,
-                            placeholder: new AssetImage('assets/loading.gif'),
-                            image: new AdvancedNetworkImage(result['coverurl'], header: result['coverurl_header']),
+                        child: new TransitionToImage(
+                            new AdvancedNetworkImage(result['coverurl'], header: result['coverurl_header']),
                         ),
                       ),
                       new Expanded(
