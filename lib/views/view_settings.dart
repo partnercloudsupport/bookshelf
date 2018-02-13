@@ -148,10 +148,10 @@ class ViewSettingsState extends State<ViewSettings> {
               padding: tileItemPadding,
               child: const Text('优化'),
             ),
-//            subtitle: new Container(
-//              padding: tileItemPadding,
-//              child: const Text('上次优化时间是3天前'),
-//            ),
+            subtitle: new Container(
+              padding: tileItemPadding,
+              child: const Text('整理数据库'),
+            ),
             onTap: () {},
           ),
           new ListTile(

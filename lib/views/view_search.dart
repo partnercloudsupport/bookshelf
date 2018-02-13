@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bookshelf/util/util.dart';
-import 'package:bookshelf/views/widgets/transition_to_image.dart';
 import 'package:flutter/material.dart';
-import 'package:bookshelf/service/parser.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
-import 'package:bookshelf/util/constant.dart';
+import 'package:flutter_advanced_networkimage/transition_to_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bookshelf/service/parser.dart';
+import 'package:bookshelf/service/setting.dart';
+import 'package:bookshelf/util/constant.dart';
+import 'package:bookshelf/util/util.dart';
 
 class ViewSearch extends StatefulWidget {
   const ViewSearch({Key key}) : super(key: key);
@@ -23,6 +24,7 @@ class ViewSearchState extends State<ViewSearch> {
   bool showSearchHistory = false;
   bool showSearchResult = false;
   ScrollController _scrollController = new ScrollController();
+  bool recordSearchKeyword = true;
 
   List<String> parsersName = availableParserList();
   Parser parser = new Parser();
@@ -31,16 +33,24 @@ class ViewSearchState extends State<ViewSearch> {
   List searchDoujinshiResult = [];
 
   @override
-  void initState() {
+  initState() {
     super.initState();
-    _getSearchHistoryPreference();
+    _getPreference();
     controller.addListener(() =>
         setState(() => showClearTextBtn = controller.text.isNotEmpty));
   }
+  @override
+  dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
-  _getSearchHistoryPreference() async {
-    SharedPreferences pref = await sharedPreferences;
-    setState(() => searchList.addAll(pref.getStringList('searchhistory') ?? []));
+  _getPreference() async {
+    recordSearchKeyword = (await getSettings())['general']['record-search-keyword'];
+    if (recordSearchKeyword) {
+      SharedPreferences pref = await sharedPreferences;
+      setState(() => searchList.addAll(pref.getStringList('searchhistory') ?? []));
+    }
   }
 
   _setSearchHistoryPreference() async {
@@ -298,7 +308,7 @@ class ViewSearchState extends State<ViewSearch> {
       setState(() {
         showSearchHistory = false;
         showSearchResult = true;
-        if (!searchList.contains(val)) {
+        if (recordSearchKeyword && !searchList.contains(val)) {
           try {
             searchList.add(val);
           } catch (e) {

@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
+import 'package:flutter_advanced_networkimage/transition_to_image.dart';
 import 'package:bookshelf/database/db.dart';
 import 'package:bookshelf/util/eventbus.dart';
-import 'package:bookshelf/views/widgets/transition_to_image.dart';
-import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:bookshelf/util/util.dart';
-import 'package:flutter/material.dart';
 
 class WidgetBookshelf extends StatefulWidget {
   const WidgetBookshelf({ Key key }) : super(key: key);
@@ -22,7 +22,7 @@ class WidgetBookshelfState extends State<WidgetBookshelf> {
   Map bookFavored;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     _loadBooks();
     bus.subscribe('reload_bookshelf', _refreshHandle);

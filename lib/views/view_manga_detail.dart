@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
+import 'package:flutter_advanced_networkimage/transition_to_image.dart';
+import 'package:crypto/crypto.dart';
+import 'package:intl/intl.dart';
 import 'package:bookshelf/database/db.dart';
 import 'package:bookshelf/util/eventbus.dart';
 import 'package:bookshelf/util/util.dart';
-import 'package:bookshelf/views/widgets/transition_to_image.dart';
-import 'package:flutter/material.dart';
-import 'package:crypto/crypto.dart';
-import 'package:intl/intl.dart';
 import 'package:bookshelf/service/parser.dart';
-import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:bookshelf/util/constant.dart';
 
 class ViewMangaDetail extends StatefulWidget {
@@ -39,7 +39,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
   bool enableContinueReadingBtn = true;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     _getBookDetail();
   }

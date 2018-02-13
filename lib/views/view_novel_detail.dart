@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bookshelf/database/db.dart';
-import 'package:bookshelf/util/eventbus.dart';
-import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
+import 'package:flutter_advanced_networkimage/transition_to_image.dart';
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
 import 'package:bookshelf/service/parser.dart';
-import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
+import 'package:bookshelf/database/db.dart';
+import 'package:bookshelf/util/eventbus.dart';
+import 'package:bookshelf/util/util.dart';
 import 'package:bookshelf/util/constant.dart';
 
 class ViewNovelDetail extends StatefulWidget {
@@ -40,7 +41,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
   bool enableContinueReadingBtn = true;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     _getBookDetail();
     bus.subscribe('set_reading_progress', (f) {
@@ -200,10 +201,8 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
                         width: 170.0,
                         margin: const EdgeInsets.only(right: 15.0),
                         color: Theme.of(context).cardColor,
-                        child: bookDetail != null ? new FadeInImage(
-                          fit: BoxFit.cover,
-                          placeholder: new AssetImage('assets/loading.gif'),
-                          image: new AdvancedNetworkImage(
+                        child: bookDetail != null ? new TransitionToImage(
+                          new AdvancedNetworkImage(
                             bookDetail['coverurl'],
                             header: bookDetail['coverurl_header'],
                           ),

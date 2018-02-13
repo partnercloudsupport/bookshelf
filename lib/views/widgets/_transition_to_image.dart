@@ -8,14 +8,12 @@ class TransitionToImage extends StatefulWidget {
     this.tween,
     this.curve: Curves.easeInOut,
     this.animationType: TransitionType.fade,
-    this.fit: BoxFit.cover,
   })
       : assert(image != null),
         assert(placeholder != null),
         assert(duration != null),
         assert(curve != null),
         assert(animationType != null),
-        assert(fit != null),
         super(key: key);
 
   final ImageProvider image;
@@ -24,7 +22,6 @@ class TransitionToImage extends StatefulWidget {
   final Tween tween;
   final Curve curve;
   final TransitionType animationType;
-  final BoxFit fit;
 
   @override
   _TransitionToImageState createState() => new _TransitionToImageState();
@@ -107,7 +104,6 @@ class _TransitionToImageState extends State<TransitionToImage>
     });
   }
 
-
   _resolveImage() {
     _imageStream =
         _imageProvider.resolve(createLocalImageConfiguration(context));
@@ -117,6 +113,7 @@ class _TransitionToImageState extends State<TransitionToImage>
   _handleImageLoaded(ImageInfo info, bool synchronousCall) {
     _imageInfo = info;
     _resolveStatus();
+    _imageStream.removeListener(_handleImageLoaded);
   }
 
   @override
@@ -125,8 +122,8 @@ class _TransitionToImageState extends State<TransitionToImage>
         ? new Center(child: new CircularProgressIndicator())
         : (widget.animationType == TransitionType.fade)
         ? new FadeTransition(opacity: _tween.animate(_animation),
-        child: new RawImage(image: _imageInfo.image, fit: widget.fit))
+        child: new RawImage(image: _imageInfo.image))
         : new SlideTransition(position: _tween.animate(_animation),
-        child: new RawImage(image: _imageInfo.image, fit: widget.fit));
+        child: new RawImage(image: _imageInfo.image));
   }
 }

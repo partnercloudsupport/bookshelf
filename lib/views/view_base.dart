@@ -5,7 +5,6 @@ import 'package:bookshelf/util/constant.dart';
 import 'package:bookshelf/views/routes.dart';
 import 'package:bookshelf/views/widgets/widget_drawer.dart';
 import 'package:bookshelf/service/setting.dart';
-import 'package:bookshelf/util/util.dart';
 
 class BookshelfApp extends StatefulWidget {
   const BookshelfApp({Key key}) : super(key: key);
@@ -73,6 +72,10 @@ class BasePage extends StatefulWidget {
 }
 
 class _BasePageState extends State<BasePage> {
+  _getRecentBook() {
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return new DefaultTabController(

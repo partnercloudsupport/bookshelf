@@ -1,12 +1,14 @@
 import 'dart:async';
 
-import 'package:bookshelf/views/widgets/transition_to_image.dart';
+import 'package:bookshelf/service/setting.dart';
+import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
+import 'package:flutter_advanced_networkimage/transition_to_image.dart';
+import 'package:intl/intl.dart';
 import 'package:battery/battery.dart';
 import 'package:bookshelf/service/parser.dart';
-import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
-import 'package:intl/intl.dart';
 
 class MangaViewer extends StatefulWidget {
   const MangaViewer({
@@ -25,6 +27,7 @@ class MangaViewerState extends State<MangaViewer> {
 
   Map content;
   bool isShowInformation = false;
+  bool keepScreenOn = false;
 
   Battery _battery = new Battery();
   BatteryState batteryState;
@@ -38,13 +41,14 @@ class MangaViewerState extends State<MangaViewer> {
   bool atBottom = false;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     _hideInformation();
     _getChapterContent();
-    _batteryStateSubscription = _battery.onBatteryStateChanged.listen((BatteryState state) {
-      setState(() => batteryState = state);
-    });
+    _getPreference();
+    _batteryStateSubscription =
+        _battery.onBatteryStateChanged.listen((BatteryState state) =>
+            setState(() => batteryState = state));
     _battery.batteryLevel.then((int val) => setState(() => batteryLevel = val));
     setState(() => now = new DateTime.now().toLocal());
     repeater = new Timer.periodic(new Duration(seconds: 23), (timer) {
@@ -52,15 +56,21 @@ class MangaViewerState extends State<MangaViewer> {
       setState(() => now = new DateTime.now().toLocal());
     });
   }
-
   @override
-  void dispose() {
-    super.dispose();
+  dispose() {
     _showInformation();
     if (_batteryStateSubscription != null) {
       _batteryStateSubscription.cancel();
     }
+    deactivateKeepAwake();
     repeater.cancel();
+    super.dispose();
+  }
+
+  _getPreference() async {
+    keepScreenOn = (await getSettings())['general']['keep-screen-on'];
+    if (keepScreenOn) await activateKeepAwake();
+    else await deactivateKeepAwake();
   }
 
   _getChapterContent() async {
@@ -137,9 +147,14 @@ class MangaViewerState extends State<MangaViewer> {
                   controller: _scrollController,
                   itemCount: content != null ? content['picture_urls'].length : 0,
                   itemBuilder: (BuildContext context, int index) {
-                    return content != null ? new TransitionToImage(
+                    return content != null ? new ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: 150.0
+                      ),
+                      child: new TransitionToImage(
                         new AdvancedNetworkImage(content['picture_urls'][index],
                             header: content['picture_header']),
+                      ),
                     ) : new Container();
                   },
                 ),
