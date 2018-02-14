@@ -1,5 +1,5 @@
+import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:bookshelf/util/constant.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 
@@ -10,12 +10,14 @@ class WidgetDrawer extends StatelessWidget {
     @required this.onNightmodeChanged,
     this.drawerItemSelected: 'Bookshelf',
     @required this.onDrawerItemSelected,
+    this.recentBook,
   }) : super(key: key);
 
   final bool useNightmode;
   final ValueChanged<bool> onNightmodeChanged;
   final String drawerItemSelected;
   final ValueChanged<String> onDrawerItemSelected;
+  final Map recentBook;
 
   _toggleNightmode() {
     onNightmodeChanged(!useNightmode);
@@ -37,11 +39,20 @@ class WidgetDrawer extends StatelessWidget {
           padding: const EdgeInsets.only(top: 0.0),
           children: <Widget>[
             new UserAccountsDrawerHeader(
-              accountName: new Text('书架', style: new TextStyle(fontSize: 15.0),),
-              accountEmail: new Text('找本书看看吧', style: new TextStyle(fontSize: 12.0),),
+              accountName: new Text((recentBook == null) ? '书架' : recentBook['title'],
+                style: new TextStyle(fontSize: 15.0)),
+              accountEmail: new Text((recentBook == null) ? '找本书看看吧' : recentBook['authors'],
+                style: new TextStyle(fontSize: 12.0)),
               decoration: new BoxDecoration(
-                color: const Color(0xfff114b6),
-                image: null,
+                color: (recentBook == null) ? const Color(0xfff114b6) : Colors.white,
+                image: (recentBook == null)
+                    ? null
+                    : new DecorationImage(
+                    image: new AdvancedNetworkImage(recentBook['coverurl'], header: recentBook['header']),
+                    fit: BoxFit.fitWidth,
+                    alignment: Alignment.topCenter,
+                    colorFilter: new ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.multiply),
+                ),
                 border: null,
               ),
             ),

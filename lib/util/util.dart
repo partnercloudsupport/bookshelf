@@ -50,5 +50,5 @@ Future<bool> deactivateKeepAwake() async {
 }
 
 LruMap networkRequestCache = new LruMap(maximumSize: 512);
-Db defaultDb = new Db(() { bus.post('reload_bookshelf'); });
+Db defaultDb = new Db(() { bus.fire('reload_bookshelf'); });
 Future<SharedPreferences> sharedPreferences = SharedPreferences.getInstance();

@@ -9,4 +9,4 @@ ios/.generated/
 packages
 pubspec.lock
 .flutter-plugins
-res_bak.zip
+other/

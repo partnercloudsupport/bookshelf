@@ -308,7 +308,9 @@ class ViewSearchState extends State<ViewSearch> {
       setState(() {
         showSearchHistory = false;
         showSearchResult = true;
-        if (recordSearchKeyword && !searchList.contains(val)) {
+        if (recordSearchKeyword) {
+
+        if (!searchList.contains(val)) {
           try {
             searchList.add(val);
           } catch (e) {
@@ -317,6 +319,7 @@ class ViewSearchState extends State<ViewSearch> {
           } finally {
             _setSearchHistoryPreference();
           }
+        }
         }
       });
 //      print(searchList);

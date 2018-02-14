@@ -24,8 +24,7 @@ class WidgetNovelState extends State<WidgetNovel> {
   @override
   initState() {
     super.initState();
-    _loadBooks();
-    bus.subscribe('reload_bookshelf', _refreshHandle);
+    bus.listen('reload_bookshelf', _refreshHandle);
   }
 
   _loadBooks() async {

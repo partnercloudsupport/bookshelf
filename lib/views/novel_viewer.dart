@@ -69,7 +69,7 @@ class NovelViewerState extends State<NovelViewer> {
     }
     deactivateKeepAwake();
     repeater.cancel();
-    bus.post('set_reading_progress', () => readingProgress);
+    bus.fire('set_reading_progress', () => readingProgress);
     super.dispose();
   }
 

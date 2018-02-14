@@ -1,3 +1,6 @@
+import 'package:bookshelf/database/db.dart';
+import 'package:bookshelf/util/eventbus.dart';
+import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:quick_actions/quick_actions.dart';
@@ -18,12 +21,12 @@ class BookshelfAppState extends State<BookshelfApp> {
   String _drawerItemSelected = 'Bookshelf';
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     final QuickActions quickActions = const QuickActions();
     quickActions.initialize((String shortcutType) {
       if (shortcutType == 'search') {
-//        Navigator.of(context).pushNamed('/search');
+        Navigator.of(context).pushNamed('/search');
       }
     });
     quickActions.setShortcutItems(<ShortcutItem>[
@@ -72,8 +75,23 @@ class BasePage extends StatefulWidget {
 }
 
 class _BasePageState extends State<BasePage> {
-  _getRecentBook() {
+  Db _db = new Db(() { bus.fire('load_drawerheader'); });
+  Map recentBook;
+  Map cachedResult;
 
+  _getRecentBook([Function val()]) async {
+    if (val != null) {
+      recentBook = val(); // ignore: invalid_assignment
+    } else {
+      recentBook = await _db.get('recent_book');
+    }
+    setState((){});
+  }
+
+  @override
+  initState() {
+    super.initState();
+    bus.listen('load_drawerheader', _getRecentBook);
   }
 
   @override
@@ -100,6 +118,7 @@ class _BasePageState extends State<BasePage> {
             onNightmodeChanged: widget.onNightmodeChanged,
             drawerItemSelected: widget.drawerItemSelected,
             onDrawerItemSelected: widget.onDrawerItemSelected,
+            recentBook: recentBook,
           ),
           body: bodyItems(widget.drawerItemSelected),
         ),

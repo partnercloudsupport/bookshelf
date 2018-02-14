@@ -50,6 +50,18 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
   }
   _saveHistory(String historyId, Map chapter) {
     bookHistory[widget.bookInfo['type']][historyId] = chapter;
+    String authors = '';
+    bookDetail['authors'].forEach((String author) {
+      authors = authors + author + ' ';
+    });
+    _db.set('recent_book', {
+      'title': widget.bookInfo['title'],
+      'authors': authors.trim(),
+      'coverurl': bookDetail['coverurl'],
+      'header': bookDetail['coverurl_header'],
+    }).then((val) => _db.get('recent_book').then((val) {
+        bus.fire('load_drawerheader', () => val);
+      })).catchError((_){});
     _db.set('book_history', bookHistory).catchError((_){});
   }
   _saveFavored() {
@@ -101,7 +113,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
       'cid': chapter['chapter_id'].toString(),
       'type': widget.bookInfo['type']
     };
-    bus.post('reload_bookshelf');
+    bus.fire('reload_bookshelf');
     switch (widget.bookInfo['type']) {
       case 'manga': Navigator.of(context).pushNamed('/viewer~manga/' + JSON.encode(val)); break;
       case 'doujinshi': Navigator.of(context).pushNamed('/viewer~manga/' + JSON.encode(val)); break;
@@ -129,7 +141,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
         bookFavored[widget.bookInfo['type']].add(bookId);
     } else bookFavored[widget.bookInfo['type']].remove(bookId);
     _saveFavored();
-    bus.post('reload_bookshelf');
+    bus.fire('reload_bookshelf');
   }
   toggleDownloadMode() {}
 

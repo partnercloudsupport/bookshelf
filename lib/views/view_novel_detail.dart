@@ -44,7 +44,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
   initState() {
     super.initState();
     _getBookDetail();
-    bus.subscribe('set_reading_progress', (f) {
+    bus.listen('set_reading_progress', (f) {
       readingProgress = f();
       _saveHistory(bookId, chapterSelected, readingVolumeTitle, readingProgress);
     });
@@ -61,11 +61,22 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
       'progress': progress,
       'chapter_title': chapter['chapter_title']
     };
+    String authors = '';
+    bookDetail['authors'].forEach((String author) {
+      authors = authors + author + ' ';
+    });
+    _db.set('recent_book', {
+      'title': widget.bookInfo['title'],
+      'authors': authors.trim(),
+      'coverurl': bookDetail['coverurl'],
+      'header': bookDetail['coverurl_header'],
+    }).then((val) => _db.get('recent_book').then((val) {
+      bus.fire('load_drawerheader', () => val);
+    })).catchError((_){});
     _db.set('book_history', bookHistory).catchError((_){});
   }
-  _saveFavored() {
-    _db.set('book_favored', bookFavored).catchError((_){});
-  }
+  _saveFavored() =>
+      _db.set('book_favored', bookFavored).catchError((_){});
   _loadBookState () async {
     bookHistory = await _db.get('book_history');
     bookFavored = await _db.get('book_favored');
@@ -122,7 +133,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
       'cid': chapter['chapter_id'].toString(),
       'progress': readingProgress,
     };
-    bus.post('reload_bookshelf');
+    bus.fire('reload_bookshelf');
     Navigator.of(context).pushNamed('/viewer~novel/' + JSON.encode(val));
   }
 
@@ -146,7 +157,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
       if (!bookFavored[widget.bookInfo['type']].contains(bookId))
         bookFavored[widget.bookInfo['type']].add(bookId);
     } else bookFavored[widget.bookInfo['type']].remove(bookId);
-    bus.post('reload_bookshelf');
+    bus.fire('reload_bookshelf');
     _saveFavored();
   }
   toggleDownloadMode() async {}

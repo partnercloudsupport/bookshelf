@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:bookshelf/views/widgets/_transition_to_image.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:flutter/material.dart';
 import 'package:bookshelf/util/constant.dart';
-import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ViewAbout extends StatelessWidget {
   Future<Null> _handleRefresh() {
@@ -12,6 +13,14 @@ class ViewAbout extends StatelessWidget {
       completer.complete();
     });
     return completer.future.then((_) {});
+  }
+
+  _launchURL(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -59,10 +68,15 @@ class ViewAbout extends StatelessWidget {
                     style: new TextStyle(
                       color: Colors.white,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
+            new ListTile(
+              title: const Text('源码'),
+              subtitle: const Text('https://github.com/mchome/bookshelf'),
+              onTap: () => _launchURL('https://github.com/mchome/bookshelf'),
+            )
           ],
         ),
         onRefresh: _handleRefresh,
