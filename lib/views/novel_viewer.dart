@@ -155,8 +155,8 @@ class NovelViewerState extends State<NovelViewer> {
                     children: <Widget>[
                       new Container(
                         width: (orientation == Orientation.portrait)
-                            ? 235.0
-                            : 395.0,
+                            ? 120.0
+                            : 280.0,
                         margin: const EdgeInsets.only(left: 10.0),
                         child: new Text(widget.chapterInfo != null ? widget
                             .chapterInfo['title'] : '',
@@ -167,6 +167,7 @@ class NovelViewerState extends State<NovelViewer> {
                       ),
                       new Container(
                         width: 130.0,
+                        alignment: Alignment.center,
                         margin: const EdgeInsets.only(left: 8.0),
                         child: new Text(widget.chapterInfo != null
                             ? '$readingProgress %'

@@ -12,7 +12,6 @@ dependencies:
   intl: any
   battery: any
   quiver: any
-  quick_actions: any
   url_launcher: any
   flutter_advanced_networkimage: any
   flutter_keepscreenon: any

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 final String appname = '书架';
-final String version = '0.1.0';
+final String version = '0.1.1';
 
 final ThemeData defaultTheme = new ThemeData(
   brightness: Brightness.light,

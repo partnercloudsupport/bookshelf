@@ -14,6 +14,12 @@ class EventBus {
     listeners.add(target);
   }
 
+  leave(String event) {
+    if (_event.containsKey(event)) {
+      _event.remove(event);
+    }
+  }
+
   fire(String event, [Function dataProvider]) {
     if (_event.containsKey(event)) {
       List<Function> listeners = _event[event];

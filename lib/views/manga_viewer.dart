@@ -152,8 +152,10 @@ class MangaViewerState extends State<MangaViewer> {
                         minHeight: 150.0
                       ),
                       child: new TransitionToImage(
-                        new AdvancedNetworkImage(content['picture_urls'][index],
-                            header: content['picture_header']),
+                        new AdvancedNetworkImage(
+                            content['picture_urls'][index],
+                            header: content['picture_header'],
+                        ),
                       ),
                     ) : new Container();
                   },
@@ -169,7 +171,9 @@ class MangaViewerState extends State<MangaViewer> {
             child: new Row(
               children: <Widget>[
                 new Container(
-                  width: (orientation == Orientation.portrait) ? 235.0 : 395.0,
+                  width: (orientation == Orientation.portrait)
+                      ? 120.0
+                      : 280.0,
                   margin: const EdgeInsets.only(left: 10.0),
                   child: new Text(widget.chapterInfo != null ? widget.chapterInfo['title'] : '',
                     overflow: TextOverflow.ellipsis,
@@ -178,6 +182,7 @@ class MangaViewerState extends State<MangaViewer> {
                 ),
                 new Container(
                   width: 130.0,
+                  alignment: Alignment.center,
                   margin: const EdgeInsets.only(left: 8.0),
                   child: new Text(widget.chapterInfo != null ? widget.chapterInfo['chapter_title'] : '',
                     overflow: TextOverflow.ellipsis,

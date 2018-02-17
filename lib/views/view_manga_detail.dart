@@ -189,6 +189,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                         new AdvancedNetworkImage(
                             bookDetail['coverurl'],
                             header: bookDetail['coverurl_header'],
+                            useDiskCache: (isFavourite || (chapterSelected != null)) ? true : false,
                         ),
                     ) : null,
                   ),
@@ -240,6 +241,7 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                         ),
                       ),
                       new Container(
+                        padding: const EdgeInsets.only(right: 15.0),
                         child: new Text(bookDetail != null ? bookDetail['description'] : '',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 5,
@@ -297,9 +299,9 @@ class ViewMangaDetailState extends State<ViewMangaDetail> {
                   controller: _scrollController,
                   padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
                   crossAxisCount: (orientation == Orientation.portrait) ? 5 : 8,
-                  childAspectRatio: (orientation == Orientation.portrait) ? 2.5 : 2.5,
+                  childAspectRatio: (orientation == Orientation.portrait) ? 2.3 : 2.3,
                   mainAxisSpacing: 15.0,
-                  crossAxisSpacing: 12.0,
+                  crossAxisSpacing: 8.0,
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: bookDetail !=null ?
                   bookDetail['chapters'].map((Map chapter) {

@@ -1,9 +1,7 @@
 import 'package:bookshelf/database/db.dart';
 import 'package:bookshelf/util/eventbus.dart';
-import 'package:bookshelf/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:quick_actions/quick_actions.dart';
 import 'package:bookshelf/util/constant.dart';
 import 'package:bookshelf/views/routes.dart';
 import 'package:bookshelf/views/widgets/widget_drawer.dart';
@@ -23,15 +21,6 @@ class BookshelfAppState extends State<BookshelfApp> {
   @override
   initState() {
     super.initState();
-    final QuickActions quickActions = const QuickActions();
-    quickActions.initialize((String shortcutType) {
-      if (shortcutType == 'search') {
-        Navigator.of(context).pushNamed('/search');
-      }
-    });
-    quickActions.setShortcutItems(<ShortcutItem>[
-      const ShortcutItem(type: 'search', localizedTitle: '搜索', icon: 'icon_search'),
-    ]);
     getSettings().then((Map data) => setState(() => settings = data));
   }
 

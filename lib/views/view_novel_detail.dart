@@ -176,11 +176,11 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
             onPressed: toggleFavored,
             tooltip: '喜欢',
           ),
-          new IconButton(
-            icon: const Icon(Icons.file_download),
-            onPressed: toggleDownloadMode,
-            tooltip: '下载',
-          ),
+//          new IconButton(
+//            icon: const Icon(Icons.file_download),
+//            onPressed: toggleDownloadMode,
+//            tooltip: '下载',
+//          ),
         ],
       ),
       floatingActionButton: (chapterSelected != null && enableContinueReadingBtn) ? new FloatingActionButton(
@@ -216,6 +216,7 @@ class ViewNovelDetailState extends State<ViewNovelDetail> {
                           new AdvancedNetworkImage(
                             bookDetail['coverurl'],
                             header: bookDetail['coverurl_header'],
+                            useDiskCache: (isFavourite || (chapterSelected != null)) ? true : false,
                           ),
                         ) : null,
                       ),

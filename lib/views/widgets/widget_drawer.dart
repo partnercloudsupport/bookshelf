@@ -48,7 +48,7 @@ class WidgetDrawer extends StatelessWidget {
                 image: (recentBook == null)
                     ? null
                     : new DecorationImage(
-                    image: new AdvancedNetworkImage(recentBook['coverurl'], header: recentBook['header']),
+                    image: new AdvancedNetworkImage(recentBook['coverurl'], header: recentBook['header'], useDiskCache: true),
                     fit: BoxFit.fitWidth,
                     alignment: Alignment.topCenter,
                     colorFilter: new ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.multiply),

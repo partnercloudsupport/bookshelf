@@ -1,7 +1,10 @@
+library transition_to_image;
+
 import 'package:flutter/material.dart';
 
 class TransitionToImage extends StatefulWidget {
-  const TransitionToImage(this.image, {
+  const TransitionToImage(
+    this.image, {
     Key key,
     this.placeholder: const CircularProgressIndicator(),
     this.duration: const Duration(milliseconds: 300),
@@ -53,34 +56,39 @@ class _TransitionToImageState extends State<TransitionToImage>
   @override
   initState() {
     _controller =
-    new AnimationController(vsync: this, duration: widget.duration)
-      ..addListener(() => setState(() {}));
+        new AnimationController(vsync: this, duration: widget.duration)
+          ..addListener(() => setState(() {}));
     _tween = widget.tween;
-    if (_tween == null)
-      _tween = new Tween(begin: 0.0, end: 1.0);
+    if (_tween == null) _tween = new Tween(begin: 0.0, end: 1.0);
     super.initState();
   }
 
   @override
   didChangeDependencies() {
-    _resolveImage();
+    _getImage();
     super.didChangeDependencies();
   }
 
   @override
-  reassemble() {
-    _resolveImage();
-    super.reassemble();
+  void didUpdateWidget(TransitionToImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.image != oldWidget.image) _getImage();
   }
 
   @override
   dispose() {
-    _imageStream?.removeListener(_handleImageLoaded);
+    _imageStream.removeListener(_updateImage);
     _controller.dispose();
     super.dispose();
   }
 
   _resolveStatus() {
+    try {
+      setState(() {});
+    } catch (_) {
+      _imageStream?.removeListener(_updateImage);
+      return;
+    }
     setState(() {
       switch (_status) {
         case _TransitionStatus.loading:
@@ -104,16 +112,19 @@ class _TransitionToImageState extends State<TransitionToImage>
     });
   }
 
-  _resolveImage() {
+  _getImage() {
+    final ImageStream oldImageStream = _imageStream;
     _imageStream =
         _imageProvider.resolve(createLocalImageConfiguration(context));
-    _imageStream.addListener(_handleImageLoaded);
+    if (_imageStream.key != oldImageStream?.key) {
+      oldImageStream?.removeListener(_updateImage);
+      _imageStream.addListener(_updateImage);
+    }
   }
 
-  _handleImageLoaded(ImageInfo info, bool synchronousCall) {
+  _updateImage(ImageInfo info, bool synchronousCall) {
     _imageInfo = info;
     _resolveStatus();
-    _imageStream.removeListener(_handleImageLoaded);
   }
 
   @override
@@ -121,9 +132,17 @@ class _TransitionToImageState extends State<TransitionToImage>
     return (_status == _TransitionStatus.loading)
         ? new Center(child: new CircularProgressIndicator())
         : (widget.animationType == TransitionType.fade)
-        ? new FadeTransition(opacity: _tween.animate(_animation),
-        child: new RawImage(image: _imageInfo.image))
-        : new SlideTransition(position: _tween.animate(_animation),
-        child: new RawImage(image: _imageInfo.image));
+            ? new FadeTransition(
+                opacity: _tween.animate(_animation),
+                child: new RawImage(
+                  image: _imageInfo.image,
+                  colorBlendMode: BlendMode.modulate,
+                ))
+            : new SlideTransition(
+                position: _tween.animate(_animation),
+                child: new RawImage(
+                  image: _imageInfo.image,
+                  colorBlendMode: BlendMode.modulate,
+                ));
   }
 }

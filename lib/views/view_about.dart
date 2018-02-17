@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:bookshelf/util/_old_image_provider.dart';
 import 'package:bookshelf/views/widgets/_transition_to_image.dart';
-import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:flutter/material.dart';
 import 'package:bookshelf/util/constant.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -30,23 +30,6 @@ class ViewAbout extends StatelessWidget {
       elevation: 0.0,
     ),
     body: new RefreshIndicator(
-//      child: new Column(
-//        children: <Widget>[
-//          new SizedBox(
-//            height: 500.0,
-//            child: new Container(
-//              child: new TransitionToImage(
-//                  new AdvancedNetworkImage('https://user-images.githubusercontent.com/1551736/28209258-53234bf0-68c4-11e7-9586-d4a3526f0f45.png'),
-//              ),
-//            ),
-//          ),
-//          new Expanded(
-//              child: new Container(
-//                color: Colors.green,
-//              )
-//          )
-//        ],
-//      ),
         child: new ListView(
           children: <Widget>[
             new Container(

@@ -24,7 +24,13 @@ class WidgetMangaState extends State<WidgetManga> {
   @override
   initState() {
     super.initState();
+    _loadBooks();
     bus.listen('reload_bookshelf', _refreshHandle);
+  }
+  @override
+  dispose() {
+    bus.leave('reload_bookshelf');
+    super.dispose();
   }
 
   _loadBooks() async {

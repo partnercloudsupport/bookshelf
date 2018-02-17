@@ -1,4 +1,26 @@
+library zoomable_widget;
+
 import 'package:flutter/widgets.dart';
+
+class _ZoomableWidgetLayout extends MultiChildLayoutDelegate {
+  _ZoomableWidgetLayout();
+
+  static final String gestureContainer = 'gesturecontainer';
+  static final String painter = 'painter';
+
+  @override
+  void performLayout(Size size) {
+    layoutChild(gestureContainer,
+        new BoxConstraints.tightFor(width: size.width, height: size.height));
+    positionChild(gestureContainer, Offset.zero);
+    layoutChild(painter,
+        new BoxConstraints.tightFor(width: size.width, height: size.height));
+    positionChild(painter, Offset.zero);
+  }
+
+  @override
+  bool shouldRelayout(_ZoomableWidgetLayout oldDelegate) => false;
+}
 
 class ZoomableWidget extends StatefulWidget {
   const ZoomableWidget({
@@ -49,34 +71,36 @@ class _ZoomableWidgetState extends State<ZoomableWidget>
     super.dispose();
   }
 
-  _onScaleStart(ScaleStartDetails details) =>
-      setState(() {
-        _zoomOriginOffset = details.focalPoint;
-        _previewPanOffset = _panOffset;
-        _previewZoom = _zoom;
-      });
+  _onScaleStart(ScaleStartDetails details) {
+    setState(() {
+      _zoomOriginOffset = details.focalPoint;
+      _previewPanOffset = _panOffset;
+      _previewZoom = _zoom;
+    });
+  }
 
   _onScaleUpdate(ScaleUpdateDetails details) {
     if (details.scale != 1.0) {
       setState(() {
-        _zoom = (_previewZoom * details.scale).clamp(
-            widget.minScale, widget.maxScale);
-        _panOffset =
-            (details.focalPoint - (_zoomOriginOffset - _previewPanOffset)) / _zoom;
+        _zoom = (_previewZoom * details.scale)
+            .clamp(widget.minScale, widget.maxScale);
+        _panOffset = (details.focalPoint -
+                _zoomOriginOffset +
+                _previewPanOffset * _previewZoom) /
+            _zoom;
       });
     }
   }
 
   _handleReset() {
-    _zoomAnimation = new Tween(begin: 1.0, end: _zoom)
-        .animate(
+    _zoomAnimation = new Tween(begin: 1.0, end: _zoom).animate(
         new CurvedAnimation(parent: _controller, curve: Curves.easeInOut))
       ..addListener(() => setState(() => _zoom = _zoomAnimation.value));
     _panOffsetAnimation = new Tween(begin: Offset.zero, end: _panOffset)
         .animate(
-        new CurvedAnimation(parent: _controller, curve: Curves.easeInOut))
-      ..addListener(() =>
-          setState(() => _panOffset = _panOffsetAnimation.value));
+            new CurvedAnimation(parent: _controller, curve: Curves.easeInOut))
+          ..addListener(
+              () => setState(() => _panOffset = _panOffsetAnimation.value));
     if (_zoom < 0)
       _controller.forward(from: 1.0);
     else
@@ -106,17 +130,14 @@ class _ZoomableWidgetState extends State<ZoomableWidget>
                 onScaleStart: widget.enableZoom ? _onScaleStart : null,
                 onScaleUpdate: widget.enableZoom ? _onScaleUpdate : null,
                 onDoubleTap: _handleReset,
-              )
-          ),
-        ]
-    );
+              )),
+        ]);
   }
 
   Widget _child(Widget _child) {
     return new Transform(
       alignment: Alignment.center,
-      transform: new Matrix4.identity()
-        ..scale(_zoom, _zoom),
+      transform: new Matrix4.identity()..scale(_zoom, _zoom),
       child: new Transform(
         transform: new Matrix4.identity()
           ..translate(_panOffset.dx, _panOffset.dy),
@@ -124,24 +145,4 @@ class _ZoomableWidgetState extends State<ZoomableWidget>
       ),
     );
   }
-}
-
-class _ZoomableWidgetLayout extends MultiChildLayoutDelegate {
-  _ZoomableWidgetLayout();
-
-  static final String gestureContainer = 'gesturecontainer';
-  static final String painter = 'painter';
-
-  @override
-  void performLayout(Size size) {
-    layoutChild(gestureContainer,
-        new BoxConstraints.tightFor(width: size.width, height: size.height));
-    positionChild(gestureContainer, Offset.zero);
-    layoutChild(painter,
-        new BoxConstraints.tightFor(width: size.width, height: size.height));
-    positionChild(painter, Offset.zero);
-  }
-
-  @override
-  bool shouldRelayout(_ZoomableWidgetLayout oldDelegate) => false;
 }
