@@ -94,9 +94,7 @@ class _BasePageState extends State<BasePage> {
             actions: <Widget>[
               new IconButton(
                 icon: const Icon(Icons.search),
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/search');
-                },
+                onPressed: () => Navigator.of(context).pushNamed('/search'),
               ),
             ],
             bottom: tabbarItems(widget.drawerItemSelected),

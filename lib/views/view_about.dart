@@ -32,27 +32,30 @@ class ViewAbout extends StatelessWidget {
     body: new RefreshIndicator(
         child: new ListView(
           children: <Widget>[
-            new Container(
-              padding: new EdgeInsets.fromLTRB(0.0, 64.0, 0.0, 64.0),
-              decoration: new BoxDecoration(color: Colors.blue),
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  new Text(
-                    appname,
-                    style: new TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 52.0,
+            new GestureDetector(
+              onDoubleTap: () => Navigator.of(context).pushNamed('/debug'),
+              child: new Container(
+                padding: new EdgeInsets.fromLTRB(0.0, 64.0, 0.0, 64.0),
+                decoration: new BoxDecoration(color: Colors.blue),
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    new Text(
+                      appname,
+                      style: new TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 52.0,
+                      ),
                     ),
-                  ),
-                  new Text(
-                    'Version: $version',
-                    style: new TextStyle(
-                      color: Colors.white,
+                    new Text(
+                      'Version: $version',
+                      style: new TextStyle(
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             new ListTile(

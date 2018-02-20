@@ -9,6 +9,7 @@ import 'package:bookshelf/views/manga_viewer.dart';
 import 'package:bookshelf/views/novel_viewer.dart';
 import 'package:bookshelf/views/view_settings.dart';
 import 'package:bookshelf/views/view_about.dart';
+import 'package:bookshelf/views/view_debug.dart';
 import 'package:bookshelf/views/widgets/widget_bookshelf.dart';
 import 'package:bookshelf/views/widgets/widget_doujinshi.dart';
 import 'package:bookshelf/views/widgets/widget_manga.dart';
@@ -42,6 +43,10 @@ routes(settings) {
     );
     case 'about': return new CustomPageRoute(
       builder: (_) => new ViewAbout(),
+      settings: settings,
+    );
+    case 'debug': return new CustomPageRoute(
+      builder: (_) => new ViewDebug(),
       settings: settings,
     );
     default: return new CustomPageRoute(
