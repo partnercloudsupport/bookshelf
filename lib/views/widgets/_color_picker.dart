@@ -1,72 +1,281 @@
 import 'package:flutter/material.dart';
 
 class ColorPicker extends StatefulWidget {
+  final Map<String, double> colorPainterSize = {
+    'width': 300.0,
+    'height': 250.0
+  };
+  final Map<String, double> huePainterSize = { 'width': 200.0, 'height': 10.0};
+  final Map<String, double> alphaPainterSize = {
+    'width': 200.0,
+    'height': 10.0
+  };
+
   @override
   State<StatefulWidget> createState() => new _ColorPickerState();
 }
 
 class _ColorPickerState extends State<ColorPicker> {
-  double hue = 60.0;
-  double saturation = 1.0;
+  double hue = 0.0;
+  double saturation = 0.0;
   double value = 1.0;
   double alpha = 1.0;
+
+  List<Map<String, List<String>>> colorTypes = [
+    { 'HEX': ['R', 'G', 'B', 'A'] },
+    { 'RGB': ['R', 'G', 'B', 'A'] },
+    { 'HSL': ['H', 'S', 'L', 'A'] },
+  ];
+  String colorType = 'RGB';
+  List<int> colorValue = [0, 0, 0, 0];
+
+  getColorValue() {
+    Color color = new HSVColor.fromAHSV(alpha, hue, saturation, value).toColor();
+    colorValue = [color.red, color.green, color.blue, (alpha * 100).toInt()];
+  }
 
   @override
   Widget build(BuildContext context) {
     return new Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        new Container(
-          width: 300.0,
-          height: 250.0,
-          child: new GestureDetector(
-            onPanStart: (DragStartDetails details) {
-              print(details);
-            },
-            child: new CustomPaint(
-              painter: new ColorPainter(hue),
-            ),
-          ),
+        new LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints box) {
+            return new Container( // build color picker
+              width: widget.colorPainterSize['width'],
+              height: widget.colorPainterSize['height'],
+              child: new GestureDetector(
+                onPanUpdate: (DragUpdateDetails details) {
+                  RenderBox getBox = context.findRenderObject();
+                  Offset localOffset = getBox.globalToLocal(
+                      details.globalPosition);
+                  setState(() {
+                    saturation = localOffset.dx
+                        .clamp(0.0, widget.colorPainterSize['width']) /
+                        widget.colorPainterSize['width'];
+                    value = 1 - localOffset.dy
+                        .clamp(0.0, widget.colorPainterSize['height']) /
+                        widget.colorPainterSize['height'];
+                    getColorValue();
+                  });
+                },
+                child: new CustomPaint(
+                  painter: new ColorPainter(
+                      hue, saturation: saturation, value: value),
+                ),
+              ),
+            );
+          },
         ),
         new Padding(padding: const EdgeInsets.all(10.0)),
         new Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            new ClipRRect(
-              borderRadius: const BorderRadius.all(const Radius.circular(50.0)),
-              child: new Container(
-                width: 50.0,
-                height: 50.0,
-                color: new HSVColor.fromAHSV(alpha, hue, saturation, value).toColor(),
+            new Container( // build color indicator
+              width: 50.0,
+              height: 50.0,
+              decoration: new BoxDecoration(
+                borderRadius: const BorderRadius.all(
+                    const Radius.circular(50.0)),
+                border: new Border.all(color: Colors.black.withOpacity(0.15)),
+                color: new HSVColor.fromAHSV(alpha, hue, saturation, value)
+                    .toColor(),
               ),
             ),
             new Padding(padding: const EdgeInsets.only(right: 25.0)),
-            new Container(
-              width: 220.0,
-              height: 10.0,
-              child: new ClipRRect(
-                borderRadius: const BorderRadius.all(const Radius.circular(5.0)),
-                child: new CustomPaint(
-                  painter: new HuePainter(),
+            new Column(
+              children: <Widget>[
+                new Container(
+                  width: widget.huePainterSize['width'],
+                  height: widget.huePainterSize['height'] * 3,
+                  child: new CustomMultiChildLayout(
+                    delegate: new _SliderLayout(),
+                    children: <Widget>[
+                      new LayoutId(
+                        id: _SliderLayout.painter,
+                        child: new ClipRRect(
+                          borderRadius: const BorderRadius.all(
+                              const Radius.circular(5.0)),
+                          child: new CustomPaint(
+                            painter: new HuePainter(),
+                          ),
+                        ),
+                      ),
+                      new LayoutId(
+                        id: _SliderLayout.pointer,
+                        child: new Transform(
+                          transform: new Matrix4.identity()
+                            ..translate(
+                                widget.huePainterSize['width'] * hue / 360),
+                          child: new CustomPaint(
+                            painter: new HuePointerPainter(),
+                          ),
+                        ),
+                      ),
+                      new LayoutId(
+                        id: _SliderLayout.gestureContainer,
+                        child: new LayoutBuilder( // build hue slider
+                          builder: (BuildContext context, BoxConstraints box) {
+                            return new GestureDetector(
+                              onPanUpdate: (DragUpdateDetails details) {
+                                RenderBox getBox = context.findRenderObject();
+                                Offset localOffset = getBox.globalToLocal(
+                                    details.globalPosition);
+                                setState(() {
+                                  hue = localOffset.dx
+                                    .clamp(
+                                    0.0, widget.huePainterSize['width']) /
+                                    widget.huePainterSize['width'] * 360;
+                                  getColorValue();
+                                });
+                              },
+                              child: new Container(
+                                color: new Color(0),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                new Container(
+                  width: widget.alphaPainterSize['width'],
+                  height: widget.alphaPainterSize['height'] * 3,
+                  child: new CustomMultiChildLayout(
+                    delegate: new _SliderLayout(),
+                    children: <Widget>[
+                      new LayoutId(
+                        id: _SliderLayout.painter,
+                        child: new ClipRRect(
+                          borderRadius: const BorderRadius.all(
+                              const Radius.circular(5.0)),
+                          child: new CustomPaint(
+                            painter: new AlphaPainter(),
+                          ),
+                        ),
+                      ),
+                      new LayoutId(
+                        id: _SliderLayout.pointer,
+                        child: new Transform(
+                          transform: new Matrix4.identity()
+                            ..translate(
+                                widget.alphaPainterSize['width'] * alpha),
+                          child: new CustomPaint(
+                            painter: new AlphaPointerPainter(),
+                          ),
+                        ),
+                      ),
+                      new LayoutId(
+                        id: _SliderLayout.gestureContainer,
+                        child: new LayoutBuilder( // build transparent slider
+                          builder: (BuildContext context, BoxConstraints box) {
+                            return new GestureDetector(
+                              onPanUpdate: (DragUpdateDetails details) {
+                                RenderBox getBox = context.findRenderObject();
+                                Offset localOffset = getBox.globalToLocal(
+                                    details.globalPosition);
+                                setState(() {
+                                  alpha = localOffset.dx
+                                    .clamp(
+                                    0.0, widget.alphaPainterSize['width']) /
+                                    widget.alphaPainterSize['width'];
+                                  getColorValue();
+                                });
+                              },
+                              child: new Container(
+                                color: new Color(0),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
-        )
+        ),
+        new Padding(padding: const EdgeInsets.all(10.0)),
+        new Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new DropdownButton(
+              value: colorType,
+              onChanged: (String val) => setState(() {
+                colorType = val;
+                getColorValue();
+              }),
+              items: colorTypes.map((Map<String, List> item) {
+                return new DropdownMenuItem(
+                  value: item.keys.map((String key) => key).first,
+                  child: new Text(item.keys.map((String key) => key).first),
+                );
+              }).toList(),
+            ),
+          ]..addAll(
+            colorTypes.map((Map<String, List<String>> item) {
+              if (item.keys.first == colorType) {
+                return item[colorType].map((String val) {
+                  return new Container(
+                    width: 50.0,
+                    height: 70.0,
+                    child: new Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        new Text(val, style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                        new Padding(padding: const EdgeInsets.only(top: 10.0)),
+                        new Text(
+                            val != 'A'
+                                ? colorValue[item[colorType].indexOf(val)].toString()
+                                : colorValue[item[colorType].indexOf(val)].toString() + ' %'
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList();
+              } else return <Widget>[];
+            }).first
+          ),
+        ),
       ],
     );
   }
 }
 
-double _getValueFromGlobalPosition(Offset globalPosition) {
-  final double visualPosition = (globalToLocal(globalPosition).dx - _kReactionRadius) / _trackLength;
-  return _getValueFromVisualPosition(visualPosition);
+class _SliderLayout extends MultiChildLayoutDelegate {
+  static final String painter = 'painter';
+  static final String pointer = 'pointer';
+  static final String gestureContainer = 'gesturecontainer';
+
+  @override
+  void performLayout(Size size) {
+    layoutChild(painter,
+        new BoxConstraints.tightFor(
+            width: size.width, height: size.height / 5));
+    positionChild(painter, new Offset(0.0, size.height * 0.4));
+    layoutChild(pointer,
+        new BoxConstraints.tightFor(width: 5.0, height: size.height / 4));
+    positionChild(pointer, new Offset(0.0, size.height * 0.4));
+    layoutChild(gestureContainer,
+        new BoxConstraints.tightFor(width: size.width, height: size.height));
+    positionChild(gestureContainer, Offset.zero);
+  }
+
+  @override
+  bool shouldRelayout(_SliderLayout oldDelegate) => false;
 }
 
 class ColorPainter extends CustomPainter {
-  ColorPainter(this.hue);
+  ColorPainter(this.hue, {
+    this.saturation: 1.0,
+    this.value: 0.0,
+  });
 
   double hue;
+  double saturation;
+  double value;
 
   @override
   paint(Canvas canvas, Size size) {
@@ -86,38 +295,108 @@ class ColorPainter extends CustomPainter {
       ],
     );
     canvas.drawRect(rect, new Paint()..shader = gradientBW.createShader(rect));
-    Paint paint = new Paint()..blendMode = BlendMode.multiply;
-    canvas.drawRect(rect, paint..shader = gradientColor.createShader(rect));
+    canvas.drawRect(rect, new Paint()
+      ..blendMode = BlendMode.multiply
+      ..shader = gradientColor.createShader(rect));
+    canvas.drawCircle(
+        new Offset(size.width * saturation, size.height * (1 - value)),
+        size.height * 0.04,
+        new Paint()
+          ..color = Colors.white
+          ..strokeWidth = 1.5
+          ..style = PaintingStyle.stroke
+    );
   }
+
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
+
 class HuePainter extends CustomPainter {
   @override
   paint(Canvas canvas, Size size) {
     Rect rect = Offset.zero & size;
     Gradient gradient = new LinearGradient(
-      colors: [
-        const HSVColor.fromAHSV(1.0, 0.0, 1.0, 1.0).toColor(),
-        const HSVColor.fromAHSV(1.0, 60.0, 1.0, 1.0).toColor(),
-        const HSVColor.fromAHSV(1.0, 120.0, 1.0, 1.0).toColor(),
-        const HSVColor.fromAHSV(1.0, 180.0, 1.0, 1.0).toColor(),
-        const HSVColor.fromAHSV(1.0, 240.0, 1.0, 1.0).toColor(),
-        const HSVColor.fromAHSV(1.0, 300.0, 1.0, 1.0).toColor(),
-        const HSVColor.fromAHSV(1.0, 360.0, 1.0, 1.0).toColor(),
-      ]
+        colors: [
+          const HSVColor.fromAHSV(1.0, 0.0, 1.0, 1.0).toColor(),
+          const HSVColor.fromAHSV(1.0, 60.0, 1.0, 1.0).toColor(),
+          const HSVColor.fromAHSV(1.0, 120.0, 1.0, 1.0).toColor(),
+          const HSVColor.fromAHSV(1.0, 180.0, 1.0, 1.0).toColor(),
+          const HSVColor.fromAHSV(1.0, 240.0, 1.0, 1.0).toColor(),
+          const HSVColor.fromAHSV(1.0, 300.0, 1.0, 1.0).toColor(),
+          const HSVColor.fromAHSV(1.0, 360.0, 1.0, 1.0).toColor(),
+        ]
     );
     canvas.drawRect(rect, new Paint()..shader = gradient.createShader(rect));
   }
+
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
+
+class HuePointerPainter extends CustomPainter {
+  @override
+  paint(Canvas canvas, Size size) {
+    canvas.drawShadow(
+      new Path()
+        ..addOval(
+          new Rect.fromCircle(center: Offset.zero, radius: size.width * 1.8),
+        ),
+      Colors.black,
+      2.0,
+      true,
+    );
+    canvas.drawCircle(
+        new Offset(0.0, size.height * 0.4),
+        size.height,
+        new Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.fill
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
 class AlphaPainter extends CustomPainter {
   @override
   paint(Canvas canvas, Size size) {
-//    canvas.drawColor(color, blendMode)
+    Rect rect = Offset.zero & size;
+    Gradient gradient = new LinearGradient(
+      colors: [
+        Colors.black.withOpacity(0.0),
+        Colors.black.withOpacity(1.0),
+      ],
+    );
+    canvas.drawRect(rect, new Paint()..shader = gradient.createShader(rect));
   }
+
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
 
+class AlphaPointerPainter extends CustomPainter {
+  @override
+  paint(Canvas canvas, Size size) {
+    canvas.drawShadow(
+      new Path()
+        ..addOval(
+          new Rect.fromCircle(center: Offset.zero, radius: size.width * 1.8),
+        ),
+      Colors.black,
+      2.0,
+      true,
+    );
+    canvas.drawCircle(
+        new Offset(0.0, size.height * 0.4),
+        size.height,
+        new Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.fill
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
