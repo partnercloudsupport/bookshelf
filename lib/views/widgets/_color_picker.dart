@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 class ColorPicker extends StatefulWidget {
@@ -5,10 +8,10 @@ class ColorPicker extends StatefulWidget {
     'width': 300.0,
     'height': 250.0
   };
-  final Map<String, double> huePainterSize = { 'width': 200.0, 'height': 10.0};
+  final Map<String, double> huePainterSize = { 'width': 200.0, 'height': 13.0};
   final Map<String, double> alphaPainterSize = {
     'width': 200.0,
-    'height': 10.0
+    'height': 13.0
   };
 
   @override
@@ -22,16 +25,59 @@ class _ColorPickerState extends State<ColorPicker> {
   double alpha = 1.0;
 
   List<Map<String, List<String>>> colorTypes = [
-    { 'HEX': ['R', 'G', 'B', 'A'] },
-    { 'RGB': ['R', 'G', 'B', 'A'] },
-    { 'HSL': ['H', 'S', 'L', 'A'] },
+    { 'HEX': ['R', 'G', 'B', 'A']},
+    { 'RGB': ['R', 'G', 'B', 'A']},
+    { 'HSL': ['H', 'S', 'L', 'A']},
   ];
-  String colorType = 'RGB';
-  List<int> colorValue = [0, 0, 0, 0];
+  String colorType = 'HEX';
+  List<String> colorValue = ['FF', 'FF', 'FF', '100'];
+
+  Uint8List chessTexture = new Uint8List(0);
 
   getColorValue() {
     Color color = new HSVColor.fromAHSV(alpha, hue, saturation, value).toColor();
-    colorValue = [color.red, color.green, color.blue, (alpha * 100).toInt()];
+    switch (colorType) {
+      case 'HEX':
+        colorValue = [
+          color.red.toRadixString(16).toUpperCase(),
+          color.green.toRadixString(16).toUpperCase(),
+          color.blue.toRadixString(16).toUpperCase(),
+          (alpha * 100).toInt().toString() + ' %'
+        ];
+        break;
+      case 'RGB':
+        colorValue = [
+          color.red.toString(),
+          color.green.toString(),
+          color.blue.toString(),
+          (alpha * 100).toInt().toString() + ' %'
+        ];
+        break;
+      case 'HSL':
+        double s = 0.0, l = 0.0;
+        l = (2 - saturation) * value / 2;
+        if (l != 0) {
+          if (l == 1) s = 0.0;
+          else if (l < 0.5) s = saturation * value / (l * 2);
+          else s = saturation * value / (2 - l * 2);
+        }
+        colorValue = [
+          hue.toInt().toString(),
+          (s * 100).round().toString() + ' %',
+          (l * 100).round().toString() + ' %',
+          (alpha * 100).toInt().toString() + ' %'
+        ];
+        break;
+      default:
+        break;
+    }
+  }
+
+  @override
+  initState() {
+    super.initState();
+    String baseEncodedImage = 'iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==';
+    chessTexture = BASE64.decode(baseEncodedImage);
   }
 
   @override
@@ -77,9 +123,18 @@ class _ColorPickerState extends State<ColorPicker> {
               decoration: new BoxDecoration(
                 borderRadius: const BorderRadius.all(
                     const Radius.circular(50.0)),
-                border: new Border.all(color: Colors.black.withOpacity(0.15)),
-                color: new HSVColor.fromAHSV(alpha, hue, saturation, value)
-                    .toColor(),
+                border: new Border.all(color: new Color(0xffdddddd)),
+                image: new DecorationImage(
+                  image: new MemoryImage(chessTexture),
+                  repeat: ImageRepeat.repeat,
+                ),
+              ),
+              child: new ClipRRect(
+                borderRadius: const BorderRadius.all(
+                    const Radius.circular(50.0)),
+                child: new Material(
+                  color: new HSVColor.fromAHSV(alpha, hue, saturation, value).toColor(),
+                ),
               ),
             ),
             new Padding(padding: const EdgeInsets.only(right: 25.0)),
@@ -123,9 +178,9 @@ class _ColorPickerState extends State<ColorPicker> {
                                     details.globalPosition);
                                 setState(() {
                                   hue = localOffset.dx
-                                    .clamp(
-                                    0.0, widget.huePainterSize['width']) /
-                                    widget.huePainterSize['width'] * 360;
+                                      .clamp(
+                                      0.0, widget.huePainterSize['width']) /
+                                      widget.huePainterSize['width'] * 360;
                                   getColorValue();
                                 });
                               },
@@ -177,9 +232,9 @@ class _ColorPickerState extends State<ColorPicker> {
                                     details.globalPosition);
                                 setState(() {
                                   alpha = localOffset.dx
-                                    .clamp(
-                                    0.0, widget.alphaPainterSize['width']) /
-                                    widget.alphaPainterSize['width'];
+                                      .clamp(
+                                      0.0, widget.alphaPainterSize['width']) /
+                                      widget.alphaPainterSize['width'];
                                   getColorValue();
                                 });
                               },
@@ -203,44 +258,50 @@ class _ColorPickerState extends State<ColorPicker> {
           children: <Widget>[
             new DropdownButton(
               value: colorType,
-              onChanged: (String val) => setState(() {
-                colorType = val;
-                getColorValue();
-              }),
+              onChanged: (String val) =>
+                  setState(() {
+                    colorType = val;
+                    getColorValue();
+                  }),
               items: colorTypes.map((Map<String, List> item) {
                 return new DropdownMenuItem(
-                  value: item.keys.map((String key) => key).first,
-                  child: new Text(item.keys.map((String key) => key).first),
+                  value: item.keys
+                      .map((String key) => key)
+                      .first,
+                  child: new Text(item.keys
+                      .map((String key) => key)
+                      .first),
                 );
               }).toList(),
             ),
-          ]..addAll(
-            colorTypes.map((Map<String, List<String>> item) {
-              if (item.keys.first == colorType) {
-                return item[colorType].map((String val) {
-                  return new Container(
-                    width: 50.0,
-                    height: 70.0,
-                    child: new Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        new Text(val, style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                        new Padding(padding: const EdgeInsets.only(top: 10.0)),
-                        new Text(
-                            val != 'A'
-                                ? colorValue[item[colorType].indexOf(val)].toString()
-                                : colorValue[item[colorType].indexOf(val)].toString() + ' %'
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList();
-              } else return <Widget>[];
-            }).first
-          ),
+          ]..addAll(colorValueLabels() ?? <Widget>[]),
         ),
       ],
     );
+  }
+
+  List<Widget> colorValueLabels() {
+    List widget = colorTypes.map((Map<String, List<String>> item) {
+      if (item.keys.first == colorType) {
+        return item[colorType].map((String val) {
+          return new Container(
+            width: 50.0,
+            height: 70.0,
+            child: new Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                new Text(val, style: new TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 16.0)),
+                new Padding(padding: const EdgeInsets.only(top: 10.0)),
+                new Text(colorValue[item[colorType].indexOf(val)]),
+              ],
+            ),
+          );
+        }).toList();
+      }
+    }).toList();
+    widget.removeWhere((v) => v == null);
+    return widget.first;
   }
 }
 
@@ -253,10 +314,10 @@ class _SliderLayout extends MultiChildLayoutDelegate {
   void performLayout(Size size) {
     layoutChild(painter,
         new BoxConstraints.tightFor(
-            width: size.width, height: size.height / 5));
+            width: size.width, height: size.height / 6));
     positionChild(painter, new Offset(0.0, size.height * 0.4));
     layoutChild(pointer,
-        new BoxConstraints.tightFor(width: 5.0, height: size.height / 4));
+        new BoxConstraints.tightFor(width: 5.0, height: size.height / 5));
     positionChild(pointer, new Offset(0.0, size.height * 0.4));
     layoutChild(gestureContainer,
         new BoxConstraints.tightFor(width: size.width, height: size.height));
