@@ -29,7 +29,7 @@ class BookshelfApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: BasePage(),
-      onGenerateRoute: (RouteSettings settings) => routes(settings),
+      onGenerateRoute: (RouteSettings settings) => getRoutes(settings),
     );
   }
 }

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:bookshelf/i18n.dart';
 
-class ThemePage extends StatelessWidget {
+class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(I18n.of(context).text('theme')),
+        title: Text(I18n.of(context).text('settings')),
       ),
       body: Container(),
     );

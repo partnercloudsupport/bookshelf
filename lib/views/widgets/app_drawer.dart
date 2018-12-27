@@ -30,7 +30,7 @@ class AppDrawer extends StatelessWidget {
                       : Theme.of(context).cardColor,
                   child: ListTile(
                     leading: Icon(
-                      Icons.view_carousel,
+                      Icons.import_contacts,
                       color: state.currentShelf == ShelfTypes.Manga
                           ? Theme.of(context).primaryColor
                           : Theme.of(context).unselectedWidgetColor,
@@ -48,7 +48,7 @@ class AppDrawer extends StatelessWidget {
                       : Theme.of(context).cardColor,
                   child: ListTile(
                     leading: Icon(
-                      Icons.view_carousel,
+                      Icons.book,
                       color: state.currentShelf == ShelfTypes.Doujinshi
                           ? Theme.of(context).primaryColor
                           : Theme.of(context).unselectedWidgetColor,
@@ -59,6 +59,49 @@ class AppDrawer extends StatelessWidget {
                       Navigator.pop(context);
                     },
                   ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.search),
+                  title: Text(I18n.of(context).text('search')),
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/search');
+                  },
+                  selected: false,
+                ),
+                Divider(),
+                ListTile(
+                  leading: const Icon(Icons.color_lens),
+                  title: Text(I18n.of(context).text('theme')),
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/theme');
+                  },
+                  selected: false,
+                ),
+                SwitchListTile(
+                  title: Text(I18n.of(context).text('night_mode')),
+                  secondary: const Icon(Icons.brightness_4),
+                  value: false,
+                  onChanged: (bool useNightmode) {
+                    Navigator.pop(context);
+                  },
+                  activeColor: const Color(0xfff114b6),
+                ),
+                Divider(),
+                ListTile(
+                  leading: const Icon(Icons.settings),
+                  title: Text(I18n.of(context).text('settings')),
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/settings');
+                  },
+                  selected: false,
+                ),
+                ListTile(
+                  leading: const Icon(Icons.error),
+                  title: Text(I18n.of(context).text('about')),
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/about');
+                  },
+                  selected: false,
                 ),
               ],
             ),

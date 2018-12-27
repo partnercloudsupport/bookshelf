@@ -1,5 +1,10 @@
 {
   "app_name": "书架",
   "manga": "漫画",
-  "doujinshi": "同人志"
+  "doujinshi": "同人志",
+  "search": "搜索",
+  "theme": "主题",
+  "night_mode": "夜间模式",
+  "settings": "设置",
+  "about": "关于"
 }
