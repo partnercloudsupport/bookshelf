@@ -1,19 +1,19 @@
 import 'package:bloc/bloc.dart';
 
-class BasePageBloc extends Bloc<_BasePageEvent, BasePageBlocState> {
+class ShelfPageBloc extends Bloc<_BasePageEvent, ShelfPageBlocState> {
   @override
-  BasePageBlocState get initialState => BasePageBlocState();
+  ShelfPageBlocState get initialState => ShelfPageBlocState();
 
   @override
-  Stream<BasePageBlocState> mapEventToState(
-      BasePageBlocState currentState, _BasePageEvent event) async* {
+  Stream<ShelfPageBlocState> mapEventToState(
+      ShelfPageBlocState currentState, _BasePageEvent event) async* {
     if (event is DisplayMangaShelf)
-      yield BasePageBlocState(
+      yield ShelfPageBlocState(
         currentShelf: ShelfTypes.Manga,
         books: null,
       );
     if (event is DisplayDoujinshiShelf)
-      yield BasePageBlocState(
+      yield ShelfPageBlocState(
         currentShelf: ShelfTypes.Doujinshi,
         books: null,
       );
@@ -25,8 +25,8 @@ enum ShelfTypes {
   Doujinshi,
 }
 
-class BasePageBlocState {
-  BasePageBlocState({
+class ShelfPageBlocState {
+  ShelfPageBlocState({
     this.currentShelf = ShelfTypes.Manga,
     this.books,
   });

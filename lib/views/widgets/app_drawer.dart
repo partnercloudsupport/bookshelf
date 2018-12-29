@@ -9,11 +9,11 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final BasePageBloc _basePageBloc = BlocProvider.of<BasePageBloc>(context);
+    final ShelfPageBloc _shelfPageBloc = BlocProvider.of<ShelfPageBloc>(context);
 
     return BlocBuilder(
-      bloc: _basePageBloc,
-      builder: (BuildContext context, BasePageBlocState state) {
+      bloc: _shelfPageBloc,
+      builder: (BuildContext context, ShelfPageBlocState state) {
         return Drawer(
           child: Material(
             color: Theme.of(context).cardColor,
@@ -37,7 +37,7 @@ class AppDrawer extends StatelessWidget {
                     ),
                     title: Text(I18n.of(context).text('manga')),
                     onTap: () {
-                      _basePageBloc.dispatch(DisplayMangaShelf());
+                      _shelfPageBloc.dispatch(DisplayMangaShelf());
                       Navigator.pop(context);
                     },
                   ),
@@ -55,7 +55,7 @@ class AppDrawer extends StatelessWidget {
                     ),
                     title: Text(I18n.of(context).text('doujinshi')),
                     onTap: () {
-                      _basePageBloc.dispatch(DisplayDoujinshiShelf());
+                      _shelfPageBloc.dispatch(DisplayDoujinshiShelf());
                       Navigator.pop(context);
                     },
                   ),

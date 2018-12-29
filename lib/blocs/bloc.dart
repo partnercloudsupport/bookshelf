@@ -1,4 +1,4 @@
-export './base_page.dart';
+export 'package:bookshelf/blocs/shelf.dart';
 
 import 'package:bloc/bloc.dart';
 

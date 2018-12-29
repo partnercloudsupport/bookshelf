@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:bookshelf/i18n.dart';
+// import 'package:bookshelf/i18n.dart';
 
 class MangaDetailPage extends StatelessWidget {
   @override
@@ -8,6 +8,7 @@ class MangaDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(''),
+        elevation: 0,
       ),
       body: Container(),
     );

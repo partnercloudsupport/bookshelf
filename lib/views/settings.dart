@@ -8,6 +8,7 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(I18n.of(context).text('settings')),
+        elevation: 0,
       ),
       body: Container(),
     );

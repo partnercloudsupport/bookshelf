@@ -1,3 +1,7 @@
+# Tokens
+.cookies/
+test/_token.dart
+
 # Miscellaneous
 *.class
 *.lock

@@ -4,7 +4,7 @@ import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:bloc/bloc.dart';
 
 import 'package:bookshelf/blocs/bloc.dart';
-import 'package:bookshelf/views/base.dart';
+import 'package:bookshelf/views/shelf.dart';
 
 main() {
   FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);

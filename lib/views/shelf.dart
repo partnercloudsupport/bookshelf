@@ -28,30 +28,30 @@ class BookshelfApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: BasePage(),
+      home: ShelfPage(),
       onGenerateRoute: (RouteSettings settings) => getRoutes(settings),
     );
   }
 }
 
-class BasePage extends StatefulWidget {
-  BasePage({Key key}) : super(key: key);
+class ShelfPage extends StatefulWidget {
+  ShelfPage({Key key}) : super(key: key);
 
   @override
-  _BasePageState createState() => _BasePageState();
+  _ShelfPageState createState() => _ShelfPageState();
 }
 
-class _BasePageState extends State<BasePage> {
-  final BasePageBloc _basePageBloc = BasePageBloc();
+class _ShelfPageState extends State<ShelfPage> {
+  final ShelfPageBloc _shelfPageBloc = ShelfPageBloc();
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<BasePageBloc>(
-      bloc: _basePageBloc,
+    return BlocProvider<ShelfPageBloc>(
+      bloc: _shelfPageBloc,
       child: Scaffold(
         body: BlocBuilder(
-          bloc: _basePageBloc,
-          builder: (BuildContext context, BasePageBlocState state) {
+          bloc: _shelfPageBloc,
+          builder: (BuildContext context, ShelfPageBlocState state) {
             return state.currentShelf == ShelfTypes.Manga
                 ? MangaShelf()
                 : DoujinshiShelf();
@@ -64,7 +64,7 @@ class _BasePageState extends State<BasePage> {
 
   @override
   void dispose() {
-    _basePageBloc.dispose();
+    _shelfPageBloc.dispose();
     super.dispose();
   }
 }

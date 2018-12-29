@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:bookshelf/i18n.dart';
+// import 'package:bookshelf/i18n.dart';
 
 class DoujinshiDetailPage extends StatelessWidget {
   @override
@@ -8,6 +8,7 @@ class DoujinshiDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(''),
+        elevation: 0,
       ),
       body: Container(),
     );

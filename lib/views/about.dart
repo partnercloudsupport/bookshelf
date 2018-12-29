@@ -8,6 +8,7 @@ class AboutPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(I18n.of(context).text('about')),
+        elevation: 0,
       ),
       body: Container(),
     );

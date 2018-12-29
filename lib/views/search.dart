@@ -8,6 +8,7 @@ class SearchPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(I18n.of(context).text('search')),
+        elevation: 0,
       ),
       body: Container(),
     );

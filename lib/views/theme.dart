@@ -8,6 +8,7 @@ class ThemePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(I18n.of(context).text('theme')),
+        elevation: 0,
       ),
       body: Container(),
     );
