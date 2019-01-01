@@ -12,20 +12,18 @@ dependencies:
     sdk: flutter
   flutter_statusbarcolor: any
   flutter_bloc: any
-  flutter_redux: any
   html: any
   sembast: any
   path_provider: any
   dio: any
+  shared_preferences: any
+  flutter_advanced_networkimage:
+    path: './packages/flutter_advanced_networkimage'
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  redux_remote_devtools: any
   mockito: any
 
 flutter:
   uses-material-design: true
-  assets:
-    - locale/en_US.json
-    - locale/zh_Hans_CN.json

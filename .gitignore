@@ -1,3 +1,6 @@
+# Experimental
+test/_extractor.dart
+
 # Tokens
 .cookies/
 test/_token.dart

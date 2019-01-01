@@ -1,23 +1,27 @@
-import 'package:bookshelf/blocs/bloc.dart';
-import 'package:bookshelf/i18n.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:bookshelf/blocs/bloc.dart';
+import 'package:bookshelf/models/model.dart';
+import 'package:bookshelf/locales/locale.dart';
 
 class AppDrawer extends StatelessWidget {
   AppDrawer({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final ShelfPageBloc _shelfPageBloc = BlocProvider.of<ShelfPageBloc>(context);
+    final AppBloc _appBloc = BlocProvider.of<AppBloc>(context);
+    final ShelfPageBloc _shelfPageBloc =
+        BlocProvider.of<ShelfPageBloc>(context);
 
-    return BlocBuilder(
-      bloc: _shelfPageBloc,
-      builder: (BuildContext context, ShelfPageBlocState state) {
-        return Drawer(
-          child: Material(
-            color: Theme.of(context).cardColor,
-            child: ListView(
+    return Drawer(
+      child: Material(
+        color: Theme.of(context).cardColor,
+        child: BlocBuilder(
+          bloc: _shelfPageBloc,
+          builder: (BuildContext context, state) {
+            return ListView(
               padding: const EdgeInsets.only(top: 0.0),
               children: <Widget>[
                 UserAccountsDrawerHeader(
@@ -25,71 +29,112 @@ class AppDrawer extends StatelessWidget {
                   accountName: null,
                 ),
                 Material(
-                  color: state.currentShelf == ShelfTypes.Manga
-                      ? Theme.of(context).primaryColorLight
+                  color: state.currentShelf == BookType.Manga
+                      ? Theme.of(context).primaryColorLight.withAlpha(150)
                       : Theme.of(context).cardColor,
                   child: ListTile(
                     leading: Icon(
                       Icons.import_contacts,
-                      color: state.currentShelf == ShelfTypes.Manga
+                      color: state.currentShelf == BookType.Manga
                           ? Theme.of(context).primaryColor
                           : Theme.of(context).unselectedWidgetColor,
                     ),
-                    title: Text(I18n.of(context).text('manga')),
+                    title: Text(
+                      I18n.of(context).text('manga'),
+                      style: TextStyle(
+                        color: state.currentShelf == BookType.Manga
+                            ? Theme.of(context).primaryColor
+                            : Theme.of(context).unselectedWidgetColor,
+                      ),
+                    ),
                     onTap: () {
-                      _shelfPageBloc.dispatch(DisplayMangaShelf());
+                      _shelfPageBloc.dispatch(SetCurrentShelf(BookType.Manga));
                       Navigator.pop(context);
                     },
                   ),
                 ),
                 Material(
-                  color: state.currentShelf == ShelfTypes.Doujinshi
-                      ? Theme.of(context).primaryColorLight
+                  color: state.currentShelf == BookType.Doujinshi
+                      ? Theme.of(context).primaryColorLight.withAlpha(150)
                       : Theme.of(context).cardColor,
                   child: ListTile(
                     leading: Icon(
                       Icons.book,
-                      color: state.currentShelf == ShelfTypes.Doujinshi
+                      color: state.currentShelf == BookType.Doujinshi
                           ? Theme.of(context).primaryColor
                           : Theme.of(context).unselectedWidgetColor,
                     ),
-                    title: Text(I18n.of(context).text('doujinshi')),
+                    title: Text(
+                      I18n.of(context).text('doujinshi'),
+                      style: TextStyle(
+                        color: state.currentShelf == BookType.Doujinshi
+                            ? Theme.of(context).primaryColor
+                            : Theme.of(context).unselectedWidgetColor,
+                      ),
+                    ),
                     onTap: () {
-                      _shelfPageBloc.dispatch(DisplayDoujinshiShelf());
+                      _shelfPageBloc
+                          .dispatch(SetCurrentShelf(BookType.Doujinshi));
                       Navigator.pop(context);
                     },
                   ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.search),
-                  title: Text(I18n.of(context).text('search')),
-                  onTap: () {
-                    Navigator.of(context).pushNamed('/search');
-                  },
-                  selected: false,
-                ),
+                // Material(
+                //   color: Theme.of(context).cardColor,
+                //   child: ListTile(
+                //     leading: Icon(
+                //       Icons.photo,
+                //     ),
+                //     title: Text(
+                //       I18n.of(context).text('illustration'),
+                //     ),
+                //     onTap: () {
+                //       Navigator.pop(context);
+                //     },
+                //   ),
+                // ),
                 Divider(),
                 ListTile(
                   leading: const Icon(Icons.color_lens),
-                  title: Text(I18n.of(context).text('theme')),
+                  title: Text(
+                    I18n.of(context).text('theme'),
+                    style: TextStyle(
+                      color: Theme.of(context).unselectedWidgetColor,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.of(context).pushNamed('/theme');
                   },
                   selected: false,
                 ),
-                SwitchListTile(
-                  title: Text(I18n.of(context).text('night_mode')),
-                  secondary: const Icon(Icons.brightness_4),
-                  value: false,
-                  onChanged: (bool useNightmode) {
-                    Navigator.pop(context);
+                BlocBuilder(
+                  bloc: _appBloc,
+                  builder: (BuildContext context, AppBlocState state) {
+                    return SwitchListTile(
+                      title: Text(
+                        I18n.of(context).text('night_mode'),
+                        style: TextStyle(
+                          color: Theme.of(context).unselectedWidgetColor,
+                        ),
+                      ),
+                      secondary: const Icon(Icons.brightness_4),
+                      value: state.nightMode,
+                      onChanged: (bool value) {
+                        _appBloc.dispatch(UseNightMode(value));
+                      },
+                      activeColor: const Color(0xfff114b6),
+                    );
                   },
-                  activeColor: const Color(0xfff114b6),
                 ),
                 Divider(),
                 ListTile(
                   leading: const Icon(Icons.settings),
-                  title: Text(I18n.of(context).text('settings')),
+                  title: Text(
+                    I18n.of(context).text('settings'),
+                    style: TextStyle(
+                      color: Theme.of(context).unselectedWidgetColor,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.of(context).pushNamed('/settings');
                   },
@@ -97,17 +142,22 @@ class AppDrawer extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.error),
-                  title: Text(I18n.of(context).text('about')),
+                  title: Text(
+                    I18n.of(context).text('about'),
+                    style: TextStyle(
+                      color: Theme.of(context).unselectedWidgetColor,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.of(context).pushNamed('/about');
                   },
                   selected: false,
                 ),
               ],
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
   }
 }

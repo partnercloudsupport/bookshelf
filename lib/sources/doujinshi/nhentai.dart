@@ -2,7 +2,6 @@ import 'dart:io' show ContentType;
 
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:dio/dio.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:html/parser.dart' as htmlParser;
 import 'package:html/dom.dart' as htmlDom;
 
@@ -12,10 +11,9 @@ import 'package:bookshelf/models/model.dart';
 class NHentaiSource extends DoujinshiSource {
   static String sourceName = 'nhentai';
   final String baseUrl = 'https://nhentai.net';
-  final Dio client = Dio()..cookieJar = PersistCookieJar();
 
   @override
-  Future<SearchDoujinshiResult> searchBooks(String keyword,
+  Future<SearchDoujinshiResultModel> searchBooks(String keyword,
       {int page = 1}) async {
     keyword = keyword.replaceAll(' ', '+');
     String searchUrl =
@@ -23,9 +21,9 @@ class NHentaiSource extends DoujinshiSource {
 
     Response searchResponse = await client.get(searchUrl);
     List searchResult = searchResponse.data['result'];
-    bool isLastPage = page >= searchResponse.data['num_pages'];
+    int totalPages = searchResponse.data['num_pages'];
 
-    List<DoujinshiBook> books = searchResult.map((res) {
+    List<DoujinshiBookModel> books = searchResult.map((res) {
       List<String> parodies = [];
       List<String> characters = [];
       List<String> tags = [];
@@ -61,7 +59,7 @@ class NHentaiSource extends DoujinshiSource {
         }
       }
 
-      return DoujinshiBook(
+      return DoujinshiBookModel(
         bookId: res['id'].toString(),
         name: res['title']['english'].toString(),
         originalName: res['title']['japanese'].toString(),
@@ -84,14 +82,14 @@ class NHentaiSource extends DoujinshiSource {
       );
     }).toList();
 
-    return SearchDoujinshiResult(
+    return SearchDoujinshiResultModel(
       result: books,
-      isLastPage: isLastPage,
+      totalPages: totalPages,
     );
   }
 
   @override
-  Future<DoujinshiBook> getBookDetail(String bookId) async {
+  Future<DoujinshiBookModel> getBookDetail(String bookId) async {
     String bookUrl = '$baseUrl/api/gallery/$bookId';
 
     Map bookResult = (await client.get(bookUrl)).data;
@@ -146,7 +144,7 @@ class NHentaiSource extends DoujinshiSource {
       });
     }();
 
-    return DoujinshiBook(
+    return DoujinshiBookModel(
       bookId: bookResult['id'].toString(),
       name: bookResult['title']['english'].toString(),
       originalName: bookResult['title']['japanese'].toString(),
@@ -230,7 +228,7 @@ class NHentaiSource extends DoujinshiSource {
   }
 
   @override
-  Future<List<DoujinshiBook>> getFavoriteBooks() async {
+  Future<List<DoujinshiBookModel>> getFavoriteBooks() async {
     String favoriteUrl = '$baseUrl/favorites/';
     final Map<String, String> favoriteHeaders = {'referer': baseUrl};
 
@@ -260,7 +258,7 @@ class NHentaiSource extends DoujinshiSource {
               el.attributes['href'].replaceAll('/g/', '').replaceAll('/', '')));
     }
 
-    List<DoujinshiBook> favoriteBooks = [];
+    List<DoujinshiBookModel> favoriteBooks = [];
     for (String bookId in favoriteBookIds) {
       favoriteBooks.add(await this.getBookDetail(bookId));
     }

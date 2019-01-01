@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:bookshelf/i18n.dart';
+import 'package:bookshelf/locales/locale.dart';
 
 class AboutPage extends StatelessWidget {
   @override

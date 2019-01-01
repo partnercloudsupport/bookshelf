@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 
 import 'package:bookshelf/sources/manga/manga.dart';
 
-class MangaBook {
-  MangaBook(
+class MangaBookModel {
+  MangaBookModel(
     this.name,
     this.source,
     this.chapters,
@@ -16,12 +16,12 @@ class MangaBook {
   final List<String> pages;
 }
 
-class SearchMangaResult {
-  SearchMangaResult({
+class SearchMangaResultModel {
+  SearchMangaResultModel({
     @required this.result,
     @required this.lastPage,
   });
 
-  final List<MangaBook> result;
+  final List<MangaBookModel> result;
   final bool lastPage;
 }

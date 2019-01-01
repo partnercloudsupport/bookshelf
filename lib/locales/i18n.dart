@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:bookshelf/locales/locale.dart';
 
 class I18n {
   I18n(this.locale);
@@ -10,19 +8,11 @@ class I18n {
 
   static I18n of(BuildContext context) => Localizations.of<I18n>(context, I18n);
 
-  static Map<Locale, dynamic> _localizedValues = Map();
+  static Map<Locale, Map<String, String>> _localizedValues = Map();
 
   static Future<I18n> load(Locale locale) async {
     I18n i18n = I18n(locale);
-    for (Locale supportedLocale in supportedLocales) {
-      String dict = await rootBundle.loadString(
-          'locale/${supportedLocale.languageCode}' +
-              (supportedLocale.scriptCode == null
-                  ? ''
-                  : '_${supportedLocale.scriptCode}') +
-              '_${supportedLocale.countryCode}.json');
-      _localizedValues[supportedLocale] = json.decode(dict);
-    }
+    _localizedValues = localeData;
     return i18n;
   }
 
@@ -51,8 +41,4 @@ class I18nDelegate extends LocalizationsDelegate<I18n> {
   bool shouldReload(I18nDelegate old) => false;
 }
 
-const Iterable<Locale> supportedLocales = [
-  const Locale('en', 'US'),
-  const Locale.fromSubtags(
-      languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'),
-];
+Iterable<Locale> supportedLocales = localeData.keys;

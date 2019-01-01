@@ -1,9 +1,10 @@
-import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 
-import 'package:bookshelf/sources/doujinshi/doujinshi.dart';
+import 'package:bookshelf/models/model.dart';
+import 'package:bookshelf/sources/source.dart';
 
-class DoujinshiBook {
-  DoujinshiBook({
+class DoujinshiBookModel {
+  DoujinshiBookModel({
     this.bookId,
     this.name,
     this.originalName,
@@ -38,12 +39,24 @@ class DoujinshiBook {
   final List<String> pages;
 }
 
-class SearchDoujinshiResult {
-  SearchDoujinshiResult({
+class SearchDoujinshiResultModel {
+  SearchDoujinshiResultModel({
     @required this.result,
-    @required this.isLastPage,
+    @required this.totalPages,
   });
 
-  final List<DoujinshiBook> result;
-  final bool isLastPage;
+  final List<DoujinshiBookModel> result;
+  final int totalPages;
+}
+
+class DoujinshiSourceModel {
+  DoujinshiSourceModel({
+    @required this.source,
+    this.enable = true,
+    this.filter,
+  });
+
+  final BaseDoujinshiSource source;
+  final bool enable;
+  final List<FilterModel> filter;
 }

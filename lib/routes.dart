@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:bookshelf/views/manga_detail.dart';
 import 'package:bookshelf/views/doujinshi_detail.dart';
-import 'package:bookshelf/views/search.dart';
 import 'package:bookshelf/views/theme.dart';
 import 'package:bookshelf/views/settings.dart';
 import 'package:bookshelf/views/about.dart';
@@ -13,8 +12,6 @@ Route getRoutes(RouteSettings settings) {
       return CustomPageRoute(builder: (_) => MangaDetailPage(), settings: settings);
     case '/doujinshi_detail':
       return CustomPageRoute(builder: (_) => DoujinshiDetailPage(), settings: settings);
-    case '/search':
-      return CustomPageRoute(builder: (_) => SearchPage(), settings: settings);
     case '/theme':
       return CustomPageRoute(builder: (_) => ThemePage(), settings: settings);
     case '/settings':

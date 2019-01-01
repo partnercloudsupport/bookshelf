@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:test_api/test_api.dart';
 
 import 'package:bookshelf/sources/source.dart';
+import 'package:bookshelf/utils/global_var.dart';
 
 import '_token.dart';
 
 main() {
   group('[Test nhentai source usability]', () {
+    GlobalVar().tempPath = Directory.current;
+
     test('=> Is DoujinshiSource', () {
       expect(NHentaiSource() is DoujinshiSource, true);
     });
@@ -16,7 +21,7 @@ main() {
     });
     test('=> Search books', () async {
       var books = await NHentaiSource().searchBooks('ネロと気持ちいいコトしよう chinese');
-      expect(books.isLastPage, true);
+      expect(books.totalPages, 1);
       expect(books.result.length, 1);
       expect(books.result[0].bookId, '219952');
       expect(books.result[0].name,
@@ -40,6 +45,8 @@ main() {
   });
 
   group('[Test e-hentai source usability]', () {
+    GlobalVar().tempPath = Directory.current;
+
     test('=> Is DoujinshiSource', () {
       expect(EHentaiSource() is DoujinshiSource, true);
     });
