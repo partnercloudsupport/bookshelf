@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:bookshelf/sources/source.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -200,169 +203,243 @@ class SearchBooksDelegate extends SearchDelegate<int> {
       List<DoujinshiBookModel> books, Function refreshCallback) {
     final ThemeData theme = Theme.of(parentContext);
 
-    return RefreshIndicator(
-      onRefresh: () => Future(refreshCallback),
-      child: ListView.builder(
-        itemCount: books.length,
-        itemBuilder: (BuildContext context, int index) {
-          DoujinshiBookModel book = books[index];
+    Map<BaseDoujinshiSource, List<DoujinshiBookModel>> doujinshiCollection = {};
+    for (DoujinshiBookModel book in books) {
+      if (doujinshiCollection.containsKey(book.source))
+        doujinshiCollection[book.source].add(book);
+      else
+        doujinshiCollection[book.source] = [book];
+    }
 
-          return Container(
-            color: theme.cardColor,
-            height: 230.0,
-            margin: index == 0
-                ? const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 10.0)
-                : index == books.length - 1
-                    ? const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 20.0)
-                    : const EdgeInsets.symmetric(vertical: 10.0),
-            child: Row(
-              children: <Widget>[
-                Container(
-                  width: 150.0,
-                  child: Card(
-                    margin: const EdgeInsets.all(12.0),
-                    elevation: 10.0,
-                    clipBehavior: Clip.antiAlias,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(7.0)),
-                    child: Image.network(book.coverUrl, fit: BoxFit.cover),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(5.0, 12.0, 12.0, 12.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          book.name,
-                          style: theme.textTheme.subhead.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.0,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                        Text(
-                          book.originalName,
-                          style: theme.textTheme.subhead.copyWith(
-                            fontSize: 12.0,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                        Divider(),
-                        book.languages != null && book.languages.length > 0
-                            ? Container(
-                                padding: const EdgeInsets.only(bottom: 5.0),
-                                child: RichText(
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  text: TextSpan(
-                                    text:
-                                        '${I18n.of(context).text('language')}${book.languages.contains('translated') ? '(${I18n.of(context).text('translated')})' : ''}: ',
-                                    style: theme.textTheme.subhead.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12.0,
-                                    ),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                        text: book.languages
-                                            .where((String lang) =>
-                                                lang != 'translated')
-                                            .join(' '),
-                                        style: theme.textTheme.subhead.copyWith(
-                                          fontSize: 12.0,
-                                        ),
-                                      )
-                                    ],
-                                  ),
+    return DefaultTabController(
+      length: doujinshiCollection.length,
+      child: Stack(
+        children: <Widget>[
+          TabBarView(
+            children: doujinshiCollection.values
+                .map((List<DoujinshiBookModel> doujinshiBooks) {
+              return RefreshIndicator(
+                onRefresh: () => Future(refreshCallback),
+                child: ListView.builder(
+                  itemCount: doujinshiBooks.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    DoujinshiBookModel book = doujinshiBooks[index];
+
+                    return Container(
+                      color: theme.cardColor,
+                      height: 230.0,
+                      margin: index == 0
+                          ? const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 10.0)
+                          : index == books.length - 1
+                              ? const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 48.0)
+                              : const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Material(
+                        child: InkWell(
+                          onTap: () {
+                            print('$index: book.toString()');
+                          },
+                          child: Row(
+                            children: <Widget>[
+                              Container(
+                                width: 150.0,
+                                child: Card(
+                                  margin: const EdgeInsets.all(12.0),
+                                  elevation: 10.0,
+                                  clipBehavior: Clip.antiAlias,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(7.0)),
+                                  child: Image.network(book.coverUrl,
+                                      fit: BoxFit.cover),
                                 ),
-                              )
-                            : Container(),
-                        book.artists != null && book.artists.length > 0
-                            ? Container(
-                                padding: const EdgeInsets.only(bottom: 5.0),
-                                child: RichText(
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                  text: TextSpan(
-                                    text:
-                                        '${I18n.of(context).text('artist')}: ',
-                                    style: theme.textTheme.subhead.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12.0,
-                                    ),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                        text: book.artists.join(' '),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.fromLTRB(
+                                      5.0, 12.0, 12.0, 12.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        book.name,
                                         style: theme.textTheme.subhead.copyWith(
-                                          fontSize: 12.0,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14.0,
                                         ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : Container(),
-                        book.tags != null && book.tags.length > 0
-                            ? Container(
-                                padding: const EdgeInsets.only(bottom: 5.0),
-                                child: RichText(
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                  text: TextSpan(
-                                    text: '${I18n.of(context).text('tag')}: ',
-                                    style: theme.textTheme.subhead.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12.0,
-                                    ),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                        text: book.tags.join(' '),
-                                        style: theme.textTheme.subhead.copyWith(
-                                          fontSize: 12.0,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : Container(),
-                        book.uploadDate != null
-                            ? RichText(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                text: TextSpan(
-                                  text:
-                                      '${I18n.of(context).text('upload_date')}: ',
-                                  style: theme.textTheme.subhead.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12.0,
-                                  ),
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                      text:
-                                          '${I18n.of(context).dateFormat(book.uploadDate)}',
-                                      style: theme.textTheme.subhead.copyWith(
-                                        fontSize: 12.0,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
                                       ),
-                                    )
-                                  ],
+                                      Text(
+                                        book.originalName,
+                                        style: theme.textTheme.subhead.copyWith(
+                                          fontSize: 12.0,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                      ),
+                                      Divider(),
+                                      book.languages != null &&
+                                              book.languages.length > 0
+                                          ? Container(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 5.0),
+                                              child: RichText(
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                text: TextSpan(
+                                                  text:
+                                                      '${I18n.of(context).text('language')}${book.languages.contains('translated') ? '(${I18n.of(context).text('translated')})' : ''}: ',
+                                                  style: theme.textTheme.subhead
+                                                      .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12.0,
+                                                  ),
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: book.languages
+                                                          .where(
+                                                              (String lang) =>
+                                                                  lang !=
+                                                                  'translated')
+                                                          .join(' '),
+                                                      style: theme
+                                                          .textTheme.subhead
+                                                          .copyWith(
+                                                        fontSize: 12.0,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          : Container(),
+                                      book.artists != null &&
+                                              book.artists.length > 0
+                                          ? Container(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 5.0),
+                                              child: RichText(
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                                text: TextSpan(
+                                                  text:
+                                                      '${I18n.of(context).text('artist')}: ',
+                                                  style: theme.textTheme.subhead
+                                                      .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12.0,
+                                                  ),
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: book.artists
+                                                          .join(' '),
+                                                      style: theme
+                                                          .textTheme.subhead
+                                                          .copyWith(
+                                                        fontSize: 12.0,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          : Container(),
+                                      book.tags != null && book.tags.length > 0
+                                          ? Container(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 5.0),
+                                              child: RichText(
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                                text: TextSpan(
+                                                  text:
+                                                      '${I18n.of(context).text('tag')}: ',
+                                                  style: theme.textTheme.subhead
+                                                      .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12.0,
+                                                  ),
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: book.tags.join(' '),
+                                                      style: theme
+                                                          .textTheme.subhead
+                                                          .copyWith(
+                                                        fontSize: 12.0,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          : Container(),
+                                      book.uploadDate != null
+                                          ? RichText(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              text: TextSpan(
+                                                text:
+                                                    '${I18n.of(context).text('upload_date')}: ',
+                                                style: theme.textTheme.subhead
+                                                    .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12.0,
+                                                ),
+                                                children: <TextSpan>[
+                                                  TextSpan(
+                                                    text:
+                                                        '${I18n.of(context).dateFormat(book.uploadDate)}',
+                                                    style: theme
+                                                        .textTheme.subhead
+                                                        .copyWith(
+                                                      fontSize: 12.0,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            )
+                                          : Container(),
+                                    ],
+                                  ),
                                 ),
-                              )
-                            : Container(),
-                      ],
-                    ),
-                  ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              ],
+              );
+            }).toList(),
+          ),
+          Positioned(
+            bottom: 0.0,
+            left: 0.0,
+            right: 0.0,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              child: Container(
+                alignment: Alignment.bottomCenter,
+                color: Color(0),
+                child: TabBar(
+                  isScrollable: true,
+                  labelColor: theme.primaryColor,
+                  tabs: doujinshiCollection.keys
+                      .map((BaseDoujinshiSource source) => Tab(
+                            text: source.sourceName,
+                          ))
+                      .toList(),
+                ),
+              ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
+
+    // return ;
   }
 
   Widget _illustrationResultCard() => Container();

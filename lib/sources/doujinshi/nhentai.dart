@@ -9,7 +9,7 @@ import 'package:bookshelf/sources/source.dart';
 import 'package:bookshelf/models/model.dart';
 
 class NHentaiSource extends DoujinshiSource {
-  static String sourceName = 'nhentai';
+  final String sourceName = 'nhentai';
   final String baseUrl = 'https://nhentai.net';
 
   @override

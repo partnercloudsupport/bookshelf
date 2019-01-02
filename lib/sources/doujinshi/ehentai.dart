@@ -9,7 +9,7 @@ import 'package:bookshelf/sources/source.dart';
 import 'package:bookshelf/models/model.dart';
 
 class EHentaiSource extends DoujinshiSource {
-  static String sourceName = 'E-Hentai';
+  final String sourceName = 'E-Hentai';
   final String baseUrl = 'https://e-hentai.org';
 
   @override
