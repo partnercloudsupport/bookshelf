@@ -1,3 +1,6 @@
 [submodule "packages/flutter_advanced_networkimage"]
 	path = packages/flutter_advanced_networkimage
 	url = https://github.com/mchome/flutter_advanced_networkimage.git
+[submodule "packages/flutter_colorpicker"]
+	path = packages/flutter_colorpicker
+	url = https://github.com/mchome/flutter_colorpicker.git

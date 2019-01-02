@@ -19,6 +19,8 @@ dependencies:
   shared_preferences: any
   flutter_advanced_networkimage:
     path: './packages/flutter_advanced_networkimage'
+  flutter_colorpicker:
+    path: './packages/flutter_colorpicker'
 
 dev_dependencies:
   flutter_test:
