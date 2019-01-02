@@ -23,6 +23,10 @@ class ShelfPageBloc extends Bloc<_BasePageEvent, ShelfPageBlocState> {
       yield currentState.copyWith(
         history: event.history,
       );
+    if (event is SetSearchState)
+      yield currentState.copyWith(
+        searching: event.searching,
+      );
     if (event is SearchResult) {
       String keyword = event.keyword ?? currentState.history[0];
 
@@ -38,7 +42,11 @@ class ShelfPageBloc extends Bloc<_BasePageEvent, ShelfPageBlocState> {
               NHentaiSource(),
             ],
           ).search();
+          this.dispatch(SetSearchState(false));
           yield currentState.copyWith(searchDoujinshiResult: result);
+          break;
+        case BookType.Illustration:
+          this.dispatch(SetSearchState(false));
           break;
         default:
           break;
@@ -54,6 +62,7 @@ class ShelfPageBlocState {
     this.history,
     this.searchMangaResult,
     this.searchDoujinshiResult,
+    this.searching,
   });
 
   final BookType currentShelf;
@@ -61,6 +70,7 @@ class ShelfPageBlocState {
   final List<String> history;
   final List<MangaBookModel> searchMangaResult;
   final List<DoujinshiBookModel> searchDoujinshiResult;
+  final bool searching;
 
   factory ShelfPageBlocState.init() {
     return ShelfPageBlocState(
@@ -69,6 +79,7 @@ class ShelfPageBlocState {
       history: [],
       searchMangaResult: [],
       searchDoujinshiResult: [],
+      searching: false,
     );
   }
 
@@ -78,6 +89,7 @@ class ShelfPageBlocState {
     List<String> history,
     List<MangaBookModel> searchMangaResult,
     List<DoujinshiBookModel> searchDoujinshiResult,
+    bool searching,
   }) {
     return ShelfPageBlocState(
       currentShelf: currentShelf ?? this.currentShelf,
@@ -86,6 +98,7 @@ class ShelfPageBlocState {
       searchMangaResult: searchMangaResult ?? this.searchMangaResult,
       searchDoujinshiResult:
           searchDoujinshiResult ?? this.searchDoujinshiResult,
+      searching: searching ?? this.searching,
     );
   }
 
@@ -103,7 +116,8 @@ class ShelfPageBlocState {
           currentSearchShelf == other.currentSearchShelf &&
           history == other.history &&
           searchMangaResult == other.searchMangaResult &&
-          searchDoujinshiResult == other.searchDoujinshiResult;
+          searchDoujinshiResult == other.searchDoujinshiResult &&
+          searching == other.searching;
 
   @override
   int get hashCode =>
@@ -111,7 +125,8 @@ class ShelfPageBlocState {
       currentSearchShelf.hashCode ^
       history.hashCode ^
       searchMangaResult.hashCode ^
-      searchDoujinshiResult.hashCode;
+      searchDoujinshiResult.hashCode ^
+      searching.hashCode;
 
   @override
   String toString() => '''ShelfPageBlocState {
@@ -120,6 +135,7 @@ class ShelfPageBlocState {
         history: $history,
         searchMangaResult: $searchMangaResult,
         searchDoujinshiResult: $searchDoujinshiResult,
+        searching: $searching,
       }''';
 }
 
@@ -147,4 +163,10 @@ class SearchResult extends _BasePageEvent {
   SearchResult([this.keyword]);
 
   final String keyword;
+}
+
+class SetSearchState extends _BasePageEvent {
+  SetSearchState(this.searching);
+
+  final bool searching;
 }

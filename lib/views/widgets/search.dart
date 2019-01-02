@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' show ImageFilter;
 
 import 'package:bookshelf/sources/source.dart';
 import 'package:flutter/material.dart';
@@ -156,6 +156,7 @@ class SearchBooksDelegate extends SearchDelegate<int> {
         _shelfPageBloc.dispatch(SetSearchHistory(value));
         _currentQuery = query;
 
+        _shelfPageBloc.dispatch(SetSearchState(true));
         _shelfPageBloc.dispatch(SearchResult(query));
       }
 
@@ -167,12 +168,16 @@ class SearchBooksDelegate extends SearchDelegate<int> {
   }
 
   Widget _resultBuilder(ShelfPageBloc bloc) {
-    _refreshSearchList() => bloc.dispatch(SearchResult());
+    _refreshSearchList() {
+      bloc.dispatch(SetSearchState(true));
+      bloc.dispatch(SearchResult());
+    }
 
     return BlocBuilder(
       bloc: bloc,
       builder: (BuildContext context, ShelfPageBlocState state) {
-        switch (bloc.currentState.currentSearchShelf) {
+        if (state.searching) return Center(child: CircularProgressIndicator());
+        switch (state.currentSearchShelf) {
           case BookType.Manga:
             return _mangaResultCard(
                 state.searchMangaResult, _refreshSearchList);
