@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bookshelf/locales/locale.dart';
+import 'package:intl/intl.dart';
 
 class I18n {
   I18n(this.locale);
@@ -26,6 +27,9 @@ class I18n {
       return '';
     }
   }
+
+  String dateFormat(DateTime dateTime) =>
+      '${DateFormat.yMMMMd(locale.toString()).format(dateTime)} ${DateFormat.Hms(locale.toString()).format(dateTime)}';
 }
 
 class I18nDelegate extends LocalizationsDelegate<I18n> {

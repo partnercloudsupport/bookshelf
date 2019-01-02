@@ -1,0 +1,3 @@
+[submodule "packages/flutter_advanced_networkimage"]
+	path = packages/flutter_advanced_networkimage
+	url = https://github.com/mchome/flutter_advanced_networkimage.git

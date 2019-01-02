@@ -11,4 +11,13 @@ Map<String, String> lang = {
   'clear': 'Clear',
   'search_books_type': 'Books Type',
   'search_books_filter': 'Search Filter',
+  'parody': 'Parody',
+  'character': 'Character',
+  'tag': 'Tag',
+  'artist': 'Artist',
+  'group': 'Group',
+  'language': 'Language',
+  'category': 'Category',
+  'upload_date': 'upload date',
+  'translated': 'Translated',
 };

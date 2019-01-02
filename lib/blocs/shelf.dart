@@ -24,6 +24,8 @@ class ShelfPageBloc extends Bloc<_BasePageEvent, ShelfPageBlocState> {
         history: event.history,
       );
     if (event is SearchResult) {
+      String keyword = event.keyword ?? currentState.history[0];
+
       switch (currentState.currentSearchShelf) {
         case BookType.Manga:
           List<MangaBookModel> result = [];
@@ -31,7 +33,7 @@ class ShelfPageBloc extends Bloc<_BasePageEvent, ShelfPageBlocState> {
           break;
         case BookType.Doujinshi:
           List<DoujinshiBookModel> result = await DoujinshiSearchService(
-            keyword: event.keyword,
+            keyword: keyword,
             sources: <BaseDoujinshiSource>[
               NHentaiSource(),
             ],
@@ -142,7 +144,7 @@ class SetSearchHistory extends _BasePageEvent {
 }
 
 class SearchResult extends _BasePageEvent {
-  SearchResult(this.keyword);
+  SearchResult([this.keyword]);
 
   final String keyword;
 }

@@ -11,4 +11,13 @@ Map<String, String> lang = {
   'clear': '清空',
   'search_books_type': '书本类型',
   'search_books_filter': '搜索过滤',
+  'parody': '原作',
+  'character': '角色',
+  'tag': '标签',
+  'artist': '艺术家',
+  'group': '社团/公司',
+  'language': '语言',
+  'category': '类型',
+  'upload_date': '上传日期',
+  'translated': '翻译',
 };

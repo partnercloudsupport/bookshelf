@@ -11,15 +11,16 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppBloc _appBloc = BlocProvider.of<AppBloc>(context);
-    final ShelfPageBloc _shelfPageBloc =
+    final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
+    final ShelfPageBloc shelfPageBloc =
         BlocProvider.of<ShelfPageBloc>(context);
+    final ThemeData theme = Theme.of(context);
 
     return Drawer(
       child: Material(
-        color: Theme.of(context).cardColor,
+        color: theme.cardColor,
         child: BlocBuilder(
-          bloc: _shelfPageBloc,
+          bloc: shelfPageBloc,
           builder: (BuildContext context, state) {
             return ListView(
               padding: const EdgeInsets.only(top: 0.0),
@@ -30,50 +31,50 @@ class AppDrawer extends StatelessWidget {
                 ),
                 Material(
                   color: state.currentShelf == BookType.Manga
-                      ? Theme.of(context).primaryColorLight.withAlpha(150)
-                      : Theme.of(context).cardColor,
+                      ? theme.primaryColorLight.withAlpha(150)
+                      : theme.cardColor,
                   child: ListTile(
                     leading: Icon(
                       Icons.import_contacts,
                       color: state.currentShelf == BookType.Manga
-                          ? Theme.of(context).primaryColor
-                          : Theme.of(context).unselectedWidgetColor,
+                          ? theme.primaryColor
+                          : theme.unselectedWidgetColor,
                     ),
                     title: Text(
                       I18n.of(context).text('manga'),
                       style: TextStyle(
                         color: state.currentShelf == BookType.Manga
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).unselectedWidgetColor,
+                            ? theme.primaryColor
+                            : theme.unselectedWidgetColor,
                       ),
                     ),
                     onTap: () {
-                      _shelfPageBloc.dispatch(SetCurrentShelf(BookType.Manga));
+                      shelfPageBloc.dispatch(SetCurrentShelf(BookType.Manga));
                       Navigator.pop(context);
                     },
                   ),
                 ),
                 Material(
                   color: state.currentShelf == BookType.Doujinshi
-                      ? Theme.of(context).primaryColorLight.withAlpha(150)
-                      : Theme.of(context).cardColor,
+                      ? theme.primaryColorLight.withAlpha(150)
+                      : theme.cardColor,
                   child: ListTile(
                     leading: Icon(
                       Icons.book,
                       color: state.currentShelf == BookType.Doujinshi
-                          ? Theme.of(context).primaryColor
-                          : Theme.of(context).unselectedWidgetColor,
+                          ? theme.primaryColor
+                          : theme.unselectedWidgetColor,
                     ),
                     title: Text(
                       I18n.of(context).text('doujinshi'),
                       style: TextStyle(
                         color: state.currentShelf == BookType.Doujinshi
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).unselectedWidgetColor,
+                            ? theme.primaryColor
+                            : theme.unselectedWidgetColor,
                       ),
                     ),
                     onTap: () {
-                      _shelfPageBloc
+                      shelfPageBloc
                           .dispatch(SetCurrentShelf(BookType.Doujinshi));
                       Navigator.pop(context);
                     },
@@ -99,7 +100,7 @@ class AppDrawer extends StatelessWidget {
                   title: Text(
                     I18n.of(context).text('theme'),
                     style: TextStyle(
-                      color: Theme.of(context).unselectedWidgetColor,
+                      color: theme.unselectedWidgetColor,
                     ),
                   ),
                   onTap: () {
@@ -108,19 +109,19 @@ class AppDrawer extends StatelessWidget {
                   selected: false,
                 ),
                 BlocBuilder(
-                  bloc: _appBloc,
+                  bloc: appBloc,
                   builder: (BuildContext context, AppBlocState state) {
                     return SwitchListTile(
                       title: Text(
                         I18n.of(context).text('night_mode'),
                         style: TextStyle(
-                          color: Theme.of(context).unselectedWidgetColor,
+                          color: theme.unselectedWidgetColor,
                         ),
                       ),
                       secondary: const Icon(Icons.brightness_4),
                       value: state.nightMode,
                       onChanged: (bool value) {
-                        _appBloc.dispatch(UseNightMode(value));
+                        appBloc.dispatch(UseNightMode(value));
                       },
                       activeColor: const Color(0xfff114b6),
                     );
@@ -132,7 +133,7 @@ class AppDrawer extends StatelessWidget {
                   title: Text(
                     I18n.of(context).text('settings'),
                     style: TextStyle(
-                      color: Theme.of(context).unselectedWidgetColor,
+                      color: theme.unselectedWidgetColor,
                     ),
                   ),
                   onTap: () {
@@ -145,7 +146,7 @@ class AppDrawer extends StatelessWidget {
                   title: Text(
                     I18n.of(context).text('about'),
                     style: TextStyle(
-                      color: Theme.of(context).unselectedWidgetColor,
+                      color: theme.unselectedWidgetColor,
                     ),
                   ),
                   onTap: () {
