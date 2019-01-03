@@ -12,8 +12,7 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-    final ShelfPageBloc shelfPageBloc =
-        BlocProvider.of<ShelfPageBloc>(context);
+    final ShelfPageBloc shelfPageBloc = BlocProvider.of<ShelfPageBloc>(context);
     final ThemeData theme = Theme.of(context);
 
     return Drawer(
@@ -80,20 +79,32 @@ class AppDrawer extends StatelessWidget {
                     },
                   ),
                 ),
-                // Material(
-                //   color: Theme.of(context).cardColor,
-                //   child: ListTile(
-                //     leading: Icon(
-                //       Icons.photo,
-                //     ),
-                //     title: Text(
-                //       I18n.of(context).text('illustration'),
-                //     ),
-                //     onTap: () {
-                //       Navigator.pop(context);
-                //     },
-                //   ),
-                // ),
+                Material(
+                  color: state.currentShelf == BookType.Illustration
+                      ? theme.primaryColorLight.withAlpha(150)
+                      : theme.cardColor,
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.photo,
+                      color: state.currentShelf == BookType.Illustration
+                          ? theme.primaryColor
+                          : theme.unselectedWidgetColor,
+                    ),
+                    title: Text(
+                      I18n.of(context).text('illustration'),
+                      style: TextStyle(
+                        color: state.currentShelf == BookType.Illustration
+                            ? theme.primaryColor
+                            : theme.unselectedWidgetColor,
+                      ),
+                    ),
+                    onTap: () {
+                      shelfPageBloc
+                          .dispatch(SetCurrentShelf(BookType.Illustration));
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
                 Divider(),
                 ListTile(
                   leading: const Icon(Icons.color_lens),

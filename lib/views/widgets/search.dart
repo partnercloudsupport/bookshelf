@@ -160,53 +160,73 @@ class SearchBooksDelegate extends SearchDelegate<int> {
         _shelfPageBloc.dispatch(SearchResult(query));
       }
 
-      return _resultBuilder(_shelfPageBloc);
+      return ResultBuilder(_shelfPageBloc);
     } else {
       showSuggestions(context);
       return Container();
     }
   }
+}
 
-  Widget _resultBuilder(ShelfPageBloc bloc) {
-    _refreshSearchList() {
-      bloc.dispatch(SetSearchState(true));
-      bloc.dispatch(SearchResult());
-    }
+class ResultBuilder extends StatelessWidget {
+  ResultBuilder(this.bloc);
 
+  final ShelfPageBloc bloc;
+
+  _refreshSearchList() {
+    bloc.dispatch(SetSearchState(true));
+    bloc.dispatch(SearchResult());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder(
       bloc: bloc,
       builder: (BuildContext context, ShelfPageBlocState state) {
         if (state.searching) return Center(child: CircularProgressIndicator());
         switch (state.currentSearchShelf) {
           case BookType.Manga:
-            return _mangaResultCard(
-                state.searchMangaResult, _refreshSearchList);
+            return MangaResultCard(state.searchMangaResult, _refreshSearchList);
           case BookType.Doujinshi:
-            return _doujinshiResultCard(
+            return DoujinshiResultCard(
                 state.searchDoujinshiResult, _refreshSearchList);
           case BookType.Illustration:
-            return _illustrationResultCard();
+            return IllustrationResultCard();
           default:
             return Container();
         }
       },
     );
   }
+}
 
-  Widget _mangaResultCard(
-      List<MangaBookModel> books, Function refreshCallback) {
-    return ListView(
-      children: books.map((MangaBookModel book) {
-        return ListTile(
-          title: Text(book.name),
-        );
-      }).toList(),
-    );
+class MangaResultCard extends StatelessWidget {
+  MangaResultCard(
+    this.books,
+    this.refreshCallback,
+  );
+
+  final List<MangaBookModel> books;
+  final Function refreshCallback;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
+}
 
-  Widget _doujinshiResultCard(
-      List<DoujinshiBookModel> books, Function refreshCallback) {
-    final ThemeData theme = Theme.of(parentContext);
+class DoujinshiResultCard extends StatelessWidget {
+  DoujinshiResultCard(
+    this.books,
+    this.refreshCallback,
+  );
+
+  final List<DoujinshiBookModel> books;
+  final Function refreshCallback;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
 
     Map<BaseDoujinshiSource, List<DoujinshiBookModel>> doujinshiCollection = {};
     for (DoujinshiBookModel book in books) {
@@ -443,9 +463,14 @@ class SearchBooksDelegate extends SearchDelegate<int> {
         ],
       ),
     );
-
-    // return ;
   }
+}
 
-  Widget _illustrationResultCard() => Container();
+class IllustrationResultCard extends StatelessWidget {
+  IllustrationResultCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
 }

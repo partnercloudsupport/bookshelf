@@ -1,15 +1,16 @@
-import 'package:bookshelf/models/model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'package:bookshelf/models/model.dart';
 import 'package:bookshelf/blocs/bloc.dart';
 import 'package:bookshelf/locales/locale.dart';
 import 'package:bookshelf/routes.dart';
 import 'package:bookshelf/views/widgets/app_drawer.dart';
 import 'package:bookshelf/views/manga_shelf.dart';
 import 'package:bookshelf/views/doujinshi_shelf.dart';
+import 'package:bookshelf/views/illustration_shelf.dart';
 
 class BookshelfApp extends StatelessWidget {
   final AppBloc _appBloc = AppBloc();
@@ -67,6 +68,8 @@ class _ShelfPageState extends State<ShelfPage> {
                 return MangaShelf();
               case BookType.Doujinshi:
                 return DoujinshiShelf();
+              case BookType.Illustration:
+                return IllustrationShelf();
               default:
                 return MangaShelf();
             }
