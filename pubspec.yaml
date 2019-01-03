@@ -10,13 +10,14 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_statusbarcolor: any
   flutter_bloc: any
   html: any
   sembast: any
   path_provider: any
   dio: any
   shared_preferences: any
+  flutter_statusbarcolor: 
+    path: './packages/flutter_statusbarcolor'
   flutter_advanced_networkimage:
     path: './packages/flutter_advanced_networkimage'
   flutter_colorpicker:

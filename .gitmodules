@@ -4,3 +4,6 @@
 [submodule "packages/flutter_colorpicker"]
 	path = packages/flutter_colorpicker
 	url = https://github.com/mchome/flutter_colorpicker.git
+[submodule "packages/flutter_statusbarcolor"]
+	path = packages/flutter_statusbarcolor
+	url = https://github.com/mchome/flutter_statusbarcolor.git
