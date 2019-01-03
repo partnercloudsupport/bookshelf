@@ -14,7 +14,10 @@ class AppBloc extends Bloc<_AppEvent, AppBlocState> {
         nightMode: event.nightMode,
       );
     if (event is SetCurrentTheme) {
-      FlutterStatusbarcolor.setNavigationBarColor(event.themeData.primaryColor);
+      FlutterStatusbarcolor.setNavigationBarColor(
+        event.themeData.primaryColor,
+        animate: true,
+      );
       yield currentState.copyWith(
         currentThemeData: event.themeData,
       );
