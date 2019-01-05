@@ -20,4 +20,7 @@ Map<String, String> lang = {
   'category': '类型',
   'upload_date': '上传日期',
   'translated': '翻译',
+  'manga_detail': '漫画 详情',
+  'doujinshi_detail': '同人志 详情',
+  'illustration_detail': '插画 详情',
 };

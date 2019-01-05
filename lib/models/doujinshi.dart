@@ -41,10 +41,12 @@ class DoujinshiBookModel {
 
 class SearchDoujinshiResultModel {
   SearchDoujinshiResultModel({
+    @required this.source,
     @required this.result,
     @required this.totalPages,
   });
 
+  final BaseDoujinshiSource source;
   final List<DoujinshiBookModel> result;
   final int totalPages;
 }

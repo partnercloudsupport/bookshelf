@@ -14,6 +14,7 @@ class AppDrawer extends StatelessWidget {
     final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
     final ShelfPageBloc shelfPageBloc = BlocProvider.of<ShelfPageBloc>(context);
     final ThemeData theme = Theme.of(context);
+    final I18n i18n = I18n.of(context);
 
     return Drawer(
       child: Material(
@@ -40,7 +41,7 @@ class AppDrawer extends StatelessWidget {
                           : theme.unselectedWidgetColor,
                     ),
                     title: Text(
-                      I18n.of(context).text('manga'),
+                      i18n.text('manga'),
                       style: TextStyle(
                         color: state.currentShelf == BookType.Manga
                             ? theme.primaryColor
@@ -65,7 +66,7 @@ class AppDrawer extends StatelessWidget {
                           : theme.unselectedWidgetColor,
                     ),
                     title: Text(
-                      I18n.of(context).text('doujinshi'),
+                      i18n.text('doujinshi'),
                       style: TextStyle(
                         color: state.currentShelf == BookType.Doujinshi
                             ? theme.primaryColor
@@ -91,7 +92,7 @@ class AppDrawer extends StatelessWidget {
                           : theme.unselectedWidgetColor,
                     ),
                     title: Text(
-                      I18n.of(context).text('illustration'),
+                      i18n.text('illustration'),
                       style: TextStyle(
                         color: state.currentShelf == BookType.Illustration
                             ? theme.primaryColor
@@ -109,7 +110,7 @@ class AppDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.color_lens),
                   title: Text(
-                    I18n.of(context).text('theme'),
+                    i18n.text('theme'),
                     style: TextStyle(
                       color: theme.unselectedWidgetColor,
                     ),
@@ -124,7 +125,7 @@ class AppDrawer extends StatelessWidget {
                   builder: (BuildContext context, AppBlocState state) {
                     return SwitchListTile(
                       title: Text(
-                        I18n.of(context).text('night_mode'),
+                        i18n.text('night_mode'),
                         style: TextStyle(
                           color: theme.unselectedWidgetColor,
                         ),
@@ -134,7 +135,7 @@ class AppDrawer extends StatelessWidget {
                       onChanged: (bool value) {
                         appBloc.dispatch(UseNightMode(value));
                       },
-                      activeColor: const Color(0xfff114b6),
+                      activeColor: theme.primaryColor,
                     );
                   },
                 ),
@@ -142,7 +143,7 @@ class AppDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.settings),
                   title: Text(
-                    I18n.of(context).text('settings'),
+                    i18n.text('settings'),
                     style: TextStyle(
                       color: theme.unselectedWidgetColor,
                     ),
@@ -155,7 +156,7 @@ class AppDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.error),
                   title: Text(
-                    I18n.of(context).text('about'),
+                    i18n.text('about'),
                     style: TextStyle(
                       color: theme.unselectedWidgetColor,
                     ),

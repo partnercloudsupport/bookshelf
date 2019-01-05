@@ -83,6 +83,7 @@ class NHentaiSource extends DoujinshiSource {
     }).toList();
 
     return SearchDoujinshiResultModel(
+      source: this,
       result: books,
       totalPages: totalPages,
     );

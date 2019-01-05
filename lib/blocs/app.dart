@@ -26,6 +26,10 @@ class AppBloc extends Bloc<_AppEvent, AppBlocState> {
       yield currentState.copyWith(
         themeDataList: event.themeDataList,
       );
+    if (event is SetCurrentDetailData)
+      yield currentState.copyWith(
+        currentDetailData: event.currentDetailData,
+      );
   }
 }
 
@@ -34,11 +38,13 @@ class AppBlocState {
     this.nightMode,
     this.currentThemeData,
     this.themeDataList,
+    this.currentDetailData, // temp solution
   });
 
   final bool nightMode;
   final ThemeData currentThemeData;
   final List<Map<String, ThemeData>> themeDataList;
+  final dynamic currentDetailData;
 
   factory AppBlocState.init() {
     return AppBlocState(
@@ -60,11 +66,13 @@ class AppBlocState {
     bool nightMode,
     ThemeData currentThemeData,
     List<Map<String, ThemeData>> themeDataList,
+    dynamic currentDetailData,
   }) {
     return AppBlocState(
       nightMode: nightMode ?? this.nightMode,
       currentThemeData: currentThemeData ?? this.currentThemeData,
       themeDataList: themeDataList ?? this.themeDataList,
+      currentDetailData: currentDetailData ?? this.currentDetailData,
     );
   }
 
@@ -80,15 +88,24 @@ class AppBlocState {
           runtimeType == other.runtimeType &&
           nightMode == other.nightMode &&
           currentThemeData == other.currentThemeData &&
-          themeDataList == other.themeDataList;
+          themeDataList == other.themeDataList &&
+          currentDetailData == other.currentDetailData;
 
   @override
   int get hashCode =>
-      nightMode.hashCode ^ currentThemeData.hashCode ^ themeDataList.hashCode;
+      nightMode.hashCode ^
+      currentThemeData.hashCode ^
+      themeDataList.hashCode ^
+      currentDetailData.hashCode;
 
   @override
   String toString() =>
-      'AppBlocState { nightMode: $nightMode, currentThemeData: $currentThemeData, themeDataList: $themeDataList }';
+      '''AppBlocState {
+        nightMode: $nightMode,
+        currentThemeData: $currentThemeData,
+        themeDataList: $themeDataList,
+        currentDetailData: $currentDetailData,
+      }''';
 }
 
 abstract class _AppEvent {}
@@ -109,4 +126,10 @@ class SetThemeDataList extends _AppEvent {
   SetThemeDataList(this.themeDataList);
 
   final List<Map<String, ThemeData>> themeDataList;
+}
+
+class SetCurrentDetailData extends _AppEvent {
+  SetCurrentDetailData(this.currentDetailData);
+
+  final dynamic currentDetailData;
 }

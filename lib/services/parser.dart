@@ -28,25 +28,15 @@ class DoujinshiSearchService extends SearchService {
   final List<BaseDoujinshiSource> sources;
   final int page;
 
-  List<Map<BaseDoujinshiSource, int>> pageLimit = [];
-
-  Future<List<DoujinshiBookModel>> search() async {
-    List<DoujinshiBookModel> books = [];
+  Future<List<SearchDoujinshiResultModel>> search() async {
+    List<SearchDoujinshiResultModel> result = [];
 
     for (BaseDoujinshiSource source in sources) {
-      if (pageLimit
-              .where((value) =>
-                  (value.keys.first == source) && value.values.first < page)
-              .length >
-          0) {
-      } else {
-        SearchDoujinshiResultModel searchResult =
-            await source.searchBooks(keyword, page: page);
-        books.addAll(searchResult.result);
-        pageLimit.add({source: searchResult.totalPages});
-      }
+      SearchDoujinshiResultModel searchResult =
+          await source.searchBooks(keyword, page: page);
+      if (searchResult.result.length > 0) result.add(searchResult);
     }
 
-    return books;
+    return result;
   }
 }

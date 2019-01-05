@@ -17,7 +17,7 @@ class BookshelfApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    return BlocProvider<AppBloc>(
       bloc: _appBloc,
       child: BlocBuilder(
         bloc: _appBloc,
@@ -54,6 +54,7 @@ class ShelfPage extends StatefulWidget {
 
 class _ShelfPageState extends State<ShelfPage> {
   final ShelfPageBloc _shelfPageBloc = ShelfPageBloc();
+  final SearchBloc _searchBloc = SearchBloc();
 
   @override
   Widget build(BuildContext context) {
@@ -62,17 +63,25 @@ class _ShelfPageState extends State<ShelfPage> {
       child: Scaffold(
         body: BlocBuilder(
           bloc: _shelfPageBloc,
-          builder: (BuildContext context, ShelfPageBlocState state) {
-            switch (state.currentShelf) {
-              case BookType.Manga:
-                return MangaShelf();
-              case BookType.Doujinshi:
-                return DoujinshiShelf();
-              case BookType.Illustration:
-                return IllustrationShelf();
-              default:
-                return MangaShelf();
-            }
+          builder: (BuildContext context, ShelfPageBlocState shelfState) {
+            return BlocProvider<SearchBloc>(
+              bloc: _searchBloc,
+              child: BlocBuilder(
+                bloc: _searchBloc,
+                builder: (BuildContext context, SearchBlocState searchState) {
+                  switch (shelfState.currentShelf) {
+                    case BookType.Manga:
+                      return MangaShelf();
+                    case BookType.Doujinshi:
+                      return DoujinshiShelf();
+                    case BookType.Illustration:
+                      return IllustrationShelf();
+                    default:
+                      return MangaShelf();
+                  }
+                },
+              ),
+            );
           },
         ),
         drawer: AppDrawer(),
@@ -81,8 +90,9 @@ class _ShelfPageState extends State<ShelfPage> {
   }
 
   @override
-  void dispose() {
+  dispose() {
     _shelfPageBloc.dispose();
+    _searchBloc.dispose();
     super.dispose();
   }
 }

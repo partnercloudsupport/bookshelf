@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
 import 'package:bookshelf/sources/source.dart';
@@ -26,13 +27,12 @@ class SearchBooksDelegate extends SearchDelegate<int> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final ShelfPageBloc _shelfPageBloc =
-        BlocProvider.of<ShelfPageBloc>(parentContext);
+    final SearchBloc searchBloc = BlocProvider.of<SearchBloc>(parentContext);
     final ThemeData theme = Theme.of(context);
 
     return BlocBuilder(
-      bloc: _shelfPageBloc,
-      builder: (BuildContext context, ShelfPageBlocState state) {
+      bloc: searchBloc,
+      builder: (BuildContext context, SearchBlocState state) {
         final Iterable<String> suggestions =
             state.history.where((String str) => str.startsWith(query));
 
@@ -46,7 +46,7 @@ class SearchBooksDelegate extends SearchDelegate<int> {
               onDismissed: (_) {
                 List<String> value = List.from(state.history);
                 value.removeAt(i);
-                _shelfPageBloc.dispatch(SetSearchHistory(value));
+                searchBloc.dispatch(SetSearchHistory(value));
               },
               background: Container(color: theme.primaryColor),
               child: ListTile(
@@ -80,16 +80,16 @@ class SearchBooksDelegate extends SearchDelegate<int> {
 
   @override
   List<Widget> buildActions(BuildContext context) {
-    final ShelfPageBloc _shelfPageBloc =
-        BlocProvider.of<ShelfPageBloc>(parentContext);
+    final SearchBloc searchBloc = BlocProvider.of<SearchBloc>(parentContext);
+    final I18n i18n = I18n.of(context);
 
     changeSearchBooksType(BookType value) =>
-        _shelfPageBloc.dispatch(SetCurrentSearchShelf(value));
+        searchBloc.dispatch(SetCurrentSearchShelf(value));
 
     return <Widget>[
       query.isNotEmpty
           ? IconButton(
-              tooltip: I18n.of(context).text('clear'),
+              tooltip: i18n.text('clear'),
               icon: const Icon(Icons.clear),
               onPressed: () {
                 query = '';
@@ -98,29 +98,29 @@ class SearchBooksDelegate extends SearchDelegate<int> {
             )
           : Container(),
       BlocBuilder(
-        bloc: _shelfPageBloc,
-        builder: (BuildContext context, ShelfPageBlocState state) {
+        bloc: searchBloc,
+        builder: (BuildContext context, SearchBlocState state) {
           return PopupMenuButton(
             offset: Offset(0.0, 100.0),
             icon: Icon(Icons.photo_library),
-            tooltip: I18n.of(context).text('search_books_type'),
+            tooltip: i18n.text('search_books_type'),
             onSelected: changeSearchBooksType,
             itemBuilder: (BuildContext context) {
-              return [
-                CheckedPopupMenuItem(
+              return <PopupMenuEntry<BookType>>[
+                CheckedPopupMenuItem<BookType>(
                   checked: state.currentSearchShelf == BookType.Manga,
                   value: BookType.Manga,
-                  child: Text(I18n.of(context).text('manga')),
+                  child: Text(i18n.text('manga')),
                 ),
-                CheckedPopupMenuItem(
+                CheckedPopupMenuItem<BookType>(
                   checked: state.currentSearchShelf == BookType.Doujinshi,
                   value: BookType.Doujinshi,
-                  child: Text(I18n.of(context).text('doujinshi')),
+                  child: Text(i18n.text('doujinshi')),
                 ),
-                CheckedPopupMenuItem(
+                CheckedPopupMenuItem<BookType>(
                   checked: state.currentSearchShelf == BookType.Illustration,
                   value: BookType.Illustration,
-                  child: Text(I18n.of(context).text('illustration')),
+                  child: Text(i18n.text('illustration')),
                   enabled: false,
                 ),
               ];
@@ -129,11 +129,11 @@ class SearchBooksDelegate extends SearchDelegate<int> {
         },
       ),
       BlocBuilder(
-        bloc: _shelfPageBloc,
-        builder: (BuildContext context, ShelfPageBlocState state) {
+        bloc: searchBloc,
+        builder: (BuildContext context, SearchBlocState state) {
           return IconButton(
             icon: Icon(Icons.filter_list),
-            tooltip: I18n.of(context).text('search_books_filter'),
+            tooltip: i18n.text('search_books_filter'),
             onPressed: () {
               // TODO: popup a dialog for the search filter
             },
@@ -145,22 +145,21 @@ class SearchBooksDelegate extends SearchDelegate<int> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final ShelfPageBloc _shelfPageBloc =
-        BlocProvider.of<ShelfPageBloc>(parentContext);
+    final SearchBloc searchBloc = BlocProvider.of<SearchBloc>(parentContext);
 
     if (query.length > 0) {
       if (_currentQuery != query) {
-        List<String> value = List.from(_shelfPageBloc.currentState.history);
+        List<String> value = List.from(searchBloc.currentState.history);
         value.remove(query);
         value.insert(0, query);
-        _shelfPageBloc.dispatch(SetSearchHistory(value));
+        searchBloc.dispatch(SetSearchHistory(value));
         _currentQuery = query;
 
-        _shelfPageBloc.dispatch(SetSearchState(true));
-        _shelfPageBloc.dispatch(SearchResult(query));
+        searchBloc.dispatch(SetSearchRefresh(true));
+        searchBloc.dispatch(SearchResult(query));
       }
 
-      return ResultBuilder(_shelfPageBloc);
+      return ResultBuilder(searchBloc);
     } else {
       showSuggestions(context);
       return Container();
@@ -171,10 +170,10 @@ class SearchBooksDelegate extends SearchDelegate<int> {
 class ResultBuilder extends StatelessWidget {
   ResultBuilder(this.bloc);
 
-  final ShelfPageBloc bloc;
+  final SearchBloc bloc;
 
   _refreshSearchList() {
-    bloc.dispatch(SetSearchState(true));
+    bloc.dispatch(SetSearchRefresh(true));
     bloc.dispatch(SearchResult());
   }
 
@@ -182,14 +181,23 @@ class ResultBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder(
       bloc: bloc,
-      builder: (BuildContext context, ShelfPageBlocState state) {
-        if (state.searching) return Center(child: CircularProgressIndicator());
+      builder: (BuildContext context, SearchBlocState state) {
+        if (state.refresh) return Center(child: CircularProgressIndicator());
         switch (state.currentSearchShelf) {
           case BookType.Manga:
-            return MangaResultCard(state.searchMangaResult, _refreshSearchList);
+            return MangaResultCard(
+              state.mangaResult,
+              state.mangaState,
+              _refreshSearchList,
+              bloc,
+            );
           case BookType.Doujinshi:
             return DoujinshiResultCard(
-                state.searchDoujinshiResult, _refreshSearchList);
+              state.doujinshiResult,
+              state.doujinshiState,
+              _refreshSearchList,
+              bloc,
+            );
           case BookType.Illustration:
             return IllustrationResultCard();
           default:
@@ -203,11 +211,15 @@ class ResultBuilder extends StatelessWidget {
 class MangaResultCard extends StatelessWidget {
   MangaResultCard(
     this.books,
+    this.searchState,
     this.refreshCallback,
+    this.searchBloc,
   );
 
-  final List<MangaBookModel> books;
+  final Map<BaseMangaSource, List<MangaBookModel>> books;
+  final Map<BaseMangaSource, SearchState> searchState;
   final Function refreshCallback;
+  final SearchBloc searchBloc;
 
   @override
   Widget build(BuildContext context) {
@@ -217,51 +229,57 @@ class MangaResultCard extends StatelessWidget {
 
 class DoujinshiResultCard extends StatelessWidget {
   DoujinshiResultCard(
-    this.books,
+    this.doujinshiBooks,
+    this.searchState,
     this.refreshCallback,
+    this.searchBloc,
   );
 
-  final List<DoujinshiBookModel> books;
+  final Map<BaseDoujinshiSource, List<DoujinshiBookModel>> doujinshiBooks;
+  final Map<BaseDoujinshiSource, SearchState> searchState;
   final Function refreshCallback;
+  final SearchBloc searchBloc;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-
-    Map<BaseDoujinshiSource, List<DoujinshiBookModel>> doujinshiCollection = {};
-    for (DoujinshiBookModel book in books) {
-      if (doujinshiCollection.containsKey(book.source))
-        doujinshiCollection[book.source].add(book);
-      else
-        doujinshiCollection[book.source] = [book];
-    }
+    final I18n i18n = I18n.of(context);
 
     return DefaultTabController(
-      length: doujinshiCollection.length,
+      length: doujinshiBooks.length,
       child: Stack(
         children: <Widget>[
           TabBarView(
-            children: doujinshiCollection.values
-                .map((List<DoujinshiBookModel> doujinshiBooks) {
+            children:
+                doujinshiBooks.values.map((List<DoujinshiBookModel> books) {
               return RefreshIndicator(
                 onRefresh: () => Future(refreshCallback),
                 child: ListView.builder(
-                  itemCount: doujinshiBooks.length,
+                  itemCount: books.length + 1,
                   itemBuilder: (BuildContext context, int index) {
-                    DoujinshiBookModel book = doujinshiBooks[index];
+                    if (index >= books.length) {
+                      return LoadMoreWidget(
+                        loadMoreCallback: () => searchBloc
+                            .dispatch(SearchMoreDoujinshi(books[0].source)),
+                        searchState: searchState[books[0].source],
+                      );
+                    }
+
+                    DoujinshiBookModel book = books[index];
 
                     return Container(
                       color: theme.cardColor,
                       height: 230.0,
                       margin: index == 0
                           ? const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 10.0)
-                          : index == books.length - 1
-                              ? const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 48.0)
-                              : const EdgeInsets.symmetric(vertical: 10.0),
+                          : const EdgeInsets.symmetric(vertical: 10.0),
                       child: Material(
                         child: InkWell(
                           onTap: () {
-                            print('$index: book.toString()');
+                            BlocProvider.of<AppBloc>(context)
+                                .dispatch(SetCurrentDetailData(book));
+                            Navigator.of(context)
+                                .pushNamed('/doujinshi_detail');
                           },
                           child: Row(
                             children: <Widget>[
@@ -314,7 +332,7 @@ class DoujinshiResultCard extends StatelessWidget {
                                                 maxLines: 1,
                                                 text: TextSpan(
                                                   text:
-                                                      '${I18n.of(context).text('language')}${book.languages.contains('translated') ? '(${I18n.of(context).text('translated')})' : ''}: ',
+                                                      '${i18n.text('language')}${book.languages.contains('translated') ? '(${i18n.text('translated')})' : ''}: ',
                                                   style: theme.textTheme.subhead
                                                       .copyWith(
                                                     fontWeight: FontWeight.bold,
@@ -349,7 +367,7 @@ class DoujinshiResultCard extends StatelessWidget {
                                                 maxLines: 2,
                                                 text: TextSpan(
                                                   text:
-                                                      '${I18n.of(context).text('artist')}: ',
+                                                      '${i18n.text('artist')}: ',
                                                   style: theme.textTheme.subhead
                                                       .copyWith(
                                                     fontWeight: FontWeight.bold,
@@ -378,8 +396,7 @@ class DoujinshiResultCard extends StatelessWidget {
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 2,
                                                 text: TextSpan(
-                                                  text:
-                                                      '${I18n.of(context).text('tag')}: ',
+                                                  text: '${i18n.text('tag')}: ',
                                                   style: theme.textTheme.subhead
                                                       .copyWith(
                                                     fontWeight: FontWeight.bold,
@@ -405,7 +422,7 @@ class DoujinshiResultCard extends StatelessWidget {
                                               maxLines: 1,
                                               text: TextSpan(
                                                 text:
-                                                    '${I18n.of(context).text('upload_date')}: ',
+                                                    '${i18n.text('upload_date')}: ',
                                                 style: theme.textTheme.subhead
                                                     .copyWith(
                                                   fontWeight: FontWeight.bold,
@@ -414,7 +431,7 @@ class DoujinshiResultCard extends StatelessWidget {
                                                 children: <TextSpan>[
                                                   TextSpan(
                                                     text:
-                                                        '${I18n.of(context).dateFormat(book.uploadDate)}',
+                                                        '${i18n.dateFormat(book.uploadDate)}',
                                                     style: theme
                                                         .textTheme.subhead
                                                         .copyWith(
@@ -451,10 +468,9 @@ class DoujinshiResultCard extends StatelessWidget {
                 child: TabBar(
                   isScrollable: true,
                   labelColor: theme.primaryColor,
-                  tabs: doujinshiCollection.keys
-                      .map((BaseDoujinshiSource source) => Tab(
-                            text: source.sourceName,
-                          ))
+                  tabs: doujinshiBooks.keys
+                      .map((BaseDoujinshiSource source) =>
+                          Tab(text: source.sourceName))
                       .toList(),
                 ),
               ),
@@ -472,5 +488,45 @@ class IllustrationResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container();
+  }
+}
+
+class LoadMoreWidget extends StatelessWidget {
+  const LoadMoreWidget({
+    Key key,
+    this.loadMoreCallback,
+    this.searchState,
+  });
+
+  final Function loadMoreCallback;
+  final SearchState searchState;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 48.0),
+      height: 120.0,
+      child: AnimatedCrossFade(
+        duration: const Duration(milliseconds: 100),
+        sizeCurve: Curves.fastOutSlowIn,
+        crossFadeState: searchState == SearchState.IsLoading
+            ? CrossFadeState.showSecond
+            : CrossFadeState.showFirst,
+        firstChild: searchState == SearchState.IsEnd
+            ? Container(
+                child: Text('The end of the world.'),
+              )
+            : FlatButton(
+                onPressed: () {
+                  if (loadMoreCallback != null) loadMoreCallback();
+                },
+                child: Icon(Icons.keyboard_arrow_down),
+              ),
+        secondChild: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    );
   }
 }

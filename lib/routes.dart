@@ -9,17 +9,17 @@ import 'package:bookshelf/views/about.dart';
 Route getRoutes(RouteSettings settings) {
   switch (settings.name) {
     case '/manga_detail':
-      return CustomPageRoute(builder: (_) => MangaDetailPage(), settings: settings);
+      return CustomPageRoute(builder: (context) => MangaDetailPage(), settings: settings);
     case '/doujinshi_detail':
-      return CustomPageRoute(builder: (_) => DoujinshiDetailPage(), settings: settings);
+      return CustomPageRoute(builder: (context) => DoujinshiDetailPage(), settings: settings);
     case '/theme':
-      return CustomPageRoute(builder: (_) => ThemePage(), settings: settings);
+      return CustomPageRoute(builder: (context) => ThemePage(), settings: settings);
     case '/settings':
-      return CustomPageRoute(builder: (_) => SettingsPage(), settings: settings);
+      return CustomPageRoute(builder: (context) => SettingsPage(), settings: settings);
     case '/about':
-      return CustomPageRoute(builder: (_) => AboutPage(), settings: settings);
+      return CustomPageRoute(builder: (context) => AboutPage(), settings: settings);
     default:
-      return CustomPageRoute(builder: (_) => AboutPage(), settings: settings);
+      return CustomPageRoute(builder: (context) => AboutPage(), settings: settings);
   }
 }
 

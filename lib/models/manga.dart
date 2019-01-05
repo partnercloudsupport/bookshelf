@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
-import 'package:bookshelf/sources/manga/manga.dart';
+import 'package:bookshelf/sources/source.dart';
+import 'package:bookshelf/models/model.dart';
 
 class MangaBookModel {
   MangaBookModel(
@@ -18,10 +19,24 @@ class MangaBookModel {
 
 class SearchMangaResultModel {
   SearchMangaResultModel({
+    @required this.source,
     @required this.result,
-    @required this.lastPage,
+    @required this.totalPages,
   });
 
+  final BaseMangaSource source;
   final List<MangaBookModel> result;
-  final bool lastPage;
+  final int totalPages;
+}
+
+class MangaSourceModel {
+  MangaSourceModel({
+    @required this.source,
+    this.enable = true,
+    this.filter,
+  });
+
+  final BaseMangaSource source;
+  final bool enable;
+  final List<FilterModel> filter;
 }

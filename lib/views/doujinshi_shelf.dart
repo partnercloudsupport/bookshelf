@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:bookshelf/blocs/bloc.dart';
 import 'package:bookshelf/locales/locale.dart';
+import 'package:bookshelf/views/widgets/search_button.dart';
 
 class DoujinshiShelf extends StatelessWidget {
   @override
@@ -16,12 +17,7 @@ class DoujinshiShelf extends StatelessWidget {
         AppBar(
           title: Text(I18n.of(context).text('doujinshi')),
           elevation: 0,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {},
-            )
-          ],
+          actions: <Widget>[SearchButton()],
         ),
         Expanded(
           child: BlocBuilder(
