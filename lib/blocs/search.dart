@@ -69,6 +69,17 @@ class SearchBloc extends Bloc<_SearchEvent, SearchBlocState> {
           break;
       }
     }
+    if (event is SetLoadMoreState) {
+      if (event.source is BaseMangaSource) {
+      } else if (event.source is BaseDoujinshiSource) {
+        if (currentState.doujinshiState.containsKey(event.source) &&
+            (currentState.doujinshiState[event.source] == SearchState.Idle)) {
+          currentState.doujinshiState[event.source] = SearchState.IsLoading;
+          this.dispatch(SearchMoreDoujinshi(event.source));
+          yield currentState.copyWith();
+        }
+      } else if (event.source is BaseIllustrationSource) {}
+    }
     if (event is SearchMoreManga) {}
     if (event is SearchMoreDoujinshi) {
       int nextPage = currentState.doujinshiPage[event.source].currentPage + 1;
@@ -275,6 +286,12 @@ class SetSearchRefresh extends _SearchEvent {
   SetSearchRefresh(this.refresh);
 
   final bool refresh;
+}
+
+class SetLoadMoreState extends _SearchEvent {
+  SetLoadMoreState(this.source);
+
+  final dynamic source;
 }
 
 class SearchResult extends _SearchEvent {

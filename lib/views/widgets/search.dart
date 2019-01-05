@@ -260,7 +260,7 @@ class DoujinshiResultCard extends StatelessWidget {
                     if (index >= books.length) {
                       return LoadMoreWidget(
                         loadMoreCallback: () => searchBloc
-                            .dispatch(SearchMoreDoujinshi(books[0].source)),
+                            .dispatch(SetLoadMoreState(books[0].source)),
                         searchState: searchState[books[0].source],
                       );
                     }
