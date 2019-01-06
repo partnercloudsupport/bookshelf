@@ -130,20 +130,19 @@ class NHentaiSource extends DoujinshiSource {
     }
     List<String> previewPages = [];
     List<String> pages = [];
-    () {
-      int count = 0;
-      bookResult['images']['pages'].forEach((page) {
-        count += 1;
-        previewPages.add('https://t.nhentai.net/galleries/' +
-            bookResult["media_id"].toString() +
-            '/${count}t' +
-            (page['t'].toString() == 'j' ? '.jpg' : '.png'));
-        pages.add('https://i.nhentai.net/galleries/' +
-            bookResult["media_id"].toString() +
-            '/$count' +
-            (page['t'].toString() == 'j' ? '.jpg' : '.png'));
-      });
-    }();
+
+    int count = 0;
+    bookResult['images']['pages'].forEach((page) {
+      count += 1;
+      previewPages.add('https://t.nhentai.net/galleries/' +
+          bookResult["media_id"].toString() +
+          '/${count}t' +
+          (page['t'].toString() == 'j' ? '.jpg' : '.png'));
+      pages.add('https://i.nhentai.net/galleries/' +
+          bookResult["media_id"].toString() +
+          '/$count' +
+          (page['t'].toString() == 'j' ? '.jpg' : '.png'));
+    });
 
     return DoujinshiBookModel(
       bookId: bookResult['id'].toString(),

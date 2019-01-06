@@ -83,8 +83,10 @@ class SearchBooksDelegate extends SearchDelegate<int> {
     final SearchBloc searchBloc = BlocProvider.of<SearchBloc>(parentContext);
     final I18n i18n = I18n.of(context);
 
-    changeSearchBooksType(BookType value) =>
-        searchBloc.dispatch(SetCurrentSearchShelf(value));
+    changeSearchBooksType(BookType value) {
+      searchBloc.dispatch(SetCurrentSearchShelf(value));
+      _currentQuery = '';
+    }
 
     return <Widget>[
       query.isNotEmpty
@@ -172,11 +174,6 @@ class ResultBuilder extends StatelessWidget {
 
   final SearchBloc bloc;
 
-  _refreshSearchList() {
-    bloc.dispatch(SetSearchRefresh(true));
-    bloc.dispatch(SearchResult());
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
@@ -188,14 +185,12 @@ class ResultBuilder extends StatelessWidget {
             return MangaResultCard(
               state.mangaResult,
               state.mangaState,
-              _refreshSearchList,
               bloc,
             );
           case BookType.Doujinshi:
             return DoujinshiResultCard(
               state.doujinshiResult,
               state.doujinshiState,
-              _refreshSearchList,
               bloc,
             );
           case BookType.Illustration:
@@ -212,13 +207,11 @@ class MangaResultCard extends StatelessWidget {
   MangaResultCard(
     this.books,
     this.searchState,
-    this.refreshCallback,
     this.searchBloc,
   );
 
   final Map<BaseMangaSource, List<MangaBookModel>> books;
   final Map<BaseMangaSource, SearchState> searchState;
-  final Function refreshCallback;
   final SearchBloc searchBloc;
 
   @override
@@ -231,13 +224,11 @@ class DoujinshiResultCard extends StatelessWidget {
   DoujinshiResultCard(
     this.doujinshiBooks,
     this.searchState,
-    this.refreshCallback,
     this.searchBloc,
   );
 
   final Map<BaseDoujinshiSource, List<DoujinshiBookModel>> doujinshiBooks;
   final Map<BaseDoujinshiSource, SearchState> searchState;
-  final Function refreshCallback;
   final SearchBloc searchBloc;
 
   @override
@@ -253,8 +244,12 @@ class DoujinshiResultCard extends StatelessWidget {
             children:
                 doujinshiBooks.values.map((List<DoujinshiBookModel> books) {
               return RefreshIndicator(
-                onRefresh: () => Future(refreshCallback),
+                onRefresh: () => Future(() {
+                      searchBloc.dispatch(SetSearchRefresh(true));
+                      searchBloc.dispatch(SearchResult());
+                    }),
                 child: ListView.builder(
+                  key: PageStorageKey(books.hashCode),
                   itemCount: books.length + 1,
                   itemBuilder: (BuildContext context, int index) {
                     if (index >= books.length) {
@@ -283,16 +278,20 @@ class DoujinshiResultCard extends StatelessWidget {
                           },
                           child: Row(
                             children: <Widget>[
-                              Container(
-                                width: 150.0,
-                                child: Card(
-                                  margin: const EdgeInsets.all(12.0),
-                                  elevation: 10.0,
-                                  clipBehavior: Clip.antiAlias,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(7.0)),
-                                  child: Image.network(book.coverUrl,
-                                      fit: BoxFit.cover),
+                              Hero(
+                                tag: book.hashCode,
+                                child: Container(
+                                  width: 150.0,
+                                  child: Card(
+                                    margin: const EdgeInsets.all(12.0),
+                                    elevation: 10.0,
+                                    clipBehavior: Clip.antiAlias,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(7.0)),
+                                    child: Image.network(book.coverUrl,
+                                        fit: BoxFit.cover),
+                                  ),
                                 ),
                               ),
                               Expanded(
@@ -498,7 +497,7 @@ class LoadMoreWidget extends StatelessWidget {
     this.searchState,
   });
 
-  final Function loadMoreCallback;
+  final VoidCallback loadMoreCallback;
   final SearchState searchState;
 
   @override

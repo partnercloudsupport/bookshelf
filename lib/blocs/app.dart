@@ -1,4 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:bookshelf/models/model.dart';
+import 'package:bookshelf/services/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
@@ -26,10 +28,15 @@ class AppBloc extends Bloc<_AppEvent, AppBlocState> {
       yield currentState.copyWith(
         themeDataList: event.themeDataList,
       );
-    if (event is SetCurrentDetailData)
+    if (event is SetCurrentDetailData) {
+      DoujinshiBookModel doujinshiBook = await DoujinshiSearchService()
+          .getDetail(
+              source: event.currentDetailData.source,
+              bookId: event.currentDetailData.bookId);
       yield currentState.copyWith(
-        currentDetailData: event.currentDetailData,
+        currentDetailData: doujinshiBook,
       );
+    }
   }
 }
 
@@ -99,8 +106,7 @@ class AppBlocState {
       currentDetailData.hashCode;
 
   @override
-  String toString() =>
-      '''AppBlocState {
+  String toString() => '''AppBlocState {
         nightMode: $nightMode,
         currentThemeData: $currentThemeData,
         themeDataList: $themeDataList,

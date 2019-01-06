@@ -49,7 +49,7 @@ class _MountainViewPageTransition extends StatelessWidget {
     @required this.child,
   })  : _positionAnimation = _customTween.animate(CurvedAnimation(
           parent: routeAnimation,
-          curve: Curves.fastOutSlowIn,
+          curve: Curves.easeInOut,
         )),
         _opacityAnimation = const AlwaysStoppedAnimation<double>(1.0),
         super(key: key);

@@ -18,17 +18,11 @@ class MangaSearchService extends SearchService {
 }
 
 class DoujinshiSearchService extends SearchService {
-  DoujinshiSearchService({
-    @required this.keyword,
-    @required this.sources,
-    this.page = 1,
-  });
-
-  final String keyword;
-  final List<BaseDoujinshiSource> sources;
-  final int page;
-
-  Future<List<SearchDoujinshiResultModel>> search() async {
+  Future<List<SearchDoujinshiResultModel>> search({
+    @required String keyword,
+    @required List<BaseDoujinshiSource> sources,
+    int page = 1,
+  }) async {
     List<SearchDoujinshiResultModel> result = [];
 
     for (BaseDoujinshiSource source in sources) {
@@ -38,5 +32,12 @@ class DoujinshiSearchService extends SearchService {
     }
 
     return result;
+  }
+
+  Future<DoujinshiBookModel> getDetail({
+    @required BaseDoujinshiSource source,
+    @required String bookId,
+  }) async {
+    return await source.getBookDetail(bookId);
   }
 }

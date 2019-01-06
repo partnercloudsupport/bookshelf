@@ -35,12 +35,12 @@ class SearchBloc extends Bloc<_SearchEvent, SearchBlocState> {
 
         case BookType.Doujinshi:
           List<SearchDoujinshiResultModel> searchResult =
-              await DoujinshiSearchService(
+              await DoujinshiSearchService().search(
             keyword: keyword,
             sources: <BaseDoujinshiSource>[
               NHentaiSource(),
             ],
-          ).search();
+          );
           Map<BaseDoujinshiSource, List<DoujinshiBookModel>> result = {};
           Map<BaseDoujinshiSource, SearchState> state = {};
           Map<BaseDoujinshiSource, SearchPageModel> page = {};
@@ -85,13 +85,14 @@ class SearchBloc extends Bloc<_SearchEvent, SearchBlocState> {
       int nextPage = currentState.doujinshiPage[event.source].currentPage + 1;
       if (nextPage <= currentState.doujinshiPage[event.source].totalPages ||
           currentState.doujinshiState[event.source] != SearchState.IsEnd) {
-        SearchDoujinshiResultModel searchResult = (await DoujinshiSearchService(
+        SearchDoujinshiResultModel searchResult =
+            (await DoujinshiSearchService().search(
           keyword: currentState.history[0],
           sources: <BaseDoujinshiSource>[
             event.source,
           ],
           page: nextPage,
-        ).search())[0];
+        ))[0];
 
         var result = currentState.doujinshiResult;
         result[event.source].addAll(searchResult.result);
@@ -108,28 +109,6 @@ class SearchBloc extends Bloc<_SearchEvent, SearchBlocState> {
         );
 
         yield currentState.copyWith();
-
-        // var result = Map.from(currentState.doujinshiResult);
-        // var books = List.from(result[event.source]);
-        // books.addAll(searchResult.result);
-        // result[event.source] = books;
-
-        // var state = Map.from(currentState.doujinshiState);
-        // state[event.source] = nextPage >= searchResult.totalPages
-        //     ? SearchState.IsEnd
-        //     : SearchState.Idle;
-
-        // var page = Map.from(currentState.doujinshiPage);
-        // page[event.source] = SearchPageModel(
-        //   currentPage: nextPage,
-        //   totalPages: searchResult.totalPages,
-        // );
-
-        // yield currentState.copyWith(
-        //   doujinshiResult: result,
-        //   doujinshiState: state,
-        //   doujinshiPage: page,
-        // );
       }
     }
     if (event is SearchMoreIllustration) {}
