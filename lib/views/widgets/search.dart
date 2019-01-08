@@ -3,6 +3,7 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:bookshelf/sources/source.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_networkimage/transition_to_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:bookshelf/blocs/bloc.dart';
@@ -46,7 +47,7 @@ class SearchBooksDelegate extends SearchDelegate<int> {
               onDismissed: (_) {
                 List<String> value = List.from(state.history);
                 value.removeAt(i);
-                searchBloc.dispatch(SetSearchHistory(value));
+                searchBloc.dispatch(SetHistory(value));
               },
               background: Container(color: theme.primaryColor),
               child: ListTile(
@@ -154,10 +155,10 @@ class SearchBooksDelegate extends SearchDelegate<int> {
         List<String> value = List.from(searchBloc.currentState.history);
         value.remove(query);
         value.insert(0, query);
-        searchBloc.dispatch(SetSearchHistory(value));
+        searchBloc.dispatch(SetHistory(value));
         _currentQuery = query;
 
-        searchBloc.dispatch(SetSearchRefresh(true));
+        searchBloc.dispatch(SetRefresh(true));
         searchBloc.dispatch(SearchResult(query));
       }
 
@@ -245,7 +246,7 @@ class DoujinshiResultCard extends StatelessWidget {
                 doujinshiBooks.values.map((List<DoujinshiBookModel> books) {
               return RefreshIndicator(
                 onRefresh: () => Future(() {
-                      searchBloc.dispatch(SetSearchRefresh(true));
+                      searchBloc.dispatch(SetRefresh(true));
                       searchBloc.dispatch(SearchResult());
                     }),
                 child: ListView.builder(
@@ -289,8 +290,12 @@ class DoujinshiResultCard extends StatelessWidget {
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(7.0)),
-                                    child: Image.network(book.coverUrl,
-                                        fit: BoxFit.cover),
+                                    child: TransitionToImage(
+                                      image: NetworkImage(book.coverUrl),
+                                      fit: BoxFit.fitWidth,
+                                      placeholder: const Icon(Icons.close),
+                                      enableRefresh: false,
+                                    ),
                                   ),
                                 ),
                               ),

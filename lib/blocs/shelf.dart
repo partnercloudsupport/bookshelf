@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 
 import 'package:bookshelf/models/model.dart';
 
@@ -16,10 +17,16 @@ class ShelfPageBloc extends Bloc<_ShelfPageEvent, ShelfPageBlocState> {
   }
 }
 
-class ShelfPageBlocState {
+abstract class _BlocState extends Equatable {
+  _BlocState([Iterable props]) : super(props);
+}
+
+class ShelfPageBlocState extends _BlocState {
   ShelfPageBlocState({
     this.currentShelf,
-  });
+  }) : super([
+          currentShelf,
+        ]);
 
   final BookType currentShelf;
 
@@ -38,31 +45,18 @@ class ShelfPageBlocState {
   }
 
   @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is ShelfPageBlocState &&
-          runtimeType == other.runtimeType &&
-          currentShelf == other.currentShelf;
-
-  @override
-  int get hashCode =>
-      currentShelf.hashCode;
-
-  @override
   String toString() => '''ShelfPageBlocState {
         currentShelf: $currentShelf,
       }''';
 }
 
-abstract class _ShelfPageEvent {}
+abstract class _ShelfPageEvent extends Equatable {}
 
 class SetCurrentShelf extends _ShelfPageEvent {
   SetCurrentShelf(this.currentShelf);
 
   final BookType currentShelf;
+
+  @override
+  String toString() => 'Set Current Shelf';
 }

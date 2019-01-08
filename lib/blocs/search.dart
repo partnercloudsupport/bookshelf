@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 
 import 'package:bookshelf/models/model.dart';
 import 'package:bookshelf/services/parser.dart';
@@ -15,11 +16,11 @@ class SearchBloc extends Bloc<_SearchEvent, SearchBlocState> {
       yield currentState.copyWith(
         currentSearchShelf: event.currentSearchShelf,
       );
-    if (event is SetSearchHistory)
+    if (event is SetHistory)
       yield currentState.copyWith(
         searchHistory: event.history,
       );
-    if (event is SetSearchRefresh)
+    if (event is SetRefresh)
       yield currentState.copyWith(
         refresh: event.refresh,
       );
@@ -29,7 +30,7 @@ class SearchBloc extends Bloc<_SearchEvent, SearchBlocState> {
       switch (currentState.currentSearchShelf) {
         case BookType.Manga:
           Map<BaseMangaSource, List<MangaBookModel>> result = {};
-          this.dispatch(SetSearchRefresh(false));
+          this.dispatch(SetRefresh(false));
           yield currentState.copyWith(mangaResult: result);
           break;
 
@@ -62,7 +63,7 @@ class SearchBloc extends Bloc<_SearchEvent, SearchBlocState> {
           break;
 
         case BookType.Illustration:
-          this.dispatch(SetSearchRefresh(false));
+          this.dispatch(SetRefresh(false));
           break;
 
         default:
@@ -115,7 +116,11 @@ class SearchBloc extends Bloc<_SearchEvent, SearchBlocState> {
   }
 }
 
-class SearchBlocState {
+abstract class _BlocState extends Equatable {
+  _BlocState([Iterable props]) : super(props);
+}
+
+class SearchBlocState extends _BlocState {
   SearchBlocState({
     this.currentSearchShelf,
     this.history,
@@ -129,7 +134,19 @@ class SearchBlocState {
     this.mangaPage,
     this.doujinshiPage,
     this.illustrationPage,
-  });
+  }) : super([
+          currentSearchShelf,
+          history,
+          mangaResult,
+          doujinshiResult,
+          illustrationResult,
+          mangaState,
+          doujinshiState,
+          illustrationState,
+          mangaPage,
+          doujinshiPage,
+          illustrationPage,
+        ]);
 
   final BookType currentSearchShelf;
   final List<String> history;
@@ -193,44 +210,6 @@ class SearchBlocState {
   }
 
   @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is SearchBlocState &&
-          runtimeType == other.runtimeType &&
-          currentSearchShelf == other.currentSearchShelf &&
-          history == other.history &&
-          mangaResult == other.mangaResult &&
-          doujinshiResult == other.doujinshiResult &&
-          illustrationResult == other.illustrationResult &&
-          refresh == other.refresh &&
-          mangaState == other.mangaState &&
-          doujinshiState == other.doujinshiState &&
-          illustrationState == other.illustrationState &&
-          mangaPage == other.mangaPage &&
-          doujinshiPage == other.doujinshiPage &&
-          illustrationPage == other.illustrationPage;
-
-  @override
-  int get hashCode =>
-      currentSearchShelf.hashCode ^
-      history.hashCode ^
-      mangaResult.hashCode ^
-      doujinshiResult.hashCode ^
-      illustrationResult.hashCode ^
-      refresh.hashCode ^
-      mangaState.hashCode ^
-      doujinshiState.hashCode ^
-      illustrationState.hashCode ^
-      mangaPage.hashCode ^
-      doujinshiPage.hashCode ^
-      illustrationPage.hashCode;
-
-  @override
   String toString() => '''SearchBlocState {
         currentSearchShelf: $currentSearchShelf,
         history: $history,
@@ -247,52 +226,76 @@ class SearchBlocState {
       }''';
 }
 
-abstract class _SearchEvent {}
+abstract class _SearchEvent extends Equatable {}
 
 class SetCurrentSearchShelf extends _SearchEvent {
   SetCurrentSearchShelf(this.currentSearchShelf);
 
   final BookType currentSearchShelf;
+
+  @override
+  String toString() => 'Set Current Search Shelf';
 }
 
-class SetSearchHistory extends _SearchEvent {
-  SetSearchHistory(this.history);
+class SetHistory extends _SearchEvent {
+  SetHistory(this.history);
 
   final List<String> history;
+
+  @override
+  String toString() => 'Set History';
 }
 
-class SetSearchRefresh extends _SearchEvent {
-  SetSearchRefresh(this.refresh);
+class SetRefresh extends _SearchEvent {
+  SetRefresh(this.refresh);
 
   final bool refresh;
+
+  @override
+  String toString() => 'Set Refresh';
 }
 
 class SetLoadMoreState extends _SearchEvent {
   SetLoadMoreState(this.source);
 
   final dynamic source;
+
+  @override
+  String toString() => 'Set loadmore State';
 }
 
 class SearchResult extends _SearchEvent {
   SearchResult([this.keyword]);
 
   final String keyword;
+
+  @override
+  String toString() => 'Search Result';
 }
 
 class SearchMoreManga extends _SearchEvent {
   SearchMoreManga(this.source);
 
   final BaseMangaSource source;
+
+  @override
+  String toString() => 'Search More Manga';
 }
 
 class SearchMoreDoujinshi extends _SearchEvent {
   SearchMoreDoujinshi(this.source);
 
   final BaseDoujinshiSource source;
+
+  @override
+  String toString() => 'Search More Doujinshi';
 }
 
 class SearchMoreIllustration extends _SearchEvent {
   SearchMoreIllustration(this.source);
 
   final BaseIllustrationSource source;
+
+  @override
+  String toString() => 'Search More Illustration';
 }

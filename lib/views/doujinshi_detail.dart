@@ -2,6 +2,7 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_advanced_networkimage/transition_to_image.dart';
 
 import 'package:bookshelf/blocs/bloc.dart';
 import 'package:bookshelf/models/model.dart';
@@ -69,8 +70,12 @@ class DoujinshiDetailPage extends StatelessWidget {
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(7.0)),
-                                          child: Image.network(book.coverUrl,
-                                              fit: BoxFit.cover),
+                                          child: TransitionToImage(
+                                            image: NetworkImage(book.coverUrl),
+                                            fit: BoxFit.cover,
+                                            placeholder: const Icon(Icons.close),
+                                            enableRefresh: false,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -142,6 +147,10 @@ class DoujinshiDetailPage extends StatelessWidget {
                                 color: theme.cardColor.withOpacity(0.5),
                                 padding: const EdgeInsets.fromLTRB(
                                     0.0, 20.0, 10.0, 20.0),
+                                height: book.previewPages != null &&
+                                        book.previewPages.length > 0
+                                    ? null
+                                    : 600.0,
                                 child: Column(
                                   children: <Widget>[
                                     TagWidget(
@@ -153,7 +162,11 @@ class DoujinshiDetailPage extends StatelessWidget {
                                         i18n.text('artist'), book.artists),
                                     TagWidget(i18n.text('group'), book.groups),
                                     TagWidget(
-                                        i18n.text('language'), book.languages),
+                                        '${i18n.text('language')}${book.languages.contains('translated') ? '(${i18n.text('translated')})' : ''}',
+                                        book.languages
+                                            .where((String lang) =>
+                                                lang != 'translated')
+                                            .toList()),
                                     TagWidget(
                                         i18n.text('category'), book.categories),
                                   ],
@@ -164,7 +177,8 @@ class DoujinshiDetailPage extends StatelessWidget {
                                   ? Container(
                                       color: theme.cardColor.withOpacity(0.5),
                                       height: 200.0,
-                                      padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 20.0),
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10.0, 10.0, 10.0, 20.0),
                                       child: ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         itemCount: book.previewPages.length,
@@ -173,7 +187,8 @@ class DoujinshiDetailPage extends StatelessWidget {
                                           return Container(
                                             width: 130.0,
                                             child: Image(
-                                              image: NetworkImage(book.previewPages[index]),
+                                              image: NetworkImage(
+                                                  book.previewPages[index]),
                                               fit: BoxFit.fitHeight,
                                             ),
                                           );

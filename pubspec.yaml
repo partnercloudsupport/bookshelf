@@ -3,7 +3,7 @@ description: (Ero)Manga viewer.
 version: 2.0.0-dev0
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -11,6 +11,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_bloc: any
+  equatable: any
   html: any
   sembast: any
   path_provider: any
