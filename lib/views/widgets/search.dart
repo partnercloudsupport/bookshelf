@@ -288,13 +288,11 @@ class DoujinshiResultCard extends StatelessWidget {
                                     elevation: 10.0,
                                     clipBehavior: Clip.antiAlias,
                                     shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(7.0)),
+                                      borderRadius: BorderRadius.circular(7.0),
+                                    ),
                                     child: TransitionToImage(
                                       image: NetworkImage(book.coverUrl),
-                                      fit: BoxFit.fitWidth,
-                                      placeholder: const Icon(Icons.close),
-                                      enableRefresh: false,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),

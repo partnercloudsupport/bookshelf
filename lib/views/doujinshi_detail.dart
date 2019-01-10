@@ -68,13 +68,12 @@ class DoujinshiDetailPage extends StatelessWidget {
                                           elevation: 10.0,
                                           clipBehavior: Clip.antiAlias,
                                           shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(7.0)),
+                                            borderRadius:
+                                                BorderRadius.circular(7.0),
+                                          ),
                                           child: TransitionToImage(
                                             image: NetworkImage(book.coverUrl),
                                             fit: BoxFit.cover,
-                                            placeholder: const Icon(Icons.close),
-                                            enableRefresh: false,
                                           ),
                                         ),
                                       ),
@@ -186,10 +185,14 @@ class DoujinshiDetailPage extends StatelessWidget {
                                             (BuildContext context, int index) {
                                           return Container(
                                             width: 130.0,
+                                            padding: index == 0
+                                                ? null
+                                                : const EdgeInsets.only(
+                                                    left: 10.0),
                                             child: Image(
                                               image: NetworkImage(
                                                   book.previewPages[index]),
-                                              fit: BoxFit.fitHeight,
+                                              fit: BoxFit.fitWidth,
                                             ),
                                           );
                                         },
@@ -255,6 +258,7 @@ class TagWidget extends StatelessWidget {
                       return Material(
                         color: Colors.transparent,
                         child: InkWell(
+                          borderRadius: BorderRadius.circular(50.0),
                           child: Ink(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(50.0),

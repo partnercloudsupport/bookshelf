@@ -31,7 +31,7 @@ class AppBloc extends Bloc<_AppEvent, AppBlocState> {
         themeDataList: event.themeDataList,
       );
     if (event is SetCurrentDetailData) {
-      // this.dispatch(RefreshDetailData());
+      this.dispatch(RefreshDetailData());
       yield currentState.copyWith(
         currentDetailData: event.currentDetailData,
       );
