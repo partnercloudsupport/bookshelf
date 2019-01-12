@@ -23,4 +23,7 @@ Map<String, String> lang = {
   'manga_detail': 'Manga Detail',
   'doujinshi_detail': 'Doujinshi Detail',
   'illustration_detail': 'Illustration Detail',
+  'favourite': 'Favourite',
+  'recent': 'Recent',
+  'downloaded': 'Downloaded',
 };

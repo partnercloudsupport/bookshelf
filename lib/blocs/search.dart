@@ -40,6 +40,7 @@ class SearchBloc extends Bloc<_SearchEvent, SearchBlocState> {
             keyword: keyword,
             sources: <BaseDoujinshiSource>[
               NHentaiSource(),
+              EHentaiSource(),
             ],
           );
           Map<BaseDoujinshiSource, List<DoujinshiBookModel>> result = {};
@@ -164,7 +165,7 @@ class SearchBlocState extends _BlocState {
 
   factory SearchBlocState.init() {
     return SearchBlocState(
-      currentSearchShelf: BookType.Manga,
+      currentSearchShelf: BookType.Doujinshi,
       history: [],
       mangaResult: {},
       doujinshiResult: {},

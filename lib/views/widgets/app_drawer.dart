@@ -133,6 +133,7 @@ class AppDrawer extends StatelessWidget {
                               : theme.unselectedWidgetColor,
                         ),
                       ),
+                      enabled: false,
                     ),
                   ),
                   onTap: () {

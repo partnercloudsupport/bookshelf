@@ -1,9 +1,10 @@
+import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import 'package:bookshelf/models/model.dart';
 import 'package:bookshelf/sources/source.dart';
 
-class DoujinshiBookModel {
+class DoujinshiBookModel extends Equatable {
   DoujinshiBookModel({
     this.bookId,
     this.name,
@@ -20,7 +21,12 @@ class DoujinshiBookModel {
     this.uploadDate,
     this.previewPages,
     this.pages,
-  });
+  }) : super([
+          bookId,
+          name,
+          originalName,
+          source,
+        ]);
 
   final String bookId;
   final String name;
@@ -39,24 +45,32 @@ class DoujinshiBookModel {
   final List<String> pages;
 }
 
-class SearchDoujinshiResultModel {
+class SearchDoujinshiResultModel extends Equatable {
   SearchDoujinshiResultModel({
     @required this.source,
     @required this.result,
     @required this.totalPages,
-  });
+  }) : super([
+          source,
+          result,
+          totalPages,
+        ]);
 
   final BaseDoujinshiSource source;
   final List<DoujinshiBookModel> result;
   final int totalPages;
 }
 
-class DoujinshiSourceModel {
+class DoujinshiSourceModel extends Equatable {
   DoujinshiSourceModel({
     @required this.source,
     this.enable = true,
     this.filter,
-  });
+  }) : super([
+          source,
+          enable,
+          filter,
+        ]);
 
   final BaseDoujinshiSource source;
   final bool enable;

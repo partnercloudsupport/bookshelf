@@ -2,7 +2,7 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_advanced_networkimage/transition_to_image.dart';
+import 'package:flutter_advanced_networkimage/transition.dart';
 
 import 'package:bookshelf/blocs/bloc.dart';
 import 'package:bookshelf/models/model.dart';
@@ -12,6 +12,7 @@ class DoujinshiDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
+    final ShelfPageBloc shelfPageBloc = BlocProvider.of<ShelfPageBloc>(context);
     final ThemeData theme = Theme.of(context);
     final I18n i18n = I18n.of(context);
 
@@ -39,9 +40,19 @@ class DoujinshiDetailPage extends StatelessWidget {
                       backgroundColor: theme.primaryColor.withOpacity(0.3),
                       elevation: 0,
                       actions: <Widget>[
-                        IconButton(
-                          icon: Icon(Icons.favorite),
-                          onPressed: () {},
+                        BlocBuilder(
+                          bloc: shelfPageBloc,
+                          builder:
+                              (BuildContext context, ShelfPageBlocState state) {
+                            return IconButton(
+                              icon: state.favoriteDoujinshi.contains(book)
+                                  ? Icon(Icons.favorite)
+                                  : Icon(Icons.favorite_border),
+                              onPressed: () => shelfPageBloc.dispatch(
+                                  SetFavoriteBook(book,
+                                      !state.favoriteDoujinshi.contains(book))),
+                            );
+                          },
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 15.0),

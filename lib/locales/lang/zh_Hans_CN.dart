@@ -23,4 +23,7 @@ Map<String, String> lang = {
   'manga_detail': '漫画 详情',
   'doujinshi_detail': '同人志 详情',
   'illustration_detail': '插画 详情',
+  'favourite': '喜欢',
+  'recent': '最近',
+  'downloaded': '已下载',
 };
