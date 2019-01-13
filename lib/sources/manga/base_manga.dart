@@ -1,5 +1,3 @@
-import 'package:bookshelf/sources/source.dart';
-
 abstract class BaseMangaSource {
   Future<List<String>> searchBooks(String keyword, {int page = 1});
   Future<Map> getBookDetail(String bookId);

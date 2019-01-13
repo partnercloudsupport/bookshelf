@@ -41,7 +41,7 @@ class DoujinshiShelf extends StatelessWidget {
                       borderRadius: BorderRadius.horizontal(
                         right: Radius.circular(50.0),
                       ),
-                      onTap: () {},
+                      // onTap: () {},
                       child: Container(
                         alignment: Alignment.centerLeft,
                         margin: const EdgeInsets.only(left: 25.0),
